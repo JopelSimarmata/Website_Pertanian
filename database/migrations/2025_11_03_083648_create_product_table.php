@@ -12,7 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('product', function (Blueprint $table) {
-            $table->id();
+            $table->id('product_id');
+            $table->unsignedBigInteger('category_id')->index();
+            $table->unsignedBigInteger('seller_id')->index();
+            $table->string('name', 255)->index();
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('price')->default(0); 
+            $table->unsignedInteger('stock')->default(0); 
+            $table->string('unit', 50)->nullable(); 
+            $table->decimal('rating', 3, 2)->default(0.00); 
+            $table->unsignedInteger('reviews_count')->default(0); 
+            $table->boolean('is_active')->default(true);
+            $table->string('location', 255)->nullable(); 
+            $table->text('detail_address')->nullable(); 
+            $table->string('farmer_email', 255)->nullable()->index(); 
+            $table->string('farmer_phone', 25)->nullable();
             $table->timestamps();
         });
     }

@@ -12,7 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('forum_threads', function (Blueprint $table) {
-            $table->id();
+            $table->id('thread_id');
+            $table->unsignedBigInteger('author_id')->index();
+            $table->string('title');
+            $table->text('content');
+            $table->json('tags')->nullable();
+            $table->unsignedInteger('views_count')->default(0);
+            $table->unsignedInteger('replies_count')->default(0);
+            $table->boolean('is_pinned')->default(false)->index();
+            $table->boolean('is_solved')->default(false)->index();
             $table->timestamps();
         });
     }
