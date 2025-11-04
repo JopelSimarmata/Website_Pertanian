@@ -7,18 +7,31 @@
     <title>Document</title>
 </head>
 <body>
-    <form action="/login" method="POST" style="max-width: 350px; margin: 40px auto; padding: 24px; border: 1px solid #ccc; border-radius: 8px; background: #fafafa; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+    <form action="/register" method="POST">
         @csrf
-        <h2 style="text-align: center; margin-bottom: 24px; font-size: 24px; color: #333;">Login</h2>
-        <div style="margin-bottom: 16px;">
-            <label for="email" style="display: block; margin-bottom: 6px; font-weight: 500;">Email:</label>
-            <input type="email" id="email" name="email" required style="width: 100%; padding: 8px; border: 1px solid #bbb; border-radius: 4px;">
+        <h2>Register</h2>
+        <div>
+            <label for="name">Nama Lengkap</label>
+            <input type="text" id="name" name="name" required>
         </div>
-        <div style="margin-bottom: 20px;">
-            <label for="password" style="display: block; margin-bottom: 6px; font-weight: 500;">Password:</label>
-            <input type="password" id="password" name="password" required style="width: 100%; padding: 8px; border: 1px solid #bbb; border-radius: 4px;">
+        <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
         </div>
-        <button type="submit" style="width: 100%; padding: 10px; background: #4CAF50; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;">Login</button>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <label for="password">Konfirmasi Password</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" required>
+        </div>
+        <div>
+            <label>Daftar Sebagai</label>
+            <label><input type="radio" name="daftarSebagai" value="petani">Petani</label>
+            <label><input type="radio" name="daftarSebagai" value="tengkulak">Tengkulak</label>
+        </div>
+        <button type="submit">Login</button>
     </form>
 </body>
 </html>
