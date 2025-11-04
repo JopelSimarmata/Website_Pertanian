@@ -5,7 +5,7 @@ export default function Login() {
     <div className="flex min-h-screen">
       {/* Left Section */}
       <div className="w-1/2 bg-green-900 bg-opacity-70 text-white flex flex-col justify-center px-16 relative bg-cover bg-center"
-           style={{ backgroundImage: "url('/images/farm-bg.jpg')" }}>
+           style={{ backgroundImage: "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" }}>
         <div className="absolute inset-0 bg-green-900/70"></div>
         <div className="relative z-10">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
