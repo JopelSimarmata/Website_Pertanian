@@ -17,6 +17,8 @@
   ```
 -->
 
+<x-navbar></x-navbar>
+
 
 
 
