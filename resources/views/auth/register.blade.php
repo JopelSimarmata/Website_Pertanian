@@ -6,7 +6,7 @@
   </div>
 
   <div class="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-    <form action="#" method="POST" class="space-y-4">
+    <form action="{{ route('register  ') }}" method="POST" class="space-y-4">
       @csrf
       <div>
         <label for="name" class="block text-sm font-medium text-gray-900">Nama Lengkap</label>
