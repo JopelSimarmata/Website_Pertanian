@@ -17,10 +17,13 @@
         </button>
       </div>
       <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-        <div class="flex shrink-0 items-center">
-          <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" class="h-8 w-auto" />
-        </div>
-        <div class="hidden sm:ml-6 sm:block">
+        <!-- Logo (hidden on mobile, visible on sm+) -->
+            <div class="hidden sm:flex shrink-0 items-center sm:ml-6">
+              <a href="/">
+                <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" class="h-8 w-auto" />
+              </a>
+            </div>
+            <div class="hidden sm:block absolute left-1/2 transform -translate-x-1/2">
           <div class="flex space-x-4">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
             <a href="#" aria-current="page" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white">Dashboard</a>
