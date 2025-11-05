@@ -1,72 +1,68 @@
-<!-- Include this script tag or install `@tailwindplus/elements` via npm: -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script> -->
-<nav class="relative bg-gray-800">
-  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-    <div class="relative flex h-16 items-center justify-between">
-      <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-        <!-- Mobile menu button-->
-        <button type="button" command="--toggle" commandfor="mobile-menu" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
-          <span class="absolute -inset-0.5"></span>
-          <span class="sr-only">Open main menu</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 in-aria-expanded:hidden">
-            <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 not-in-aria-expanded:hidden">
-            <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-        <!-- Logo (hidden on mobile, visible on sm+) -->
-            <div class="hidden sm:flex shrink-0 items-center sm:ml-6">
-              <a href="/">
-                <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" class="h-8 w-auto" />
-              </a>
-            </div>
-            <div class="hidden sm:block absolute left-1/2 transform -translate-x-1/2">
-          <div class="flex space-x-4">
-            <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
-            <a href="#" aria-current="page" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white">Dashboard</a>
-            <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Team</a>
-            <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Projects</a>
-            <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Calendar</a>
-          </div>
-        </div>
-      </div>
-      <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-        <button type="button" class="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
-          <span class="absolute -inset-1.5"></span>
-          <span class="sr-only">View notifications</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
-            <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </button>
+@php
+  // helper kelas aktif (pill hijau + putih)
+  function navActive($pattern) {
+      return request()->is($pattern)
+          ? 'inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-600 text-white shadow-sm'
+          : 'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-slate-800 hover:text-green-700';
+  }
+@endphp
 
-        <!-- Profile dropdown -->
-        <el-dropdown class="relative ml-3">
-          <button class="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
-            <span class="absolute -inset-1.5"></span>
-            <span class="sr-only">Open user menu</span>
-            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10" />
-          </button>
+<nav class="w-full bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-slate-100">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="h-16 flex items-center justify-between">
+      {{-- LEFT: logo + brand --}}
+      <a href="{{ route('home') }}" class="flex items-center gap-3">
+       <img src="{{ asset('img/logo.png') }}"
+         alt="LadangQu"
+         class="h-9 w-9 rounded-xl shadow-lg ring-1 ring-green-200 bg-green-500/90">
+        <span class="text-xl font-semibold text-green-700">LadangQu</span>
+      </a>
 
-          <el-menu anchor="bottom end" popover class="w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5 transition transition-discrete [--anchor-gap:--spacing(2)] data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:outline-hidden">Your profile</a>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:outline-hidden">Settings</a>
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:outline-hidden">Sign out</a>
-          </el-menu>
-        </el-dropdown>
+
+      {{-- CENTER: main nav --}}
+      <div class="hidden md:flex items-center gap-2">
+        {{-- Beranda (aktif kalau / atau /home) --}}
+        <a href="{{ route('home') }}" class="{{ navActive('/') }}">
+          <span class="font-semibold">Beranda</span>
+        </a>
+
+        {{-- Forum + ikon chat --}}
+        <a href="{{ route('forum.index') }}" class="{{ navActive('forum*') }}">
+          {{-- chat-bubble-left-right (Heroicons) --}}
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 {{ request()->is('forum*') ? 'text-white' : 'text-slate-500' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6M5 20l3-3h8a4 4 0 0 0 4-4V7a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v13z"/>
+          </svg>
+          <span>Forum</span>
+        </a>
+
+        {{-- Marketplace + ikon bag --}}
+        <a href="{{ route('market.index') }}" class="{{ navActive('market*') }}">
+          {{-- shopping-bag (Heroicons) --}}
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 {{ request()->is('market*') ? 'text-white' : 'text-slate-500' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 8h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 8a3 3 0 1 1 6 0"/>
+          </svg>
+          <span>Marketplace</span>
+        </a>
+      </div>
+
+      {{-- RIGHT: auth actions --}}
+      <div class="flex items-center">
+        <a href="{{ route('login') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-800 hover:bg-slate-50">
+          {{-- user icon --}}
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 20a8 8 0 1 1 16 0"/>
+          </svg>
+          <span>Masuk</span>
+        </a>
+
+        <a href="{{ route('register') }}"
+           class="ml-3 inline-flex items-center px-5 py-2 rounded-xl bg-green-600 text-white font-semibold shadow-[0_6px_20px_-6px_rgba(16,185,129,0.55)] hover:bg-green-700">
+          Daftar
+        </a>
       </div>
     </div>
   </div>
-
-  <el-disclosure id="mobile-menu" hidden class="block sm:hidden">
-    <div class="space-y-1 px-2 pt-2 pb-3">
-      <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
-      <a href="#" aria-current="page" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white">Dashboard</a>
-      <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Team</a>
-      <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Projects</a>
-      <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Calendar</a>
-    </div>
-  </el-disclosure>
 </nav>

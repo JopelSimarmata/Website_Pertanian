@@ -1,32 +1,23 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    {{-- Title tiap halaman diatur lewat @section('title') --}}
-    <title>@yield('title', 'LadangQu')</title>
-
-    {{-- Load CSS Tailwind --}}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     @vite('resources/css/app.css')
+    <title>LadangQu</title>
 </head>
+<body class="bg-[#ECFFE6] text-gray-900">
 
-<body class="bg-gray-50 text-gray-900">
+    {{-- NAVBAR --}}
+    @include('components.navbar')
 
-    {{-- Navbar Global --}}
-    @include('partials.navbar')
-
-    {{-- Tempat masuk konten halaman --}}
-    <main class="container mx-auto p-4">
+    {{-- CONTENT --}}
+    <div class="pt-24">
         @yield('content')
-    </main>
+    </div>
 
-    {{-- Footer Global --}}
-    @include('partials.footer')
+    {{-- FOOTER --}}
+    @include('components.footer')
 
-    {{-- Load JS --}}
-    @vite('resources/js/app.js')
 </body>
-
 </html>
