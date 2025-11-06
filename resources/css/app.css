@@ -1,4 +1,4 @@
-/* Import Poppins (chosen to match Figma-like look). If you prefer another font, tell me. */
+/* Import Poppins (matches Figma look); Tailwind utilities still used */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
 
 @import 'tailwindcss';
@@ -12,7 +12,7 @@
     --font-sans: 'Poppins', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
 
-/* Apply site-wide font. Tailwind utilities will inherit this font unless overridden. */
+/* Apply site font globally */
 html, body {
     font-family: var(--font-sans);
 }

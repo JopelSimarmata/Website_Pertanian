@@ -3,8 +3,8 @@
 @section('content')
 
 <!-- HERO -->
-<section class="max-w-7xl mx-auto px-6 lg:px-8 py-12">
-    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-10 relative overflow-hidden">
+<section id="marketplace" class="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-12 relative overflow-hidden">
         <div class="grid lg:grid-cols-2 gap-8 items-center">
 
             <div class="space-y-6">
@@ -13,16 +13,16 @@
                     Platform Pertanian Terpadu
                 </span>
 
-                <h1 class="text-5xl lg:text-6xl font-extrabold text-green-700 leading-tight">
+                <h1 class="text-[56px] md:text-[64px] lg:text-[72px] font-extrabold text-green-700 leading-tight">
                     Marketplace<br />Pertanian Terpadu
                 </h1>
 
-                <p class="text-gray-600 max-w-2xl">
+                <p class="text-lg text-gray-700 max-w-3xl">
                     Platform jual-beli hasil panen langsung dari petani dengan sistem transaksi aman. Petani dapat menjual sayuran, buah-buahan, biji-bijian, dan hasil panen lainnya. Pembeli dapat berbelanja dengan mudah, dan semua dapat berdiskusi di forum.
                 </p>
 
-                <div class="flex flex-wrap gap-4 mt-4">
-                    <a href="#forum" class="inline-flex items-center gap-2 px-5 py-3 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700">
+                <div class="flex flex-wrap gap-4 mt-6">
+                    <a href="#forum" class="inline-flex items-center gap-3 px-6 py-3 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700">
                         <!-- chat icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h6M5 20l3-3h8a4 4 0 0 0 4-4V7a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v13z"/>
@@ -30,7 +30,7 @@
                         Jelajahi Forum
                     </a>
 
-                    <a href="#marketplace" class="inline-flex items-center gap-2 px-5 py-3 border border-green-200 rounded-xl hover:bg-white">
+                    <a href="#marketplace" class="inline-flex items-center gap-3 px-6 py-3 border-2 border-green-200 rounded-xl hover:bg-white">
                         <!-- bag icon -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 8h12l-1 11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8z"/>
@@ -42,8 +42,8 @@
             </div>
 
             <div class="flex justify-end lg:pr-6">
-                <div class="bg-white rounded-2xl p-4 shadow-2xl transform translate-y-0 lg:translate-y-6" style="box-shadow: 0 30px 60px rgba(16,185,129,0.12);">
-                    <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=abcd" alt="Ladang" class="w-[520px] max-w-full h-80 object-cover rounded-xl border-4 border-white" />
+                <div class="bg-white rounded-2xl p-4 shadow-2xl transform translate-y-0 lg:translate-y-6" style="box-shadow: 0 50px 120px rgba(16,185,129,0.12);">
+                    <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=abcd" alt="Ladang" class="w-[600px] max-w-full h-96 object-cover rounded-xl border-6 border-white" />
                 </div>
             </div>
 
@@ -110,24 +110,9 @@
                     <h3 class="text-xl font-semibold">Forum Diskusi</h3>
                     <p class="text-gray-600 mt-2">Berbagi pengalaman, bertanya jawab, dan belajar dari petani berpengalaman. Diskusikan tips penanaman, penanganan hama, dan strategi pertanian modern.</p>
                     <ul class="mt-4 space-y-2 text-gray-600">
-                        <li class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Kategori diskusi lengkap
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Sistem voting dan komentar
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Expert verified answers
-                        </li>
+                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Kategori diskusi lengkap</li>
+                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Sistem voting dan komentar</li>
+                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Expert verified answers</li>
                     </ul>
                 </div>
             </div>
@@ -142,24 +127,9 @@
                     <h3 class="text-xl font-semibold">Marketplace Hasil Panen</h3>
                     <p class="text-gray-600 mt-2">Jual beli hasil panen dengan aman dan mudah. Temukan sayuran segar, buah-buahan berkualitas, biji-bijian, rempah-rempah, dan umbi-umbian langsung dari petani.</p>
                     <ul class="mt-4 space-y-2 text-gray-600">
-                        <li class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Produk terverifikasi
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Rating dan review pembeli
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Sistem pembayaran aman
-                        </li>
+                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Produk terverifikasi</li>
+                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Rating dan review pembeli</li>
+                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Sistem pembayaran aman</li>
                     </ul>
                 </div>
             </div>

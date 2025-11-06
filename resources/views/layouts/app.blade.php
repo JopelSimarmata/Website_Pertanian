@@ -11,8 +11,8 @@
     {{-- NAVBAR --}}
     @include('components.navbar')
 
-    {{-- CONTENT: navbar is static (non-sticky) so content doesn't need large top offset --}}
-    <div>
+    {{-- CONTENT: navbar is fixed at the top, add top padding so page content is not covered --}}
+    <div class="pt-20">
         @yield('content')
     </div>
 
