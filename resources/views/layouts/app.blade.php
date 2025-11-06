@@ -11,8 +11,8 @@
     {{-- NAVBAR --}}
     @include('components.navbar')
 
-    {{-- CONTENT --}}
-    <div class="pt-24">
+    {{-- CONTENT: navbar is static (non-sticky) so content doesn't need large top offset --}}
+    <div>
         @yield('content')
     </div>
 

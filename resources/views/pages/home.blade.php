@@ -110,9 +110,24 @@
                     <h3 class="text-xl font-semibold">Forum Diskusi</h3>
                     <p class="text-gray-600 mt-2">Berbagi pengalaman, bertanya jawab, dan belajar dari petani berpengalaman. Diskusikan tips penanaman, penanganan hama, dan strategi pertanian modern.</p>
                     <ul class="mt-4 space-y-2 text-gray-600">
-                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Kategori diskusi lengkap</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Sistem voting dan komentar</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Expert verified answers</li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Kategori diskusi lengkap
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Sistem voting dan komentar
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Expert verified answers
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -127,9 +142,24 @@
                     <h3 class="text-xl font-semibold">Marketplace Hasil Panen</h3>
                     <p class="text-gray-600 mt-2">Jual beli hasil panen dengan aman dan mudah. Temukan sayuran segar, buah-buahan berkualitas, biji-bijian, rempah-rempah, dan umbi-umbian langsung dari petani.</p>
                     <ul class="mt-4 space-y-2 text-gray-600">
-                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Produk terverifikasi</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Rating dan review pembeli</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✔</span> Sistem pembayaran aman</li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Produk terverifikasi
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Rating dan review pembeli
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Sistem pembayaran aman
+                        </li>
                     </ul>
                 </div>
             </div>
