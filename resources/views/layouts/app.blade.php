@@ -1,32 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    {{-- Title tiap halaman diatur lewat @section('title') --}}
     <title>@yield('title', 'LadangQu')</title>
 
-    {{-- Load CSS Tailwind --}}
-    @vite('resources/css/app.css')
+    {{-- ✅ Tambahkan Tailwind CDN --}}
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<body class="bg-gray-50 text-gray-900">
-
-    {{-- Navbar Global --}}
-    @include('partials.navbar')
-
-    {{-- Tempat masuk konten halaman --}}
-    <main class="container mx-auto p-4">
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
         @yield('content')
-    </main>
-
-    {{-- Footer Global --}}
-    @include('partials.footer')
-
-    {{-- Load JS --}}
-    @vite('resources/js/app.js')
+    </div>
 </body>
-
 </html>
