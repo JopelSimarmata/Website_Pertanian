@@ -61,8 +61,10 @@
 
       <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 space-x-2">
         <!-- Auth buttons: Masuk (login) and Daftar (register) -->
+        @guest
         <a href="/login" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Masuk</a>
         <a href="/register" class="inline-flex items-center px-3 py-1.5 border border-indigo-600 text-sm font-medium rounded-md text-indigo-100 bg-white/5 hover:bg-white/10">Daftar</a>
+<<<<<<< HEAD
 
       <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
         <button type="button" class="relative rounded-full p-1 text-gray-700 hover:text-gray-900 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
@@ -87,6 +89,19 @@
           </a-menu>
         </el-dropdown>
 
+=======
+        @endguest
+
+        @auth
+        <span class="text-gray-300">
+          Halo, {{ Auth::user()->name }}
+        </span>
+        <form method="POST" action="/logout">
+          @csrf
+        <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">Keluar</button>
+        </form>
+        @endauth
+>>>>>>> f47b7310b143e0ea2d268101c3912c4c0bfe4c08
       </div>
     </div>
   </div>
