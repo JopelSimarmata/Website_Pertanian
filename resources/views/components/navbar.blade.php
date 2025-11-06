@@ -37,6 +37,10 @@
         <!-- Auth buttons: Masuk (login) and Daftar (register) -->
         <a href="/login" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Masuk</a>
         <a href="/register" class="inline-flex items-center px-3 py-1.5 border border-indigo-600 text-sm font-medium rounded-md text-indigo-100 bg-white/5 hover:bg-white/10">Daftar</a>
+        <form method="POST" action="/logout">
+          @csrf
+        <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">Keluar</button>
+        </form>
       </div>
     </div>
   </div>
