@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ForumThreadController;
 
 
+
 Route::get('/', function () {
     return view('pages.home');
 })->name('home');
@@ -17,9 +18,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/register',[AuthController::class, 'register'])->name('register');
     Route::post('/login',[AuthController::class, 'login'])->name('login');
 });
-
-
-
 
 
 Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index');
