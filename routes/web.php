@@ -5,12 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ForumThreadController;
 
 
-
 Route::get('/', function () {
-    return view('pages.home');
-})->name('home');
+    return view('auth.login');
+})->name('login');
 
-Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register',[AuthController::class, 'showRegister'])->name('show.register');
