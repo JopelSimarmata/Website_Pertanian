@@ -6,8 +6,10 @@ use App\Http\Controllers\ForumThreadController;
 
 
 Route::get('/', function () {
-    return view('auth.login');
-})->name('login');
+    return view('pages.home');
+})->name('home');
+
+Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
 
 Route::middleware('guest')->group(function () {
@@ -18,6 +20,8 @@ Route::middleware('guest')->group(function () {
 });
 
 
+
 Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index');
 Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
 Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
+Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->name('forum.detail');

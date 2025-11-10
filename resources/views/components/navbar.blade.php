@@ -19,42 +19,46 @@
         
         <div class="hidden sm:flex shrink-0 items-center sm:ml-6">
           <a href="/" class="flex items-center">
-            <img src="{{ asset('image/01e35f46-57bb-4a33-beb5-c003fd08afea-removebg-preview.png') }}" alt="LadangQu" class="h-8 w-auto" />            
+            <img src="{{ asset('image/logo.png') }}" alt="LadangQu" class="h-8 w-auto" />            
             <span class="ml-2 text-xl font-bold text-green-600">LadangQu</span>
           </a>
         </div>
 
         <div class="hidden sm:block absolute left-1/2 transform -translate-x-1/2">
           <div class="flex space-x-4">
+
             
-            <a href="#" aria-current="page" class="flex items-center rounded-md bg-green-500 px-3 py-2 text-sm font-medium text-white">
+            <a href="/" aria-current="page" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('/') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd" />
               </svg>
               <span>Beranda</span>
             </a>
 
-            <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+            <a href="/forum" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('forum*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.186 1.186 0 0 1 .863-.501c1.153-.086 2.305-.213 3.458-.379 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
               </svg>
               <span>Forum</span>
             </a>
 
-            <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+            <a href="/marketplace" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
               </svg>
               <span>Marketplace</span>
             </a>
 
-            <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+
+            @auth
+            <a href="/visit" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('visit*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
               </svg>
               <span>Kunjungan Lokasi</span>
             </a>
+            @endauth
           </div>
         </div>
       </div>
@@ -103,12 +107,12 @@
     </div>
   </div>
 
-  <el-disclosure id="mobile-menu" hidden class="block sm:hidden border-t border-gray-200">
+      <el-disclosure id="mobile-menu" hidden class="block sm:hidden border-t border-gray-200">
     <div class="space-y-1 px-2 pt-2 pb-3">
-      <a href="#" aria-current="page" class="block rounded-md bg-green-500 px-3 py-2 text-base font-medium text-white">Beranda</a>
-      <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Forum</a>
-      <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Marketplace</a>
-      <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Kunjungan Lokasi</a>
+      <a href="/" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('/') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Beranda</a>
+      <a href="/forum" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('forum*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Forum</a>
+      <a href="/marketplace" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Marketplace</a>
+      <a href="/visit" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('visit*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Kunjungan Lokasi</a>
     </div>
   </el-disclosure>
 </nav>

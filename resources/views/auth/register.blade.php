@@ -1,15 +1,15 @@
 <x-layout>
-  <div class="min-h-screen bg-gradient-to-r from-emerald-50 to-emerald-100">
+  <div class="min-h-screen bg-gradient-to-r from-green-100 to-green-20">
     <div class="max-w-7xl mx-auto px-6 py-12">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
         <!-- Left: welcome, image, stats -->
         <div class="space-y-8">
           <div class="flex items-center gap-3">
-            <div class="bg-emerald-600 rounded-xl p-3 shadow-md">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-3.866 0-6-4-6S4 7.134 4 11s1.791 6 8 6 8-2.134 8-6-4-6-8-6z" />
-              </svg>
+            <div class="rounded-xl overflow-hidden">
+              <a href="/">
+                <img src="{{ asset('image/logo.png') }}" alt="LadangQu" class="h-15 w-15 object-cover block"> 
+              </a>
             </div>
             <h1 class="text-2xl lg:text-3xl font-extrabold text-emerald-800">LadangQu</h1>
           </div>
@@ -121,7 +121,7 @@
               </div>
 
               <div>
-                <button type="submit" class="w-full rounded-md bg-emerald-600 hover:bg-emerald-500 text-white py-2 font-semibold">Daftar</button>
+                <button type="submit" class="w-full rounded-md bg-green-500 hover:bg-green-600 text-white py-2 font-semibold">Daftar</button>
               </div>
             </form>
 

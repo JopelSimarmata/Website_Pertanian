@@ -34,4 +34,10 @@ class ForumThreadController extends Controller
 
         return redirect()->route('forum.index')->with('success', 'Thread berhasil dibuat!');
     }
+
+    public function detail($id)
+    {
+        $thread = ForumThread::findOrFail($id);
+        return view('forum.detail', compact('thread'));
+    }
 }
