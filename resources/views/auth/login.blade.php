@@ -97,6 +97,21 @@
 
       </div>
     </div>
+      @if ($errors->any())
+      <div class="mt-4">
+        <ul class="list-disc list-inside text-sm text-red-600">
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+      @endif
+    </form>
+
+    <p class="mt-6 text-center text-sm text-gray-500">
+      Belum punya akun?
+      <a href="/register" class="font-semibold text-indigo-600 hover:text-indigo-500">Daftar sekarang</a>
+    </p>
   </div>
 
   <!-- small script to toggle password visibility -->
