@@ -2,9 +2,15 @@
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-10 px-8">
 
         <div>
+<<<<<<< Updated upstream
             <a href="{{ url('/') }}" class="flex items-center gap-3 mb-3">
                 <img src="{{ asset('img/logo.png') }}" alt="LadangQu" class="h-5 w-5 rounded-md">
                 <span class="text-green-400 text-lg font-semibold">LadangQu</span>
+=======
+            <a href="{{ route('home') }}" class="flex items-center gap-3 mb-3">
+                <img src="{{ asset('img/logo.png') }}" alt="LadangQu" class="h-6 w-6 rounded-md">
+                <span class="text-green-400 text-xl font-bold">LadangQu</span>
+>>>>>>> Stashed changes
             </a>
             <p class="text-sm text-gray-300">
                 Platform forum dan marketplace pertanian terpadu untuk Indonesia.
@@ -32,14 +38,22 @@
         <div>
             <h3 class="font-semibold mb-3">Kontak</h3>
             <p class="text-gray-300 text-sm flex items-center gap-2">
+<<<<<<< Updated upstream
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+=======
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+>>>>>>> Stashed changes
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 8.5v7A2.5 2.5 0 0 0 5.5 18h13a2.5 2.5 0 0 0 2.5-2.5v-7A2.5 2.5 0 0 0 18.5 6h-13A2.5 2.5 0 0 0 3 8.5z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.5l-9 6-9-6"/>
                 </svg>
                 info@LadangQu.com
             </p>
             <p class="text-gray-300 text-sm flex items-center gap-2 mt-1">
+<<<<<<< Updated upstream
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+=======
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+>>>>>>> Stashed changes
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 0 1 2-2h3.6a1 1 0 0 1 .8.4l1.5 2a1 1 0 0 1-.1 1.2L9.5 9a11 11 0 0 0 4 4l1.9-1.3a1 1 0 0 1 1.2-.1l2 1.2a1 1 0 0 1 .4.8V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5z"/>
                 </svg>
                 (021) 1234-5678
