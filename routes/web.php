@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ForumThreadController;
+
 
 
 Route::get('/', function () {
@@ -18,7 +20,6 @@ Route::middleware('guest')->group(function () {
 });
 
 
-
-
-
-
+Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index');
+Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
+Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
