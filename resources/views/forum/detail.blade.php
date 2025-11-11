@@ -1,6 +1,5 @@
 <x-layout>
 <x-navbar></x-navbar>
-// Detail view for a forum thread with full content display with comment section can be added here.
 
 <div class="max-w-7xl mx-auto px-6 py-12">
     <div class="bg-white rounded-xl shadow p-6">

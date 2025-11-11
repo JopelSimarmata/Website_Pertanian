@@ -22,7 +22,7 @@
           <article class="bg-white rounded-xl shadow p-4">
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <a href="/forum/{{ Auth::user()->id }}" class="text-lg font-semibold text-emerald-800 hover:underline">{{ $thread->title }}</a>
+                <a href="/forum" class="text-lg font-semibold text-emerald-800 hover:underline">{{ $thread->title }}</a>
                 <p class="mt-2 text-sm text-gray-600">{{ \Illuminate\Support\Str::limit(strip_tags($thread->content), 200) }}</p>
                 <div class="mt-3 text-xs text-gray-400">Dipost oleh: {{ $thread->author_id }} • {{ $thread->created_at->diffForHumans() }}</div>
               </div>

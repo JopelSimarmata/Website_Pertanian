@@ -25,3 +25,7 @@ Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index
 Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
 Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
 Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->name('forum.detail');
+
+Route::get('/marketplace', function () {
+    return view('marketplace.index');
+})->name('marketplace');

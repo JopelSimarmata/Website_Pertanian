@@ -18,6 +18,7 @@ class ForumThreadController extends Controller
     {
         return view('forum.add');
     }
+    
 
     public function store(Request $request)
     {
