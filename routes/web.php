@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForumThreadController;
+use App\Http\Controllers\VisitRequestController;
 
 
 Route::get('/', function () {
@@ -25,6 +26,8 @@ Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index
 Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
 Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
 Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->name('forum.detail');
+
+Route::get('/visit-requests', [VisitRequestController::class, 'index'])->name('visit_requests.index');
 
 Route::get('/marketplace', function () {
     return view('marketplace.index');

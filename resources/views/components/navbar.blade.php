@@ -51,7 +51,7 @@
 
 
             @auth
-            <a href="/visit" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('visit*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="/visit-requests" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
@@ -107,7 +107,7 @@
       <a href="/" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('/') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Beranda</a>
       <a href="/forum" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('forum*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Forum</a>
       <a href="/marketplace" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Marketplace</a>
-      <a href="/visit" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('visit*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Kunjungan Lokasi</a>
+      <a href="/visit-requests" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Kunjungan Lokasi</a>
     </div>
   </el-disclosure>
 </nav>
