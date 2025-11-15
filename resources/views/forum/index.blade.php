@@ -1,4 +1,3 @@
-
 <x-layout>
 
 <x-navbar></x-navbar>
@@ -11,7 +10,7 @@
 
       <!-- Search + filters bar -->
       <div class="mt-6 flex flex-col md:flex-row items-center gap-4">
-        <form method="GET" action="{{ route('forum.index') }}" class="flex-1 flex gap-3 items-center">
+        <form id="forum-filter" method="GET" action="{{ route('forum.index') }}" class="flex-1 flex gap-3 items-center">
           <label for="q" class="sr-only">Cari diskusi</label>
           <div class="flex items-center w-full bg-white rounded-full shadow-sm border border-emerald-100 px-4 py-2">
             <svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path></svg>
@@ -24,14 +23,14 @@
         </form>
 
         <div class="flex items-center gap-3">
-          <select name="category" onchange="this.form ? this.form.submit() : null" form="forum-filter" class="bg-white border rounded-full px-4 py-2 text-sm">
+          <select name="category" onchange="document.getElementById('forum-filter').submit()" form="forum-filter" class="bg-white border rounded-full px-4 py-2 text-sm">
             <option value="">Semua Kategori</option>
             @foreach($categories ?? [] as $cat)
               <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
             @endforeach
           </select>
 
-          <select name="status" onchange="this.form ? this.form.submit() : null" form="forum-filter" class="bg-white border rounded-full px-4 py-2 text-sm">
+          <select name="status" onchange="document.getElementById('forum-filter').submit()" form="forum-filter" class="bg-white border rounded-full px-4 py-2 text-sm">
             <option value="">Semua Status</option>
             <option value="open" {{ request('status')=='open' ? 'selected' : '' }}>Terbuka</option>
             <option value="resolved" {{ request('status')=='resolved' ? 'selected' : '' }}>Terselesaikan</option>
@@ -63,8 +62,9 @@
               'id' => $thread->id,
               'liked' => $thread->is_liked ?? false,
               'bookmarked' => $thread->is_bookmarked ?? false,
-              'likeUrl' => route('forum.like', $thread->id ?? 0),
-              'bookmarkUrl' => route('forum.bookmark', $thread->id ?? 0),
+              // kirim model (atau id) sesuai route parameter agar tidak terjadi missing parameter
+              'likeUrl' => route('forum.like', $thread),
+              'bookmarkUrl' => route('forum.bookmark', $thread),
             ];
           @endphp
 
@@ -74,7 +74,7 @@
           >
             <div class="flex items-start justify-between">
               <div class="flex-1 pr-4">
-                <a href="{{ route('forum.show', $thread->id) }}" class="text-lg font-semibold text-emerald-800 hover:underline">{{ $thread->title }}</a>
+                <a href="{{ route('forum.detail', $thread) }}" class="text-lg font-semibold text-emerald-800 hover:underline">{{ $thread->title }}</a>
 
                 <p class="mt-2 text-sm text-gray-600">{{ \Illuminate\Support\Str::limit(strip_tags($thread->content), 200) }}</p>
 
@@ -135,7 +135,11 @@
 
         <!-- Pagination -->
         <div class="mt-6">
-          {{ $threads->withQueryString()->links() }}
+          @if(method_exists($threads, 'withQueryString'))
+            {{ $threads->withQueryString()->links() }}
+          @elseif(method_exists($threads, 'links'))
+            {{ $threads->links() }}
+          @endif
         </div>
       </div>
     @endif
