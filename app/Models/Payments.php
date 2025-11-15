@@ -2,32 +2,42 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Order;
-use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payments extends Model
 {
+    use HasFactory;
+
     protected $table = 'payments';
     protected $primaryKey = 'payment_id';
 
     protected $fillable = [
-        'order_id',
+        'buyer_id',
+        'request_id',
         'amount',
         'payment_method',
         'status',
-        'transaction_id',
+        'sender_name',
+        'sender_account',
+        'payment_proof_url',
+        'payment_notes',
     ];
 
-    // Payment milik satu Order
-    public function order()
+    /**
+     * Relasi ke pembeli (user)
+     */
+    public function buyer(): BelongsTo
     {
-        return $this->belongsTo(Order::class, 'order_id', 'order_id');
+        return $this->belongsTo(User::class, 'buyer_id', 'user_id');
     }
 
-    // Jika ada model Transaction, Payment milik satu Transaction
-    public function transaction()
+    /**
+     * Relasi ke permintaan kunjungan (visit request)
+     */
+    public function request(): BelongsTo
     {
-        return $this->belongsTo(Transaction::class, 'transaction_id', 'transaction_id');
+        return $this->belongsTo(VisitRequest::class, 'request_id', 'request_id');
     }
 }
