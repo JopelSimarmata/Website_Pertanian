@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForumThreadController;
 use App\Http\Controllers\VisitRequestController;
+use App\Http\Controllers\MarketplaceProductController;
 
 
 Route::get('/', function () {
@@ -30,5 +31,18 @@ Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->name('forum
 Route::get('/visit-requests', [VisitRequestController::class, 'index'])->name('visit_requests.index');
 
 Route::get('/marketplace', function () {
-    return view('marketplace.index');
+    // Load products from DB (expects table `product` and Product model to be configured)
+    // Use the Product model so factories and relationships apply.
+    $products = [];
+    try {
+        $products = \App\Models\Product::where('is_active', true)->get();
+    } catch (\Throwable $e) {
+        // If DB not available or model/table mismatch, leave products empty.
+        $products = collect();
+    }
+
+    return view('marketplace.index', compact('products'));
 })->name('marketplace');
+
+// Product detail route for marketplace (uses controller we added)
+Route::get('/marketplace/{id}', [MarketplaceProductController::class, 'show'])->name('marketplace.show');
