@@ -13,8 +13,8 @@
                                 <!-- Favorite (heart) button top-right -->
                                 @guest
                                     <button type="button" class="absolute top-3 right-3 bg-white/90 rounded-full p-2 shadow require-login" aria-label="Tambahkan ke favorit" title="Tambahkan ke favorit (silakan masuk terlebih dahulu)">
-                                        <!-- outline heart for guest -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <!-- outline heart for guest (black stroke) -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.172 7.172a4.5 4.5 0 016.364 0L12 9.636l2.464-2.464a4.5 4.5 0 116.364 6.364L12 21.364l-8.828-8.828a4.5 4.5 0 010-6.364z" />
                                         </svg>
                                     </button>
@@ -114,5 +114,41 @@
 // small helper: swap main image when clicking thumbs (already inline on buttons)
 </script>
 @include('marketplace._login_prompt_modal')
+
+<script>
+    (function(){
+        var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+        var csrf = tokenMeta ? tokenMeta.getAttribute('content') : '{{ csrf_token() }}';
+
+        function toggleFavorite(btn){
+            var id = btn.getAttribute('data-product-id');
+            if(!id) return;
+            btn.disabled = true;
+
+            fetch('/favorites/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ product_id: id })
+            }).then(function(res){ return res.json(); })
+            .then(function(json){
+                if(json.status === 'added'){
+                    btn.innerHTML = '<svg class="h-5 w-5 text-rose-500" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.657 3.172 10.828a4 4 0 010-5.656z" clip-rule="evenodd" /></svg>';
+                } else if(json.status === 'removed'){
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.172 7.172a4.5 4.5 0 016.364 0L12 9.636l2.464-2.464a4.5 4.5 0 116.364 6.364L12 21.364l-8.828-8.828a4.5 4.5 0 010-6.364z" /></svg>';
+                }
+            }).catch(function(){
+            }).finally(function(){ btn.disabled = false; });
+        }
+
+        document.addEventListener('click', function(e){
+            var t = e.target.closest && e.target.closest('.js-toggle-favorite');
+            if(t){ e.preventDefault(); toggleFavorite(t); }
+        });
+    })();
+</script>
 
 @endsection

@@ -41,10 +41,10 @@
               @if(isset($product->available) && $product->available)
                 <div class="absolute left-3 top-3 bg-emerald-600 text-white text-xs px-2 py-1 rounded">Tersedia</div>
               @endif
-              @guest
+                @guest
                 <button aria-label="Tambahkan ke favorit" class="absolute right-3 top-3 bg-white rounded-full w-9 h-9 flex items-center justify-center shadow require-login" title="Tambahkan ke favorit (silakan masuk terlebih dahulu)">
-                  <!-- outline heart for guests -->
-                  <svg class="w-5 h-5 text-rose-500" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <!-- outline heart for guests (black stroke) -->
+                  <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.172 7.172a4.5 4.5 0 016.364 0L12 9.636l2.464-2.464a4.5 4.5 0 116.364 6.364L12 21.364l-8.828-8.828a4.5 4.5 0 010-6.364z" />
                   </svg>
                 </button>
@@ -138,4 +138,47 @@
   
   {{-- include login prompt modal for guest CTA --}}
   @include('marketplace._login_prompt_modal')
+  
+  <script>
+    (function(){
+      // get CSRF token
+      var token = document.querySelector('meta[name="csrf-token"]');
+      var csrf = token ? token.getAttribute('content') : '{{ csrf_token() }}';
+
+      function toggleFavorite(btn){
+        var id = btn.getAttribute('data-product-id');
+        if(!id) return;
+        btn.disabled = true;
+
+        fetch('/favorites/toggle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrf,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ product_id: id })
+        }).then(function(res){ return res.json(); })
+        .then(function(json){
+          if(json.status === 'added'){
+            // set filled heart
+            btn.innerHTML = '<svg class="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12.001 4.529c1.688-2.02 5.063-2.02 6.752 0 1.67 2.00 1.58 5.145-.223 7.082L12 21.35l-6.53-9.739c-1.803-1.937-1.893-5.082-.223-7.082 1.689-2.02 5.064-2.02 6.754 0z"/></svg>';
+          } else if(json.status === 'removed'){
+            // outline heart (black stroke)
+            btn.innerHTML = '<svg class="w-5 h-5 text-black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.172 7.172a4.5 4.5 0 016.364 0L12 9.636l2.464-2.464a4.5 4.5 0 116.364 6.364L12 21.364l-8.828-8.828a4.5 4.5 0 010-6.364z" /></svg>';
+          }
+        }).catch(function(){
+          // on error, do nothing for now
+        }).finally(function(){ btn.disabled = false; });
+      }
+
+      document.addEventListener('click', function(e){
+        var t = e.target.closest && e.target.closest('.js-toggle-favorite');
+        if(t){
+          e.preventDefault();
+          toggleFavorite(t);
+        }
+      });
+    })();
+  </script>
 </x-layout>

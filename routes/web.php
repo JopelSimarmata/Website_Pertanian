@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForumThreadController;
 use App\Http\Controllers\VisitRequestController;
 use App\Http\Controllers\MarketplaceProductController;
+use App\Http\Controllers\FavoriteController;
 
 
 Route::get('/', function () {
@@ -46,3 +47,6 @@ Route::get('/marketplace', function () {
 
 // Product detail route for marketplace (uses controller we added)
 Route::get('/marketplace/{id}', [MarketplaceProductController::class, 'show'])->name('marketplace.show');
+
+// Favorites toggle route (AJAX) - requires auth
+Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle')->middleware('auth');
