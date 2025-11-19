@@ -67,7 +67,7 @@
             <div class="mt-3 text-xs text-gray-500">Penjual: Petani Tomat Makmur</div>
 
             <div class="mt-4">
-              <a href="#" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500">Lihat Detail & Tinjau Lokasi</a>
+              <a href="/marketplace/1" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500">Lihat Detail & Tinjau Lokasi</a>
             </div>
           </div>
         </div>

@@ -35,3 +35,7 @@ Route::get('/visit-requests', [VisitRequestController::class, 'index'])->name('v
 Route::get('/marketplace', function () {
     return view('marketplace.index');
 })->name('marketplace');
+
+Route::get('/marketplace/{id}', function ($id) {
+    return view('marketplace.detail', ['id' => $id]);
+})->name('marketplace.detail');
