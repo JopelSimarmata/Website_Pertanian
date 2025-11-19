@@ -88,7 +88,7 @@
               </button>
 
               <el-menu anchor="bottom end" popover class="w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5">
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700">Profile</a>
+                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700">Profile</a>
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700">Settings</a>
                 <form method="POST" action="/logout">
                   @csrf
