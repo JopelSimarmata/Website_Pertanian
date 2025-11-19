@@ -1,50 +1,51 @@
 <x-layout>
-
 <x-navbar></x-navbar>
+<div class="bg-white">
+  <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+    <h2 class="text-2xl font-bold text-emerald-800">Products</h2>
 
-  <div class="max-w-7xl mx-auto px-6 py-12">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-emerald-800">Marketplace</h1>
-      @auth
-      <a href="/marketplace/add" class="inline-block rounded-md bg-emerald-600 text-white px-4 py-2 hover:bg-emerald-500">Tambah Produk</a>
-      @endauth
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Earthen Bottle</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$48</p>
+      </a>
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-02.jpg" alt="Olive drab green insulated bottle with flared screw lid and flat top." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Nomad Tumbler</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$35</p>
+      </a>
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-03.jpg" alt="Person using a pen to cross a task off a productivity paper card." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Focus Paper Refill</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$89</p>
+      </a>
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-04.jpg" alt="Hand holding black machined steel mechanical pencil with brass tip and top." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Machined Mechanical Pencil</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$35</p>
+      </a>
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-05.jpg" alt="Paper card sitting upright in walnut card holder on desk." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Focus Card Tray</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$64</p>
+      </a>
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-06.jpg" alt="Stack of 3 small drab green cardboard paper card refill boxes with white text." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Focus Multi-Pack</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$39</p>
+      </a>
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-07.jpg" alt="Brass scissors with geometric design, black steel finger holes, and included upright brass stand." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Brass Scissors</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$50</p>
+      </a>
+      <a href="#" class="group">
+        <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-08.jpg" alt="Textured gray felt pouch for paper cards with snap button flap and elastic pen holder loop." class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+        <h3 class="mt-4 text-sm text-gray-700">Focus Carry Pouch</h3>
+        <p class="mt-1 text-lg font-medium text-gray-900">$32</p>
+      </a>
     </div>
-
-    @if(session('success'))
-      <div class="mb-4 rounded-md bg-green-50 p-3 text-green-800">{{ session('success') }}</div>
-    @endif
-
-    @if(isset($products) && $products->isEmpty())
-      <div class="rounded-md border border-dashed border-gray-200 p-8 text-center text-gray-500">
-        Belum ada produk di marketplace.
-      </div>
-    @else
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        @forelse($products ?? [] as $product)
-          <article class="bg-white rounded-xl shadow p-4 flex flex-col">
-            <a href="/marketplace/{{ $product->id }}" class="block overflow-hidden rounded-md bg-gray-100">
-              <img src="{{ $product->image_url ?? asset('image/placeholder.png') }}" alt="{{ $product->title }}" class="w-full h-48 object-cover" />
-            </a>
-
-            <div class="mt-3 flex-1">
-              <a href="/marketplace/{{ $product->id }}" class="text-lg font-semibold text-emerald-800 hover:underline">{{ $product->title }}</a>
-              <div class="mt-1 text-sm text-gray-600">{{ \Illuminate\Support\Str::limit(strip_tags($product->description ?? ''), 120) }}</div>
-            </div>
-
-            <div class="mt-4 flex items-center justify-between text-sm text-gray-600">
-              <div>
-                <div class="text-emerald-700 font-semibold">Rp {{ number_format($product->price ?? 0, 0, ',', '.') }}</div>
-                <div class="text-xs text-gray-400">Penjual: {{ $product->seller_name ?? ($product->user->name ?? 'Penjual') }}</div>
-              </div>
-              <div>
-                <a href="/marketplace/{{ $product->id }}" class="inline-block rounded-md bg-emerald-600 text-white px-3 py-1.5 hover:bg-emerald-500">Lihat</a>
-              </div>
-            </div>
-          </article>
-        @empty
-          <div class="col-span-3 rounded-md border border-dashed border-gray-200 p-8 text-center text-gray-500">Tidak ada produk ditemukan.</div>
-        @endforelse
-      </div>
-    @endif
   </div>
+</div>
 </x-layout>
