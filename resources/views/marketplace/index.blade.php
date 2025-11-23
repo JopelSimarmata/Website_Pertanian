@@ -67,7 +67,8 @@
             <div class="mt-3 text-xs text-gray-500">Penjual: Petani Tomat Makmur</div>
 
             <div class="mt-4">
-              <a href="/marketplace/1" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500">Lihat Detail & Tinjau Lokasi</a>
+              
+              <a href="/marketplace/1" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500 text-sm">Lihat Detail & Tinjau Lokasi</a>
             </div>
           </div>
         </div>
@@ -110,7 +111,7 @@
             <div class="mt-3 text-xs text-gray-500">Penjual: Kebun Sayur Lembang</div>
 
             <div class="mt-4">
-              <a href="#" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500">Lihat Detail & Tinjau Lokasi</a>
+              <a href="#" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500 text-sm">Lihat Detail & Tinjau Lokasi</a>
             </div>
           </div>
         </div>
@@ -153,7 +154,7 @@
             <div class="mt-3 text-xs text-gray-500">Penjual: Petani Jagung Jaya</div>
 
             <div class="mt-4">
-              <a href="#" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500">Lihat Detail & Tinjau Lokasi</a>
+              <a href="#" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500 text-sm">Lihat Detail & Tinjau Lokasi</a>
             </div>
           </div>
         </div>
@@ -171,7 +172,7 @@
         <div class="p-6 flex flex-col justify-between flex-1">
           <div>
             <h3 class="text-lg font-semibold text-gray-800">Kentang Granola Premium</h3>
-            <p class="mt-2 text-sm text-gray-500">Kentang granola premium dari dataran tinggi Dieng. Ukuran besar, cocok untuk pasar.</p>
+            <p class="mt-2 text-sm text-gray-500">Kentang granola premium dari dataran tinggi Dieng. Ukuran besar, cocok untuk pasaras.</p>
 
             <div class="mt-4 flex items-center text-sm text-gray-600 gap-4">
               <div class="flex items-center gap-2">
@@ -196,7 +197,7 @@
             <div class="mt-3 text-xs text-gray-500">Penjual: Kebun Dieng Sejahtera</div>
 
             <div class="mt-4">
-              <a href="#" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500">Lihat Detail & Tinjau Lokasi</a>
+              <a href="#" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500 text-sm">Lihat Detail & Tinjau Lokasi</a>
             </div>
           </div>
         </div>

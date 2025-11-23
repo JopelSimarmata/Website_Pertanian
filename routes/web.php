@@ -31,6 +31,12 @@ Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])
 Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
 Route::get('/visit-requests', [VisitRequestController::class, 'index'])->name('visit_requests.index');
+Route::post('/visit-requests/{id}/approve', [VisitRequestController::class, 'approve'])->name('visit_requests.approve');
+Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reject'])->name('visit_requests.reject');
+
+// Create / store visit request (buyer action)
+Route::get('/visit-requests/create', [VisitRequestController::class, 'create'])->name('visit_requests.create')->middleware('auth');
+Route::post('/visit-requests', [VisitRequestController::class, 'store'])->name('visit_requests.store')->middleware('auth');
 
 Route::get('/marketplace', function () {
     return view('marketplace.index');

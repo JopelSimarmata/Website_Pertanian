@@ -49,6 +49,15 @@
               <span>Marketplace</span>
             </a>
 
+            @auth
+              @if((Auth::user()->role ?? '') === 'Petani')
+                <a href="/marketplace/upload" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500"> 
+                  <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                  <span>Upload Produk</span>
+                </a>
+              @endif
+            @endauth
+
 
             @auth
             <a href="/visit-requests" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
@@ -82,10 +91,15 @@
           <!-- profile dropdown -->
           <div class="relative ml-3">
             <el-dropdown>
-              <button class="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+              <button class="relative flex items-center space-x-2 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span class="sr-only">Open user menu</span>
                 <img src="{{ Auth::user()->profile_photo_url ?? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }}" alt="{{ Auth::user()->name }}" class="h-8 w-8 rounded-full object-cover" />
+                <div class="hidden sm:flex flex-col leading-tight max-w-[140px]">
+                  <span class="text-sm font-medium text-gray-700 truncate">{{ Auth::user()->name }}</span>
+                  <span class="text-xs text-green-600 truncate font-bold">{{ Auth::user()->role ?? 'Petani' }}</span>
+                </div>
               </button>
+
 
               <el-menu anchor="bottom end" popover class="w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5">
                 <a href="/profile" class="block px-4 py-2 text-sm text-gray-700">Profile</a>
@@ -107,6 +121,11 @@
       <a href="/" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('/') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Beranda</a>
       <a href="/forum" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('forum*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Forum</a>
       <a href="/marketplace" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Marketplace</a>
+        @auth
+          @if((Auth::user()->role ?? '') === 'Petani')
+            <a href="/marketplace/upload" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Upload Produk</a>
+          @endif
+        @endauth
       <a href="/visit-requests" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Kunjungan Lokasi</a>
     </div>
   </el-disclosure>
