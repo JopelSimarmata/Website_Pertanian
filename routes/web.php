@@ -42,6 +42,12 @@ Route::get('/marketplace', function () {
     return view('marketplace.index');
 })->name('marketplace');
 
+// Product upload (for Petani)
+Route::middleware('auth')->group(function () {
+    Route::get('/marketplace/upload', [App\Http\Controllers\ProductController::class, 'create'])->name('marketplace.upload');
+    Route::post('/marketplace/upload', [App\Http\Controllers\ProductController::class, 'store'])->name('marketplace.upload.store');
+});
+
 Route::get('/marketplace/{id}', function ($id) {
     return view('marketplace.detail', ['id' => $id]);
 })->name('marketplace.detail');

@@ -41,7 +41,7 @@
         </div>
         <div class="p-6 flex flex-col justify-between flex-1">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">Tomat Merah Segar Grade A</h3>
+            <h3 class="text-lg font-semibold text-gray-800 truncate">Tomat Merah Segar Grade A</h3>
             <p class="mt-2 text-sm text-gray-500">Tomat merah segar kualitas grade A langsung dari kebun. Cocok untuk konsumsi dan pasar.</p>
 
             <div class="mt-4 flex items-center text-sm text-gray-600 gap-4">
@@ -52,7 +52,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21s8-4.5 8-10a8 8 0 10-16 0c0 5.5 8 10 8 10z"/></svg>
-                <span class="text-gray-600">Laguboti, Sumatera Utara</span>
+                <span class="text-gray-600 ">Laguboti, Sumatera Utara</span>
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@
         </div>
         <div class="p-6 flex flex-col justify-between flex-1">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">Kubis/Kol Segar Premium</h3>
+            <h3 class="text-lg font-semibold text-gray-800 truncate">Kubis/Kol Segar Premium</h3>
             <p class="mt-2 text-sm text-gray-500">Kubis segar premium hasil panen dataran tinggi. Kualitas terbaik untuk pasar.</p>
 
             <div class="mt-4 flex items-center text-sm text-gray-600 gap-4">
@@ -128,7 +128,7 @@
         </div>
         <div class="p-6 flex flex-col justify-between flex-1">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">Jagung Manis Pipilan Grade A</h3>
+            <h3 class="text-lg font-semibold text-gray-800 truncate">Jagung Manis Pipilan Grade A</h3>
             <p class="mt-2 text-sm text-gray-500">Jagung manis pipilan segar kualitas A untuk pasar grosir. Rasa manis.</p>
 
             <div class="mt-4 flex items-center text-sm text-gray-600 gap-4">
@@ -171,7 +171,7 @@
         </div>
         <div class="p-6 flex flex-col justify-between flex-1">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">Kentang Granola Premium</h3>
+            <h3 class="text-lg font-semibold text-gray-800 truncate">Kentang Granola Premium</h3>
             <p class="mt-2 text-sm text-gray-500">Kentang granola premium dari dataran tinggi Dieng. Ukuran besar, cocok untuk pasaras.</p>
 
             <div class="mt-4 flex items-center text-sm text-gray-600 gap-4">

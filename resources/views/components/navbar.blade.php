@@ -25,7 +25,7 @@
         </div>
 
         <div class="hidden sm:block absolute left-1/2 transform -translate-x-1/2">
-          <div class="flex space-x-4">
+          <div class="flex space-x-4 whitespace-nowrap">
 
             
             <a href="/" aria-current="page" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('/') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
@@ -49,14 +49,7 @@
               <span>Marketplace</span>
             </a>
 
-            @auth
-              @if((Auth::user()->role ?? '') === 'Petani')
-                <a href="/marketplace/upload" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500"> 
-                  <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                  <span>Upload Produk</span>
-                </a>
-              @endif
-            @endauth
+          
 
 
             @auth
@@ -67,6 +60,16 @@
               </svg>
               <span>Kunjungan Lokasi</span>
             </a>
+            @endauth
+
+            
+            @auth
+              @if(strtolower(Auth::user()->role ?? '') === 'petani')
+                <a href="/marketplace/upload" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500"> 
+                  <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                  <span>Upload Produk</span>
+                </a>
+              @endif
             @endauth
           </div>
         </div>
@@ -122,7 +125,7 @@
       <a href="/forum" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('forum*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Forum</a>
       <a href="/marketplace" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Marketplace</a>
         @auth
-          @if((Auth::user()->role ?? '') === 'Petani')
+          @if(strtolower(Auth::user()->role ?? '') === 'petani')
             <a href="/marketplace/upload" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Upload Produk</a>
           @endif
         @endauth
