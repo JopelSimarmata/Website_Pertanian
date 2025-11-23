@@ -46,6 +46,4 @@ Route::middleware('auth')->group(function () {
     Route::post('/marketplace/upload', [App\Http\Controllers\ProductController::class, 'store'])->name('marketplace.upload.store');
 });
 
-Route::get('/marketplace/{id}', function ($id) {
-    return view('marketplace.detail', ['id' => $id]);
-})->name('marketplace.detail');
+Route::get('/marketplace/{id}', [App\Http\Controllers\ProductController::class, 'show'])->name('marketplace.detail');

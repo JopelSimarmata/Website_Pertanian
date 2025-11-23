@@ -30,20 +30,20 @@
 
     <!-- Image gallery -->
     <div class="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-8 lg:px-8">
-      <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-secondary-product-shot.jpg" alt="Two each of gray, white, and black shirts laying flat." class="row-span-2 aspect-3/4 size-full rounded-lg object-cover max-lg:hidden" />
-      <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-tertiary-product-shot-01.jpg" alt="Model wearing plain black basic tee." class="col-start-2 aspect-3/2 size-full rounded-lg object-cover max-lg:hidden" />
-      <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-tertiary-product-shot-02.jpg" alt="Model wearing plain gray basic tee." class="col-start-2 row-start-2 aspect-3/2 size-full rounded-lg object-cover max-lg:hidden" />
-      <img src="https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-featured-product-shot.jpg" alt="Model wearing plain white basic tee." class="row-span-2 aspect-4/5 size-full object-cover sm:rounded-lg lg:aspect-3/4" />
+      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-secondary-product-shot.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="row-span-2 aspect-3/4 size-full rounded-lg object-cover max-lg:hidden" />
+      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-tertiary-product-shot-01.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="col-start-2 aspect-3/2 size-full rounded-lg object-cover max-lg:hidden" />
+      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-tertiary-product-shot-02.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="col-start-2 row-start-2 aspect-3/2 size-full rounded-lg object-cover max-lg:hidden" />
+      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-featured-product-shot.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="row-span-2 aspect-4/5 size-full object-cover sm:rounded-lg lg:aspect-3/4" />
     </div>
 
     <!-- Product info -->
     <div class="mx-auto max-w-2xl px-4 pt-6 pb-12 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto_auto_1fr] lg:gap-x-8 lg:px-8 lg:pt-10 lg:pb-20">
       <div class="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-        <h1 class="text-2xl font-bold text-emerald-800 sm:text-3xl">{{ $product->name ?? 'Tomat Merah Segar Grade A' }}</h1>
+        <h1 class="text-2xl font-bold text-emerald-800 sm:text-3xl">{{ $product->name ?? 'Produk Tidak Diketahui' }}</h1>
         <div class="mt-3 text-sm text-gray-600">
-          <span class="mr-2">Lokasi: <strong>{{ $product->location ?? 'Laguboti, Sumatera Utara' }}</strong></span>
+          <span class="mr-2">Lokasi: <strong>{{ $product->location ?? 'Lokasi tidak tersedia' }}</strong></span>
           <span class="mx-2">·</span>
-          <span>Penjual: <strong>{{ $product->seller_name ?? 'Petani Tomat Makmur' }}</strong></span>
+          <span>Penjual: <strong>{{ $product->seller->name ?? ($product->farmer_email ?? 'Penjual Tidak Diketahui') }}</strong></span>
         </div>
       </div>
 
@@ -63,7 +63,7 @@
         <div class="mt-6 text-sm text-gray-600">
           <div class="flex items-center gap-2">
             <svg class="w-4 h-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.286 3.966c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.38 2.455c-.785.57-1.84-.197-1.54-1.118l1.286-3.966a1 1 0 00-.364-1.118L2.622 9.393c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69L9.05 2.927z"/></svg>
-            <span class="text-sm">{{ $product->rating ?? '4.8' }} <span class="text-gray-400">({{ $product->reviews ?? 187 }})</span></span>
+            <span class="text-sm">{{ $product->rating ?? '4.8' }} <span class="text-gray-400">({{ $product->reviews_count ?? 0 }})</span></span>
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@
           <h3 class="sr-only">Description</h3>
 
           <div class="space-y-6">
-            <p class="text-base text-gray-900">The Basic Tee 6-Pack allows you to fully express your vibrant personality with three grayscale options. Feeling adventurous? Put on a heather gray tee. Want to be a trendsetter? Try our exclusive colorway: &quot;Black&quot;. Need to add an extra pop of color to your outfit? Our white tee has you covered.</p>
+            <p class="text-base text-gray-900">{{ $product->description ?? 'Deskripsi produk belum tersedia.' }}</p>
           </div>
         </div>
 

@@ -18,11 +18,21 @@ class ProductController extends Controller
         return view('marketplace.index', compact('products'));
     }
 
+    /**
+     * Show single product detail
+     */
+    public function show($id)
+    {
+        $product = Product::with(['seller', 'category'])->withCount('reviews')->findOrFail($id);
+
+        return view('marketplace.detail', compact('product'));
+    }
+
     /** Show upload form for Petani */
     public function create()
     {
         $user = Auth::user();
-        if (! $user || (($user->role ?? '') !== 'Petani')) {
+        if (! $user || (($user->role ?? '') !== 'petani')) {
             abort(403);
         }
 
@@ -33,13 +43,14 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (! $user || (($user->role ?? '') !== 'Petani')) {
+        if (! $user || (($user->role ?? '') !== 'petani')) {
             abort(403);
         }
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'category_id' => 'nullable|exists:product_categories,category_id',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'unit' => 'nullable|string|max:50',
@@ -63,6 +74,8 @@ class ProductController extends Controller
         $product = Product::create([
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
+            'category_id' => $data['category_id'] ?? null,
+            'seller_id' => $user->id,
             'price' => $data['price'],
             'stock' => $data['stock'],
             'unit' => $data['unit'] ?? 'kg',

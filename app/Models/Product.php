@@ -18,12 +18,13 @@ class Product extends Model
     protected $fillable = [
         'name',
         'description',
+        'seller_id',
         'price',
         'stock',
         'unit',
         'rating',
         'category_id',
-        'image_url',
+        // 'image_url' removed: not present in DB schema — avoid Unknown column errors
         'location',
         'farmer_email',
         'farmer_phone',
@@ -36,6 +37,14 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(ProductCategories::class, 'category_id', 'category_id');
+    }
+
+    /**
+     * Relasi ke penjual (user)
+     */
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'seller_id', 'id');
     }
 
     /**
