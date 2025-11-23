@@ -11,7 +11,11 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return view('products.index');
+        // ambil produk terbaru, paginasi 20 per halaman
+        // eager load review count for display
+        $products = Product::withCount('reviews')->orderBy('created_at', 'desc')->paginate(20);
+
+        return view('marketplace.index', compact('products'));
     }
 
     /** Show upload form for Petani */

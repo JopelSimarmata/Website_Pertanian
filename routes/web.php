@@ -38,9 +38,7 @@ Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reje
 Route::get('/visit-requests/create', [VisitRequestController::class, 'create'])->name('visit_requests.create')->middleware('auth');
 Route::post('/visit-requests', [VisitRequestController::class, 'store'])->name('visit_requests.store')->middleware('auth');
 
-Route::get('/marketplace', function () {
-    return view('marketplace.index');
-})->name('marketplace');
+Route::get('/marketplace', [App\Http\Controllers\ProductController::class, 'index'])->name('marketplace');
 
 // Product upload (for Petani)
 Route::middleware('auth')->group(function () {
