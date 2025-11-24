@@ -1,0 +1,51 @@
+[33m656dbbb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Merge pull request #12 from JopelSimarmata/marketplace
+[33mdcf1368[m[33m ([m[1;31morigin/marketplace[m[33m)[m Merge branch 'main' into marketplace
+[33md7c5b1a[m marketplace update1
+[33m09b79a2[m marketplace update
+[33m15c1cd6[m Merge pull request #10 from JopelSimarmata/Forum
+[33m5eb8050[m Merge pull request #11 from JopelSimarmata/beranda
+[33md49945a[m[33m ([m[1;31morigin/beranda[m[33m)[m Menambahkan beranda
+[33m8541cfc[m[33m ([m[1;31morigin/Forum[m[33m)[m admin
+[33m70a875e[m feat: menambahkan halaman forum diskusi (add, detail, index)
+[33md3e9624[m add page visit request
+[33m3b3e1b3[m fix navabr
+[33m9c80b8d[m add much of modificatiobn
+[33m3a7e4bb[m Merge pull request #8 from JopelSimarmata/Yolanda
+[33m47758b6[m[33m ([m[1;31morigin/Yolanda[m[33m)[m Merge branch 'main' into Yolanda
+[33m3ad1b75[m Merge pull request #9 from JopelSimarmata/model
+[33me8a5ed8[m[33m ([m[1;31morigin/model[m[33m)[m Merge branch 'main' into model
+[33m067ccfb[m menambah model
+[33me54ae84[m model
+[33mf47b731[m add middleware
+[33m1910150[m add logic if not login and has been login
+[33m8f9702c[m 1
+[33m2e0aec8[m add some login logic and authentication for credential
+[33m16caa38[m Merge branch 'main' of https://github.com/JopelSimarmata/Website_Pertanian
+[33md786e52[m done
+[33m35c9dc1[m add a feed that tell user the error
+[33m75175ec[m fix toute
+[33m34043aa[m continue login auth contrller
+[33m76ad6f2[m add some feature like authentocation login
+[33md7579d5[m fix some ui login regsiter
+[33m9314ab5[m add route and some method in auth controller
+[33m715c2c2[m asd
+[33m86ac9bd[m fix name layout/app
+[33m0a8237f[m Merge pull request #6 from JopelSimarmata/feat/homepage-chintya
+[33m06c2de9[m ok
+[33mb9e6db4[m add some login page and reg
+[33m083b599[m Update package-lock.json
+[33md3a4a1f[m add some login page and regsiter
+[33m74bb5b9[m add blade componen
+[33m0575a20[m add login with tailwind
+[33m7fb63b8[m add tailwind
+[33m647ded7[m Merge pull request #5 from JopelSimarmata/atribut
+[33m757492a[m[33m ([m[1;31morigin/atribut[m[33m)[m atribut entitas
+[33m704b513[m Merge pull request #4 from JopelSimarmata/welcome
+[33m03e5ff0[m[33m ([m[1;31morigin/welcome[m[33m)[m migrate
+[33me6e30f3[m[33m ([m[1;32mjenifer[m[33m)[m Merge pull request #3 from JopelSimarmata/welcome
+[33m413b384[m Update welcome.blade.php
+[33mc2f5496[m Merge pull request #2 from JopelSimarmata/welcome
+[33md240ec9[m Update welcome.blade.php
+[33md2511de[m[33m ([m[1;31morigin/login[m[33m)[m Merge pull request #1 from JopelSimarmata/seeder
+[33m0059876[m[33m ([m[1;31morigin/seeder[m[33m)[m Update DatabaseSeeder.php
+[33m5de045c[m[33m ([m[1;31morigin/update[m[33m, [m[1;31morigin/sedeeerer[m[33m, [m[1;31morigin/jopel[m[33m, [m[1;31morigin/Chintya[m[33m)[m first commit

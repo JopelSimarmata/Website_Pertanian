@@ -11,14 +11,20 @@ class VisitRequest extends Model
     protected $primaryKey = 'request_id';
 
     protected $fillable = [
-        'user_id',
+        'buyer_id',
+        'seller_id',
+        'product_id',
         'visit_date',
+        'visit_time',
+        'quantity',
         'status',
+        'notes',
+        'rejection_reason',
     ];
 
     // Relasi: VisitRequest belongs to a User
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'buyer_id');
     }
 }
