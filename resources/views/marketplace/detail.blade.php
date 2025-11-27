@@ -28,12 +28,69 @@
       </ol>
     </nav>
 
-    <!-- Image gallery -->
-    <div class="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-8 lg:px-8">
-      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-secondary-product-shot.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="row-span-2 aspect-3/4 size-full rounded-lg object-cover max-lg:hidden" />
-      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-tertiary-product-shot-01.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="col-start-2 aspect-3/2 size-full rounded-lg object-cover max-lg:hidden" />
-      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-tertiary-product-shot-02.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="col-start-2 row-start-2 aspect-3/2 size-full rounded-lg object-cover max-lg:hidden" />
-      <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-featured-product-shot.jpg' }}" alt="{{ $product->name ?? 'Produk' }}" class="row-span-2 aspect-4/5 size-full object-cover sm:rounded-lg lg:aspect-3/4" />
+    <!-- Image carousel: show one image at a time with prev/next and thumbnails -->
+    @php
+      $images = $product->images->pluck('path')->toArray() ?? [];
+      if (empty($images) && !empty($product->image_url)) {
+          $images = [$product->image_url];
+      }
+      // fallback placeholder
+      if (empty($images)) {
+          $images = ['https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-02-featured-product-shot.jpg'];
+      }
+    @endphp
+
+    <div id="product-carousel" class="mx-auto mt-6 max-w-2xl sm:px-6 lg:max-w-7xl lg:px-8">
+      <div class="relative">
+        <img id="main-image" src="{{ $images[0] }}" alt="{{ $product->name ?? 'Produk' }}" class="w-full h-96 object-cover rounded-lg shadow" />
+
+        <button id="prev" aria-label="Previous" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-2xl w-10 h-10 rounded-full flex items-center justify-center shadow">
+          ‹
+        </button>
+        <button id="next" aria-label="Next" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-2xl w-10 h-10 rounded-full flex items-center justify-center shadow">
+          ›
+        </button>
+      </div>
+
+      <div class="mt-3 flex gap-2 overflow-x-auto">
+        @foreach($images as $idx => $img)
+          <button type="button" class="thumbnail shrink-0 rounded border overflow-hidden" data-index="{{ $idx }}">
+            <img src="{{ $img }}" class="w-20 h-20 object-cover" alt="thumbnail-{{ $idx }}" />
+          </button>
+        @endforeach
+      </div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const images = @json($images);
+          let idx = 0;
+          const main = document.getElementById('main-image');
+          const prev = document.getElementById('prev');
+          const next = document.getElementById('next');
+          const thumbs = document.querySelectorAll('#product-carousel .thumbnail');
+
+          function setActiveThumb(i) {
+            thumbs.forEach(t => t.classList.remove('ring-2','ring-emerald-500'));
+            if (thumbs[i]) thumbs[i].classList.add('ring-2','ring-emerald-500');
+          }
+
+          function show(i) {
+            idx = ((i % images.length) + images.length) % images.length;
+            main.src = images[idx];
+            setActiveThumb(idx);
+          }
+
+          prev.addEventListener('click', function(){ show(idx - 1); });
+          next.addEventListener('click', function(){ show(idx + 1); });
+
+          thumbs.forEach(btn => {
+            btn.addEventListener('click', function(){ show(parseInt(this.dataset.index)); });
+          });
+
+          // init
+          show(0);
+        });
+      </script>
     </div>
 
     <!-- Product info -->

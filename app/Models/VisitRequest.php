@@ -27,4 +27,16 @@ class VisitRequest extends Model
     {
         return $this->belongsTo(User::class, 'buyer_id');
     }
+
+    /** Seller (farmer) relation */
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    /** Product relation */
+    public function product()
+    {
+        return $this->belongsTo(\App\Models\Product::class, 'product_id', 'product_id');
+    }
 }

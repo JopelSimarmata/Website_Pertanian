@@ -22,7 +22,7 @@
 
           <div class="mt-4">
               <div class="rounded-2xl overflow-hidden shadow-lg shrink-0">
-              <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=6a7b9b6f2d7d2d7e3b8d8f8f8f8f8f8f" alt="field" class="w-full h-64 object-cover">
+              <img src="{{ asset('image/field.jpg') }}" alt="field" class="w-full h-64 object-cover">
             </div>
           </div>
 

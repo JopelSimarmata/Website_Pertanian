@@ -65,9 +65,8 @@
             
             @auth
               @if(strtolower(Auth::user()->role ?? '') === 'petani')
-                <a href="/marketplace/upload" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500"> 
-                  <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                  <span>Upload Produk</span>
+                <a href="{{ route('dashboard.farmer') }}" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('dashboard/farmer*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"> 
+                  <span>Dashboard</span>
                 </a>
               @endif
             @endauth
@@ -126,7 +125,7 @@
       <a href="/marketplace" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Marketplace</a>
         @auth
           @if(strtolower(Auth::user()->role ?? '') === 'petani')
-            <a href="/marketplace/upload" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Upload Produk</a>
+            <a href="{{ route('dashboard.farmer') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Dashboard</a>
           @endif
         @endauth
       <a href="/visit-requests" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Kunjungan Lokasi</a>

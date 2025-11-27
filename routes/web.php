@@ -31,12 +31,23 @@ Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])
 Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
 Route::get('/visit-requests', [VisitRequestController::class, 'index'])->name('visit_requests.index');
-Route::post('/visit-requests/{id}/approve', [VisitRequestController::class, 'approve'])->name('visit_requests.approve');
-Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reject'])->name('visit_requests.reject');
+// keep literal routes like 'create' before parameter routes OR constrain parameter to numbers
+Route::get('/visit-requests/create', [VisitRequestController::class, 'create'])->name('visit_requests.create')->middleware('auth');
+Route::post('/visit-requests', [VisitRequestController::class, 'store'])->name('visit_requests.store')->middleware('auth');
+
+// numeric id routes
+Route::get('/visit-requests/{id}', [VisitRequestController::class, 'show'])->whereNumber('id')->name('visit_requests.show');
+Route::post('/visit-requests/{id}/approve', [VisitRequestController::class, 'approve'])->whereNumber('id')->name('visit_requests.approve');
+Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reject'])->whereNumber('id')->name('visit_requests.reject');
+Route::post('/visit-requests/{id}/cancel', [VisitRequestController::class, 'cancel'])->whereNumber('id')->name('visit_requests.cancel')->middleware('auth');
 
 // Create / store visit request (buyer action)
 Route::get('/visit-requests/create', [VisitRequestController::class, 'create'])->name('visit_requests.create')->middleware('auth');
 Route::post('/visit-requests', [VisitRequestController::class, 'store'])->name('visit_requests.store')->middleware('auth');
+
+// Payments (simple flow)
+Route::get('/payments/create', [App\Http\Controllers\PaymentsController::class, 'create'])->name('payments.create')->middleware('auth');
+Route::post('/payments', [App\Http\Controllers\PaymentsController::class, 'store'])->name('payments.store')->middleware('auth');
 
 Route::get('/marketplace', [App\Http\Controllers\ProductController::class, 'index'])->name('marketplace');
 
@@ -47,3 +58,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/marketplace/{id}', [App\Http\Controllers\ProductController::class, 'show'])->name('marketplace.detail');
+
+// Farmer dashboard
+Route::get('/dashboard/farmer', [App\Http\Controllers\DashboardController::class, 'farmer'])->name('dashboard.farmer')->middleware('auth');

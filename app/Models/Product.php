@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use App\Models\ProductImage;
 
 class Product extends Model
 {
@@ -29,6 +30,7 @@ class Product extends Model
         'farmer_email',
         'farmer_phone',
         'detail_address',
+        'image_url',
     ];
 
     /**
@@ -76,5 +78,13 @@ class Product extends Model
             'product_id',   
             'request_id' 
         );
+    }
+
+    /**
+     * Relasi ke images (product can have multiple images)
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class, 'product_id', 'product_id');
     }
 }

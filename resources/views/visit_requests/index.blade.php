@@ -36,18 +36,45 @@
 					</div>
 
 					<div class="flex items-center gap-2">
+						@php $me = auth()->user(); @endphp
 						@if($req->status === 'pending' || $req->status === null)
-							<form action="{{ route('visit_requests.approve', $req->request_id) }}" method="POST">
-								@csrf
-								<button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded-md">Setujui</button>
-							</form>
-							<form action="{{ route('visit_requests.reject', $req->request_id) }}" method="POST">
-								@csrf
-								<button type="submit" class="bg-red-600 text-white px-3 py-1.5 rounded-md">Tolak</button>
-							</form>
-						@else
-							<span class="text-sm text-gray-500">Tidak ada aksi</span>
-						@endif
+							{{-- only allow seller (petani) for this request or admin to see approve/reject buttons --}}
+							@if($me && (($me->role ?? '') === 'petani' && $me->id === $req->seller_id) || ($me && ($me->role ?? '') === 'admin'))
+								<form action="{{ route('visit_requests.approve', $req->request_id) }}" method="POST">
+									@csrf
+									<button type="submit" class="bg-emerald-600 text-white px-3 py-1.5 rounded-md">Setujui</button>
+								</form>
+								<form action="{{ route('visit_requests.reject', $req->request_id) }}" method="POST">
+									@csrf
+									<button type="submit" class="bg-red-600 text-white px-3 py-1.5 rounded-md">Tolak</button>
+								</form>
+							@else
+								{{-- for tengkulak (buyer) or other users show waiting message --}}
+								<span class="text-sm text-gray-500">Menunggu keputusan petani</span>
+							@endif
+						@elseif($req->status === 'approved')
+						@elseif($req->status === 'approved')
+							{{-- If approved and current user is the buyer, show payment button (if not already paid) --}}
+							@if($me && $me->id === $req->buyer_id)
+								@php
+									// check if a payment exists for this request and not completed
+									$hasPayment = \App\Models\Payments::where('request_id', $req->request_id)->whereIn('status',['completed','paid'])->exists();
+								@endphp
+								@if(!$hasPayment)
+									<a href="{{ route('payments.create', ['request_id' => $req->request_id]) }}" class="bg-emerald-600 text-white px-3 py-1.5 rounded-md">Lakukan Pembayaran</a>
+								@else
+									<span class="text-sm text-gray-500">Pembayaran tercatat</span>
+								@endif
+							@else
+								<span class="text-sm text-gray-500">Menunggu pembayaran dari pembeli</span>
+							@endif
+												@else
+														<span class="text-sm text-gray-500">Tidak ada aksi</span>
+												@endif
+												{{-- Detail button visible to authenticated users --}}
+												@auth
+													<a href="{{ route('visit_requests.show', $req->request_id) }}" class="px-2 py-1 text-sm border rounded text-gray-700">Detail</a>
+												@endauth
 					</div>
 				</div>
 			@empty

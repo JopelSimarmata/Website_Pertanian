@@ -33,7 +33,12 @@
       @forelse($products as $product)
       <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
         <div class="relative">
-          <img src="{{ $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg' }}" alt="{{ $product->name }}" class="w-full h-48 object-cover rounded-t-2xl" />
+          @php
+            $thumb = optional($product->images->first())->path ?? $product->image_url ?? 'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-04-image-card-01.jpg';
+            // if $thumb is absolute URL (http/https) use directly, otherwise generate asset URL
+            $thumbUrl = preg_match('/^https?:\/\//', $thumb) ? $thumb : asset(ltrim($thumb, '/'));
+          @endphp
+          <img src="{{ $thumbUrl }}" alt="{{ $product->name }}" class="w-full h-48 object-cover rounded-t-2xl" />
           <span class="absolute left-3 top-3 {{ $product->stock > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700' }} text-xs font-semibold px-3 py-1 rounded-full">{{ $product->stock > 0 ? 'Tersedia' : 'Habis' }}</span>
           <button class="absolute right-3 top-3 bg-white/90 border border-gray-200 rounded-full p-2 shadow-sm flex items-center justify-center">
             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 10-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>
@@ -64,7 +69,7 @@
               <div class="text-xs text-emerald-700 mt-1">Total Stok: {{ number_format($product->stock ?? 0, 0, ',', '.') }} {{ $product->unit ?? 'kg' }}</div>
             </div>
 
-            <div class="mt-3 text-xs text-gray-500">Penjual: {{ $product->farmer_email ?? 'Penjual Tidak Diketahui' }}</div>
+            <div class="mt-3 text-xs text-gray-500">Penjual: {{ $product->seller->name ?? 'Penjual Tidak Diketahui' }}</div>
 
             <div class="mt-4">
               <a href="{{ route('marketplace.detail', $product->product_id) }}" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-500 text-sm">Lihat Detail & Tinjau Lokasi</a>

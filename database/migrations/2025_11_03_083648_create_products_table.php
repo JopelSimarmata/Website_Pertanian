@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('detail_address')->nullable(); 
             $table->string('farmer_email', 255)->nullable()->index(); 
             $table->string('farmer_phone', 25)->nullable();
+            $table->string('image_url', 255)->nullable();
             $table->timestamps();
         });
     }

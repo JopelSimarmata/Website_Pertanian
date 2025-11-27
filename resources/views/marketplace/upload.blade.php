@@ -58,8 +58,9 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700">Gambar produk (opsional)</label>
-        <input type="file" name="image" accept="image/*" class="mt-1 block w-full" />
+        <label class="block text-sm font-medium text-gray-700">Gambar produk (opsional) — pilih banyak</label>
+        <input type="file" name="images[]" accept="image/*" multiple class="mt-1 block w-full" />
+        <p class="text-xs text-gray-500 mt-1">Anda dapat memilih beberapa gambar sekaligus. Maks 10 file, tiap file maksimal 10MB.</p>
       </div>
 
       <div class="flex items-center justify-end gap-3">

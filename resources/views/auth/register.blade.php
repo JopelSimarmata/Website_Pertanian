@@ -21,7 +21,7 @@
 
           <div class="mt-4">
             <div class="rounded-2xl overflow-hidden shadow-lg">
-              <img src="https://images.unsplash.com/photo-1542736667-069246bdbc72?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=3b5f3a1c1d2c0f1f6c9f7f6f6f6f6f6f" alt="produce" class="w-full h-64 object-cover">
+              <img src="{{ asset('image/produce.jpg') }}" alt="produce" class="w-full h-64 object-cover">
             </div>
           </div>
 
