@@ -16,11 +16,52 @@
 		<div class="grid gap-4">
 			@forelse($requests as $req)
 				<div class="bg-white shadow sm:rounded-lg p-4 sm:p-6 flex items-start justify-between">
+					@php
+						$me = auth()->user();
+						// default counterparty: buyer (user)
+						$other = $req->user ?? null;
+						$otherRole = 'Pembeli';
+						if ($me) {
+							if (strtolower($me->role ?? '') === 'petani') {
+								// farmer sees tengkulak (buyer)
+								$other = $req->user ?? $req->seller ?? null;
+								$otherRole = 'Pembeli';
+							} elseif (strtolower($me->role ?? '') === 'tengkulak') {
+								// buyer sees farmer (seller)
+								$other = $req->seller ?? $req->user ?? null;
+								$otherRole = 'Petani';
+							} else {
+								// admin/other: prefer seller if exists
+								$other = $req->seller ?? $req->user ?? null;
+								$otherRole = $req->seller ? 'Petani' : 'Pembeli';
+							}
+						}
+						// compute avatar: prefer user_profiles.avatar (storage), then profile_photo_url, then default
+						$defaultPhoto = 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80';
+						$photo = $defaultPhoto;
+						if ($other) {
+							try {
+								$dbAvatar = \Illuminate\Support\Facades\DB::table('user_profiles')->where('user_id', $other->id)->value('avatar');
+							} catch (\Throwable $e) {
+								$dbAvatar = null;
+							}
+							if (!empty($dbAvatar)) {
+								$photo = asset('storage/'.$dbAvatar);
+							} elseif (!empty($other->profile_photo_url)) {
+								$photo = $other->profile_photo_url;
+							}
+						}
+						$name = $other->name ?? ($other->title ?? 'Pengguna');
+						$email = $other->email ?? '-';
+					@endphp
 					<div class="flex items-start gap-4">
-						<img src="{{ $req->user->profile_photo_url ?? 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=facearea&facepad=2&w=80&h=80&q=80' }}" alt="{{ $req->user->name }}" class="h-12 w-12 rounded-full object-cover" />
+						<img src="{{ $photo }}" alt="{{ $name }}" class="h-12 w-12 rounded-full object-cover" />
 						<div>
-							<div class="text-sm font-medium text-gray-900">{{ $req->user->name }}</div>
-							<div class="text-xs text-gray-500">{{ $req->user->email }}</div>
+							<div class="flex items-center gap-2">
+								<div class="text-sm font-medium text-gray-900">{{ $name }}</div>
+								<span class="text-xs px-2 py-0.5 rounded text-white bg-emerald-600">{{ $otherRole }}</span>
+							</div>
+							<div class="text-xs text-gray-500">{{ $email }}</div>
 							<div class="mt-1 text-sm text-gray-700">Tanggal kunjungan: <strong>{{ $req->visit_date }}</strong></div>
 							<div class="mt-1 text-sm">
 								Status: 

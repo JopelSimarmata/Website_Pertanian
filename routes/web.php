@@ -4,60 +4,105 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForumThreadController;
 use App\Http\Controllers\VisitRequestController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\DashboardController;
 
-
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return view('pages.home');
 })->name('home');
 
-Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
-
+/*
+|--------------------------------------------------------------------------
+| Authentication
+|--------------------------------------------------------------------------
+*/
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('guest')->group(function () {
-    Route::get('/register',[AuthController::class, 'showRegister'])->name('show.register');
-    Route::get('/login',[AuthController::class, 'showLogin'])->name('show.login');
-    Route::post('/register',[AuthController::class, 'register'])->name('register');
-    Route::post('/login',[AuthController::class, 'login'])->name('login');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('show.register');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('show.login');
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
 });
 
-
-
+/*
+|--------------------------------------------------------------------------
+| Forum
+|--------------------------------------------------------------------------
+*/
 Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index');
 Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
 Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
 Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->name('forum.detail');
 
-Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
-Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+/*
+|--------------------------------------------------------------------------
+| Profile
+|--------------------------------------------------------------------------
+*/
+Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+/*
+|--------------------------------------------------------------------------
+| Visit Requests
+|--------------------------------------------------------------------------
+*/
 Route::get('/visit-requests', [VisitRequestController::class, 'index'])->name('visit_requests.index');
-// keep literal routes like 'create' before parameter routes OR constrain parameter to numbers
-Route::get('/visit-requests/create', [VisitRequestController::class, 'create'])->name('visit_requests.create')->middleware('auth');
-Route::post('/visit-requests', [VisitRequestController::class, 'store'])->name('visit_requests.store')->middleware('auth');
 
-// numeric id routes
-Route::get('/visit-requests/{id}', [VisitRequestController::class, 'show'])->whereNumber('id')->name('visit_requests.show');
-Route::post('/visit-requests/{id}/approve', [VisitRequestController::class, 'approve'])->whereNumber('id')->name('visit_requests.approve');
-Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reject'])->whereNumber('id')->name('visit_requests.reject');
-Route::post('/visit-requests/{id}/cancel', [VisitRequestController::class, 'cancel'])->whereNumber('id')->name('visit_requests.cancel')->middleware('auth');
-
-// Create / store visit request (buyer action)
-Route::get('/visit-requests/create', [VisitRequestController::class, 'create'])->name('visit_requests.create')->middleware('auth');
-Route::post('/visit-requests', [VisitRequestController::class, 'store'])->name('visit_requests.store')->middleware('auth');
-
-// Payments (simple flow)
-Route::get('/payments/create', [App\Http\Controllers\PaymentsController::class, 'create'])->name('payments.create')->middleware('auth');
-Route::post('/payments', [App\Http\Controllers\PaymentsController::class, 'store'])->name('payments.store')->middleware('auth');
-
-Route::get('/marketplace', [App\Http\Controllers\ProductController::class, 'index'])->name('marketplace');
-
-// Product upload (for Petani)
+// Create & store (requires login)
 Route::middleware('auth')->group(function () {
-    Route::get('/marketplace/upload', [App\Http\Controllers\ProductController::class, 'create'])->name('marketplace.upload');
-    Route::post('/marketplace/upload', [App\Http\Controllers\ProductController::class, 'store'])->name('marketplace.upload.store');
+    Route::get('/visit-requests/create', [VisitRequestController::class, 'create'])->name('visit_requests.create');
+    Route::post('/visit-requests', [VisitRequestController::class, 'store'])->name('visit_requests.store');
+    Route::post('/visit-requests/{id}/cancel', [VisitRequestController::class, 'cancel'])
+        ->whereNumber('id')
+        ->name('visit_requests.cancel');
 });
 
-Route::get('/marketplace/{id}', [App\Http\Controllers\ProductController::class, 'show'])->name('marketplace.detail');
+// Show / Approve / Reject
+Route::get('/visit-requests/{id}', [VisitRequestController::class, 'show'])
+    ->whereNumber('id')->name('visit_requests.show');
+Route::post('/visit-requests/{id}/approve', [VisitRequestController::class, 'approve'])
+    ->whereNumber('id')->name('visit_requests.approve');
+Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reject'])
+    ->whereNumber('id')->name('visit_requests.reject');
 
-// Farmer dashboard
-Route::get('/dashboard/farmer', [App\Http\Controllers\DashboardController::class, 'farmer'])->name('dashboard.farmer')->middleware('auth');
+/*
+|--------------------------------------------------------------------------
+| Payments
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    Route::get('/payments/create', [PaymentsController::class, 'create'])->name('payments.create');
+    Route::post('/payments', [PaymentsController::class, 'store'])->name('payments.store');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Marketplace
+|--------------------------------------------------------------------------
+*/
+Route::get('/marketplace', [ProductController::class, 'index'])->name('marketplace');
+Route::get('/marketplace/{id}', [ProductController::class, 'show'])->name('marketplace.detail');
+
+// Product upload (only for logged-in farmers)
+Route::middleware('auth')->group(function () {
+    Route::get('/marketplace/upload', [ProductController::class, 'create'])->name('marketplace.upload');
+    Route::post('/marketplace/upload', [ProductController::class, 'store'])->name('marketplace.upload.store');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Farmer Dashboard
+|--------------------------------------------------------------------------
+*/
+Route::get('/dashboard/farmer', [DashboardController::class, 'farmer'])
+    ->middleware('auth')
+    ->name('dashboard.farmer');

@@ -50,7 +50,19 @@ class ProfileController extends Controller
             'email' => $data['email'],
         ]);
 
-        // store profile fields in user_profiles table
+        // handle avatar upload (stored under storage/app/public/profiles)
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $ext = $file->getClientOriginalExtension();
+            $filename = $user->id . '_avatar.' . $ext;
+            // store in public disk (storage/app/public/profiles)
+            $file->storeAs('profiles', $filename, 'public');
+            // store relative path (without 'public/') so we can use asset('storage/...') in views
+            $avatarPath = 'profiles/' . $filename;
+        }
+
+        // store profile fields in user_profiles table (include avatar if uploaded)
         $profilePayload = [
             'id_number' => $data['id_number'] ?? null,
             'address' => $data['address'] ?? null,
@@ -63,19 +75,14 @@ class ProfileController extends Controller
             'updated_at' => now(),
         ];
 
+        if ($avatarPath) {
+            $profilePayload['avatar'] = $avatarPath;
+        }
+
         DB::table('user_profiles')->updateOrInsert(
             ['user_id' => $user->id],
             array_merge(['user_id' => $user->id, 'created_at' => now()], $profilePayload)
         );
-
-        // handle avatar upload (stored under storage/app/public/profiles)
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $ext = $file->getClientOriginalExtension();
-            $filename = $user->id . '_avatar.' . $ext;
-            // store in public disk (storage/app/public/profiles)
-            $file->storeAs('public/profiles', $filename);
-        }
 
         return redirect()->route('profile.index')->with('success', 'Profil berhasil diperbarui');
     }

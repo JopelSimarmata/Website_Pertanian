@@ -1,6 +1,6 @@
 <!-- Include this script tag or install `@tailwindplus/elements` via npm: -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script> -->
-<nav class="relative bg-white shadow-md">
+<nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md">
   <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
     <div class="relative flex h-16 items-center justify-between">
       <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -95,7 +95,19 @@
             <el-dropdown>
               <button class="relative flex items-center space-x-2 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span class="sr-only">Open user menu</span>
-                <img src="{{ Auth::user()->profile_photo_url ?? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }}" alt="{{ Auth::user()->name }}" class="h-8 w-8 rounded-full object-cover" />
+                    @php
+                      $navUser = Auth::user();
+                      $avatar = 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
+                      if ($navUser) {
+                        $dbAvatar = \Illuminate\Support\Facades\DB::table('user_profiles')->where('user_id', $navUser->id)->value('avatar');
+                        if (!empty($dbAvatar)) {
+                          $avatar = asset('storage/' . $dbAvatar);
+                        } elseif (!empty($navUser->profile_photo_url)) {
+                          $avatar = $navUser->profile_photo_url;
+                        }
+                      }
+                    @endphp
+                    <img src="{{ $avatar }}" alt="{{ $navUser->name ?? '' }}" class="h-8 w-8 rounded-full object-cover" />
                 <div class="hidden sm:flex flex-col leading-tight max-w-[140px]">
                   <span class="text-sm font-medium text-gray-700 truncate">{{ Auth::user()->name }}</span>
                   <span class="text-xs text-green-600 truncate font-bold">{{ Auth::user()->role ?? 'Petani' }}</span>
