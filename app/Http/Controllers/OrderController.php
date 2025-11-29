@@ -19,7 +19,7 @@ class OrderController extends Controller
 
         // if there's no snap_token yet and the order isn't paid, create Midtrans transaction and snap token
         if (empty($snap_token) && ($payment === null || ($payment->status ?? '') !== 'paid')) {
-            \Midtrans\Config::$serverKey = 'Mid-server-hdJ5oPKzmrD3we6pYb2mHVcS';
+            \Midtrans\Config::$serverKey = ''; //Mid-server-hdJ5oPKzmrD3we6pYb2mHVcS
             \Midtrans\Config::$isProduction = false;
             \Midtrans\Config::$isSanitized = true;
             \Midtrans\Config::$is3ds = true;
