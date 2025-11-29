@@ -34,21 +34,6 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // stats
-        // compute total revenue for this farmer from payments linked to their visit requests
-        $totalRevenue = Payments::join('visit_requests', 'payments.request_id', '=', 'visit_requests.request_id')
-            ->where('visit_requests.seller_id', $user->id)
-            ->whereIn('payments.status', ['completed','paid'])
-            ->sum('payments.amount');
-
-        $stats = [
-            'total_products' => $products->count(),
-            'pending_requests' => $requests->where('status', 'pending')->count(),
-            'approved_requests' => $requests->where('status', 'approved')->count(),
-            'rejected_requests' => $requests->where('status', 'rejected')->count(),
-            'total_revenue' => $totalRevenue,
-        ];
-
-        return view('dashboard.farmer', compact('user','products','requests','stats'));
+        return view('dashboard.farmer', compact('user','products','requests'));
     }
 }

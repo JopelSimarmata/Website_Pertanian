@@ -2,12 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ForumThreadController;
-use App\Http\Controllers\VisitRequestController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentsController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ForumThreadController;
+use App\Http\Controllers\VisitRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,3 +107,11 @@ Route::middleware('auth')->group(function () {
 Route::get('/dashboard/farmer', [DashboardController::class, 'farmer'])
     ->middleware('auth')
     ->name('dashboard.farmer');
+
+
+Route::get('payment/success',function(){
+    echo "Payment success page";
+});
+
+Route::get('/orders/{order:invoice_number}', [OrderController::class, 'show'])->name('orders.show');
+

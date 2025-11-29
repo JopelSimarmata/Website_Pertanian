@@ -12,24 +12,6 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white p-4 rounded-lg shadow">
-      <div class="text-sm text-gray-500">Total Produk</div>
-      <div class="text-2xl font-bold text-emerald-700">{{ $stats['total_products'] }}</div>
-    </div>
-    <div class="bg-white p-4 rounded-lg shadow">
-      <div class="text-sm text-gray-500">Permintaan Menunggu</div>
-      <div class="text-2xl font-bold text-amber-600">{{ $stats['pending_requests'] }}</div>
-    </div>
-    <div class="bg-white p-4 rounded-lg shadow">
-      <div class="text-sm text-gray-500">Disetujui / Ditolak</div>
-      <div class="text-2xl font-bold text-emerald-700">{{ $stats['approved_requests'] }} / {{ $stats['rejected_requests'] }}</div>
-    </div>
-    <div class="bg-white p-4 rounded-lg shadow">
-      <div class="text-sm text-gray-500">Total Pendapatan</div>
-      <div class="text-2xl font-bold text-emerald-700">Rp {{ number_format($stats['total_revenue'] ?? 0, 0, ',', '.') }}</div>
-    </div>
-  </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div>
