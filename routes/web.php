@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForumThreadController;
 use App\Http\Controllers\VisitRequestController;
@@ -81,8 +81,8 @@ Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reje
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-    Route::get('/payments/create', [PaymentsController::class, 'create'])->name('payments.create');
-    Route::post('/payments', [PaymentsController::class, 'store'])->name('payments.store');
+    Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
 });
 
 /*
@@ -91,27 +91,36 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/marketplace', [ProductController::class, 'index'])->name('marketplace');
-Route::get('/marketplace/{id}', [ProductController::class, 'show'])->name('marketplace.detail');
 
-// Product upload (only for logged-in farmers)
 Route::middleware('auth')->group(function () {
     Route::get('/marketplace/upload', [ProductController::class, 'create'])->name('marketplace.upload');
     Route::post('/marketplace/upload', [ProductController::class, 'store'])->name('marketplace.upload.store');
+    Route::post('/marketplace/{id}/review', [ProductController::class, 'storeReview'])->name('marketplace.review.store');
 });
+
+// taruh paling bawah
+Route::get('/marketplace/{id}', [ProductController::class, 'show'])->name('marketplace.detail');
 
 /*
 |--------------------------------------------------------------------------
 | Farmer Dashboard
 |--------------------------------------------------------------------------
 */
-Route::get('/dashboard/farmer', [DashboardController::class, 'farmer'])
-    ->middleware('auth')
-    ->name('dashboard.farmer');
-
-
-Route::get('payment/success',function(){
-    echo "Payment success page";
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard/farmer', [DashboardController::class, 'farmer'])->name('dashboard.farmer');
+    
+    // Product CRUD for farmer
+    Route::get('/dashboard/farmer/product/create', [DashboardController::class, 'createProduct'])->name('dashboard.farmer.product.create');
+    Route::post('/dashboard/farmer/product', [DashboardController::class, 'storeProduct'])->name('dashboard.farmer.product.store');
+    Route::get('/dashboard/farmer/product/{id}/edit', [DashboardController::class, 'editProduct'])->name('dashboard.farmer.product.edit');
+    Route::put('/dashboard/farmer/product/{id}', [DashboardController::class, 'updateProduct'])->name('dashboard.farmer.product.update');
+    Route::delete('/dashboard/farmer/product/{id}', [DashboardController::class, 'destroyProduct'])->name('dashboard.farmer.product.destroy');
 });
 
-Route::get('/orders/{order:invoice_number}', [OrderController::class, 'show'])->name('orders.show');
 
+Route::get('/payment/success', [PaymentController::class, 'success'])->name('payments.success');
+
+// Midtrans notification (webhook) - public endpoint
+Route::post('/payment/notification', [\App\Http\Controllers\PaymentController::class, 'handleCallback']);
+Route::get('/orders/{order:invoice_number}', [OrderController::class, 'show'])->name('orders.show');
+Route::post('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');

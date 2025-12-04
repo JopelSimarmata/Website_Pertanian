@@ -55,32 +55,26 @@
     </div>
 
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-        <script type="text/javascript">
-            (function(){
-                var payBtn = document.getElementById('pay-button');
-                if (!payBtn) return; // no button on page
-
-                payBtn.onclick = function(){
-                    var token = '{{ $snap_token ?? '' }}';
-                    if (!token) {
-                        console.error('No snap token available');
-                        return;
-                    }
-
-                    snap.pay(token, {
-                        onSuccess: function(result){
-                            // handle success (reload or redirect)
-                            console.log('payment success', result);
-                        },
-                        onPending: function(result){
-                            console.log('payment pending', result);
-                        },
-                        onError: function(result){
-                            console.error('payment error', result);
-                        }
-                    });
-                };
-            })();
-        </script>
+    <script type="text/javascript">
+      document.getElementById('pay-button').onclick = function(){
+        // SnapToken acquired from previous step
+        snap.pay('{{ $snap_token }}', {
+          // Optional
+                    onSuccess: function(result){
+                        // redirect to success page for this order so server can show actual status
+                        window.location.href = "{{ url('payment/success') }}?order={{ $order->invoice_number }}";
+                    },
+          // Optional
+          onPending: function(result){
+                    
+           
+          },
+          // Optional
+          onError: function(result){
+           
+          }
+        });
+      };
+    </script>
 
 </x-layout>

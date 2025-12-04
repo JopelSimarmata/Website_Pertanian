@@ -39,11 +39,14 @@ class OrderController extends Controller
 
         $items = [];
         foreach ($order->orderDetails as $detail) {
+            // guard against missing related product (deleted or null)
+            $productName = $detail->product?->name ?? ('Product #' . ($detail->product_id ?? 'unknown'));
+
             $items[] = array(
                 'id' => $detail->product_id,
                 'price' => $detail->price,
                 'quantity' => $detail->quantity,
-                'name' => 'Product '.$detail->product_id,
+                'name' => $productName,
             );
         }
 

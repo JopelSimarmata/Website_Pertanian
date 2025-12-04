@@ -13,24 +13,27 @@ class ProductReviews extends Model
 
     protected $fillable = [
         'product_id',
-        'user_id',
+        'buyer_id',
         'rating',
         'comment',
-        'is_approved',
+        'helpful_count',
     ];
 
     // Relasi ke product
     public function product()
     {
-        // jika primary key di products adalah `product_id`:
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 
-    // Relasi ke user
+    // Relasi ke user (buyer)
     public function user()
     {
-        // jika primary key di users adalah `user_id`:
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'buyer_id', 'id');
+    }
 
+    // Alias untuk buyer
+    public function buyer()
+    {
+        return $this->belongsTo(User::class, 'buyer_id', 'id');
     }
 }

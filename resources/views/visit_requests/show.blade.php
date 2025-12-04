@@ -16,7 +16,6 @@
   <div class="flex justify-between items-center mb-4">
     <div>
       <h2 class="text-lg font-semibold">Detail Permintaan Kunjungan</h2>
-      <p class="text-sm text-gray-500">ID: VR-{{ $vr->request_id }}</p>
     </div>
     @php
       $status = $vr->status ?? 'pending';
@@ -132,17 +131,47 @@
     </div>
   </div>
 
-  @php $me = auth()->user(); @endphp
-  @if($me && ($me->id === $vr->buyer_id) && ($vr->status === 'approved'))
-    <div class="mt-6">
-      <a href="{{ route('payments.create', ['request_id' => $vr->request_id]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md shadow hover:bg-emerald-500">
-        <!-- credit card icon -->
-        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M3 11h18M7 16h.01" />
-        </svg>
-        <span class="text-sm font-medium">Lanjutkan ke Pembayaran</span>
-      </a>
+  @php
+    $me = auth()->user();
+    $orderExists = isset($order) && $order;
+    $paymentStatus = null;
+    $isPaid = false;
+    $paymentDate = null;
+    if ($orderExists) {
+        $paymentStatus = $order->status ?? ($latestPayment->status ?? null);
+        $isPaid = ($paymentStatus === 'paid' || $paymentStatus === 'settlement');
+        $paymentDate = $latestPayment?->payment_date ?? $order->updated_at ?? null;
+    }
+  @endphp
+
+  @if($orderExists && $isPaid)
+    <div class="mt-6 p-4 rounded-lg bg-green-50 border border-green-100">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <div class="text-sm text-green-700 font-semibold">Pembayaran Berhasil</div>
+          <div class="text-sm text-gray-700">Invoice: <a class="text-emerald-600 underline" href="{{ route('orders.show', ['order' => $order->invoice_number]) }}">{{ $order->invoice_number }}</a></div>
+          <div class="text-sm text-gray-600">Jumlah: Rp {{ number_format($order->gross_amount ?? 0, 0, ',', '.') }}</div>
+          @if($paymentDate)
+            <div class="text-sm text-gray-600">Tanggal Pembayaran: {{ \Carbon\Carbon::parse($paymentDate)->locale('id')->translatedFormat('l, d F Y H:i') }}</div>
+          @endif
+        </div>
+        <div>
+          <a href="{{ route('orders.show', ['order' => $order->invoice_number]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-emerald-100 text-emerald-700 rounded-md shadow-sm hover:bg-emerald-50">Lihat Invoice</a>
+        </div>
+      </div>
     </div>
+  @else
+    @if($me && ($me->id === $vr->buyer_id) && ($vr->status === 'approved'))
+      <div class="mt-6">
+        <a href="{{ route('payments.create', ['request_id' => $vr->request_id]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md shadow hover:bg-emerald-500">
+          <!-- credit card icon -->
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M3 11h18M7 16h.01" />
+          </svg>
+          <span class="text-sm font-medium">Lanjutkan ke Pembayaran</span>
+        </a>
+      </div>
+    @endif
   @endif
 
   <!-- Footer -->

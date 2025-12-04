@@ -6,18 +6,78 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductCategories;
+use App\Models\ProductReviews;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // ambil produk terbaru, paginasi 20 per halaman
-        // eager load review count for display
-        // eager load images to avoid N+1 when rendering thumbnails
-        $products = Product::with('images')->withCount('reviews')->orderBy('created_at', 'desc')->paginate(20);
+        // build base query with eager loading
+        $query = Product::with(['images', 'seller', 'category'])->withCount('reviews');
 
-        return view('marketplace.index', compact('products'));
+        // search across name, description, category and seller name
+        if ($q = $request->query('q')) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%")
+                    ->orWhereHas('seller', function ($seller) use ($q) {
+                        $seller->where('name', 'like', "%{$q}%");
+                    })
+                    ->orWhereHas('category', function ($cat) use ($q) {
+                        $cat->where('slug', 'like', "%{$q}%")->orWhere('name', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        // filter by category (accept id or slug)
+        if ($category = $request->query('category')) {
+            if ($category !== 'all' && $category !== '') {
+                if (is_numeric($category)) {
+                    $query->where('category_id', (int) $category);
+                } else {
+                    $query->whereHas('category', function ($c) use ($category) {
+                        $c->where('slug', $category)->orWhere('name', $category);
+                    });
+                }
+            }
+        }
+
+        // price range
+        if ($min = $request->query('min_price')) {
+            if (is_numeric($min)) {
+                $query->where('price', '>=', (int) $min);
+            }
+        }
+        if ($max = $request->query('max_price')) {
+            if (is_numeric($max)) {
+                $query->where('price', '<=', (int) $max);
+            }
+        }
+
+        // sorting
+        $sort = $request->query('sort');
+        switch ($sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'rating':
+                $query->orderBy('rating', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+
+        $products = $query->paginate(20)->withQueryString();
+
+        // categories for filter dropdown
+        $categories = ProductCategories::orderBy('slug')->get();
+
+        return view('marketplace.index', compact('products', 'categories'));
     }
 
     /**
@@ -25,9 +85,109 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['seller', 'category'])->withCount('reviews')->findOrFail($id);
+        $product = Product::with(['seller', 'category', 'images', 'reviews.buyer'])
+            ->withCount('reviews')
+            ->findOrFail($id);
 
-        return view('marketplace.detail', compact('product'));
+        // Calculate average rating
+        $avgRating = $product->reviews->avg('rating') ?? 0;
+        $product->calculated_rating = round($avgRating, 1);
+
+        // Rating distribution
+        $ratingDistribution = [];
+        for ($i = 5; $i >= 1; $i--) {
+            $count = $product->reviews->where('rating', $i)->count();
+            $ratingDistribution[$i] = [
+                'count' => $count,
+                'percentage' => $product->reviews_count > 0 ? round(($count / $product->reviews_count) * 100) : 0
+            ];
+        }
+
+        // Check if current user can review (must be tengkulak with completed transaction)
+        $canReview = false;
+        $hasReviewed = false;
+        $hasCompletedTransaction = false;
+        
+        if (Auth::check()) {
+            $user = Auth::user();
+            
+            // Check if user already reviewed
+            $hasReviewed = ProductReviews::where('product_id', $id)
+                ->where('buyer_id', $user->id)
+                ->exists();
+            
+            // Check if user has completed transaction (approved visit request)
+            if (($user->role ?? '') === 'tengkulak') {
+                $hasCompletedTransaction = \App\Models\VisitRequest::where('product_id', $id)
+                    ->where('buyer_id', $user->id)
+                    ->where('status', 'approved')
+                    ->exists();
+                
+                // Can review only if has completed transaction and hasn't reviewed yet
+                if ($hasCompletedTransaction && !$hasReviewed) {
+                    $canReview = true;
+                }
+            }
+        }
+
+        return view('marketplace.detail', compact('product', 'ratingDistribution', 'canReview', 'hasReviewed', 'hasCompletedTransaction'));
+    }
+
+    /**
+     * Store a product review
+     */
+    public function storeReview(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('show.login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
+        // Check if user is tengkulak
+        if (($user->role ?? '') !== 'tengkulak') {
+            return back()->with('error', 'Hanya pembeli yang dapat memberikan ulasan');
+        }
+
+        // Check if product exists
+        $product = Product::findOrFail($id);
+
+        // Check if user has completed transaction (approved visit)
+        $hasCompletedTransaction = \App\Models\VisitRequest::where('product_id', $id)
+            ->where('buyer_id', $user->id)
+            ->where('status', 'approved')
+            ->exists();
+
+        if (!$hasCompletedTransaction) {
+            return back()->with('error', 'Anda hanya dapat memberikan ulasan setelah transaksi selesai (kunjungan disetujui)');
+        }
+
+        // Check if user already reviewed
+        $existingReview = ProductReviews::where('product_id', $id)
+            ->where('buyer_id', $user->id)
+            ->first();
+
+        if ($existingReview) {
+            return back()->with('error', 'Anda sudah memberikan ulasan untuk produk ini');
+        }
+
+        $data = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        ProductReviews::create([
+            'product_id' => $id,
+            'buyer_id' => $user->id,
+            'rating' => $data['rating'],
+            'comment' => $data['comment'] ?? null,
+            'helpful_count' => 0,
+        ]);
+
+        // Update product average rating
+        $avgRating = ProductReviews::where('product_id', $id)->avg('rating');
+        $product->update(['rating' => round($avgRating, 1)]);
+
+        return back()->with('success', 'Ulasan berhasil ditambahkan!');
     }
 
     /** Show upload form for Petani */

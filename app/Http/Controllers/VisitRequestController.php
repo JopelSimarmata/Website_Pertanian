@@ -18,19 +18,19 @@ class VisitRequestController extends Controller
         // Role based listing:
         if ($user && ($user->role ?? '') === 'petani') {
             // show requests for this farmer (seller)
-            $requests = VisitRequest::with(['user', 'product'])
+            $requests = VisitRequest::with(['user', 'product.images'])
                 ->where('seller_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
         } elseif ($user && ($user->role ?? '') === 'tengkulak') {
             // show requests created by this tengkulak (buyer)
-            $requests = VisitRequest::with(['seller', 'product'])
+            $requests = VisitRequest::with(['seller', 'product.images'])
                 ->where('buyer_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
             // admin or others: show all
-            $requests = VisitRequest::with(['user', 'seller', 'product'])
+            $requests = VisitRequest::with(['user', 'seller', 'product.images'])
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
@@ -83,7 +83,7 @@ class VisitRequestController extends Controller
 
         // only buyer who created it can cancel and only when pending
         if ($user->id !== $vr->buyer_id) {
-            return redirect()->route('visit_requests.index')->with('error', 'Anda tidak memiliki izin membatalkan permintaan ini');
+            return redirect()->route('visit_requests.iferndex')->with('error', 'Anda tidak memiliki izin membatalkan permintaan ini');
         }
 
         if ($vr->status !== 'pending' && $vr->status !== null) {
@@ -115,7 +115,11 @@ class VisitRequestController extends Controller
             return redirect()->route('visit_requests.index')->with('error', 'Anda tidak memiliki izin melihat permintaan ini');
         }
 
-        return view('visit_requests.show', compact('vr','user'));
+        // load related order (if any) and latest payment to determine paid state
+        $order = \App\Models\Order::where('request_id', $vr->request_id)->with('payments')->first();
+        $latestPayment = $order?->payments()->latest()->first();
+
+        return view('visit_requests.show', compact('vr','user','order','latestPayment'));
     }
 
     /** Reject a visit request */
