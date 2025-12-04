@@ -75,7 +75,7 @@
       </div>
   </section>
 
-  <!-- Footer -->
+  <!--- Footer --->
   <footer class="bg-green-900 text-gray-200 py-12">
       <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 px-6">
           <div>
