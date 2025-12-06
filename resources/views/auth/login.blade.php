@@ -138,7 +138,7 @@
               </div>
 
               <div>
-                <button type="submit" class="w-full rounded-md bg-green-500 hover:bg-green-600 text-white py-2 font-semibold">Masuk</button>
+                <button type="submit" class="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 font-semibold transition">Masuk</button>
               </div>
             </form>
 
