@@ -26,7 +26,7 @@ class DashboardController extends Controller
         }
 
         // load products for this seller
-        $products = Product::with(['images', 'category', 'reviews'])
+        $products = Product::with('images')
             ->where('seller_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -37,29 +37,7 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Statistics
-        $stats = [
-            'total_products' => $products->count(),
-            'total_stock' => $products->sum('stock'),
-            'total_requests' => $requests->count(),
-            'pending_requests' => $requests->where('status', 'pending')->count(),
-            'approved_requests' => $requests->where('status', 'approved')->count(),
-            'rejected_requests' => $requests->where('status', 'rejected')->count(),
-            'total_reviews' => $products->sum(fn($p) => $p->reviews->count()),
-            'avg_rating' => $products->avg('rating') ?? 0,
-            'low_stock_products' => $products->where('stock', '<', 10)->count(),
-        ];
-
-        // Recent requests (last 5)
-        $recentRequests = $requests->take(5);
-
-        // Top products by rating
-        $topProducts = $products->sortByDesc('rating')->take(5);
-
-        // Products needing attention (low stock)
-        $lowStockProducts = $products->where('stock', '<', 10)->sortBy('stock');
-
-        return view('dashboard.farmer', compact('user','products','requests','stats','recentRequests','topProducts','lowStockProducts'));
+        return view('dashboard.farmer', compact('user','products','requests'));
     }
 
     /** Show create product form */

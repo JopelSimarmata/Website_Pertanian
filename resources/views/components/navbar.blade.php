@@ -1,6 +1,6 @@
 <!-- Include this script tag or install `@tailwindplus/elements` via npm: -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script> -->
-<nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md">
+<nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
   <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
     <div class="relative flex h-16 items-center justify-between">
       <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -28,44 +28,41 @@
           <div class="flex space-x-4 whitespace-nowrap">
 
             
-            <a href="/" aria-current="page" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('/') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="/" aria-current="page" class="flex items-center rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->is('/') ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd" />
               </svg>
               <span>Beranda</span>
             </a>
 
-            <a href="/forum" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('forum*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="/forum" class="flex items-center rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->is('forum*') ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.186 1.186 0 0 1 .863-.501c1.153-.086 2.305-.213 3.458-.379 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
               </svg>
               <span>Forum</span>
             </a>
 
-            <a href="/marketplace" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="/marketplace" class="flex items-center rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->is('marketplace*') ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
               </svg>
               <span>Marketplace</span>
             </a>
 
-          
-
-
             @auth
-            <a href="/visit-requests" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+            <a href="/visit-requests" class="flex items-center rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">
               <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
               </svg>
               <span>Kunjungan Lokasi</span>
             </a>
-            @endauth
 
-            
-            @auth
               @if(strtolower(Auth::user()->role ?? '') === 'petani')
-                <a href="{{ route('dashboard.farmer') }}" class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->is('dashboard/farmer*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}"> 
+                <a href="{{ route('dashboard.farmer') }}" class="flex items-center rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->is('dashboard/farmer*') ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">
+                  <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                  </svg>
                   <span>Dashboard</span>
                 </a>
               @endif
@@ -76,8 +73,8 @@
 
       <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 space-x-2">
         @guest
-          <a href="/login" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Masuk</a>
-          <a href="/register" class="inline-flex items-center px-3 py-1.5 border border-indigo-600 text-sm font-medium rounded-md text-indigo-100 bg-white/5 hover:bg-white/10">Daftar</a>
+          <a href="/login" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-sm">Masuk</a>
+          <a href="/register" class="inline-flex items-center px-4 py-2 border border-emerald-600 text-sm font-medium rounded-lg text-emerald-600 bg-white hover:bg-emerald-50 transition">Daftar</a>
         @endguest
 
         @auth
@@ -132,15 +129,15 @@
 
       <el-disclosure id="mobile-menu" hidden class="block sm:hidden border-t border-gray-200">
     <div class="space-y-1 px-2 pt-2 pb-3">
-      <a href="/" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('/') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Beranda</a>
-      <a href="/forum" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('forum*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Forum</a>
-      <a href="/marketplace" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('marketplace*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Marketplace</a>
+      <a href="/" class="block rounded-lg px-3 py-2 text-base font-medium transition {{ request()->is('/') ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">Beranda</a>
+      <a href="/forum" class="block rounded-lg px-3 py-2 text-base font-medium transition {{ request()->is('forum*') ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">Forum</a>
+      <a href="/marketplace" class="block rounded-lg px-3 py-2 text-base font-medium transition {{ request()->is('marketplace*') ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">Marketplace</a>
         @auth
+          <a href="/visit-requests" class="block rounded-lg px-3 py-2 text-base font-medium transition {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">Kunjungan Lokasi</a>
           @if(strtolower(Auth::user()->role ?? '') === 'petani')
-            <a href="{{ route('dashboard.farmer') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900">Dashboard</a>
+            <a href="{{ route('dashboard.farmer') }}" class="block rounded-lg px-3 py-2 text-base font-medium transition {{ request()->is('dashboard/farmer*') ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700' }}">Dashboard</a>
           @endif
         @endauth
-      <a href="/visit-requests" class="block rounded-md px-3 py-2 text-base font-medium {{ request()->is('visit-requests*') || request()->is('kunjungan*') ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">Kunjungan Lokasi</a>
     </div>
   </el-disclosure>
 </nav>

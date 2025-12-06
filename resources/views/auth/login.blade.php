@@ -48,6 +48,36 @@
             <h3 class="text-center text-lg font-semibold text-emerald-800">Masuk ke Akun Anda</h3>
             <p class="text-center text-sm text-gray-500 mt-2">Masukkan email dan password untuk melanjutkan</p>
 
+            {{-- Error Messages --}}
+            @if ($errors->any())
+              <div class="mt-4 bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-red-800 text-sm mb-1">Terjadi Kesalahan</h3>
+                    <ul class="text-sm text-red-700 space-y-1">
+                      @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                      @endforeach
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            @endif
+
+            @if(session('success'))
+              <div class="mt-4 bg-emerald-50 border-l-4 border-emerald-500 rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                  <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <p class="text-emerald-800 font-medium text-sm">{{ session('success') }}</p>
+                </div>
+              </div>
+            @endif
+
             <form action="{{ route('login') }}" method="POST" class="mt-6 space-y-4">
               @csrf
 
@@ -67,7 +97,18 @@
 
               <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="mt-2 block w-full rounded-md border border-gray-200 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300" />
+                <input 
+                  id="email" 
+                  name="email" 
+                  type="email" 
+                  value="{{ old('email') }}" 
+                  required 
+                  autocomplete="email" 
+                  class="mt-2 block w-full rounded-md border {{ $errors->has('email') ? 'border-red-500 focus:ring-red-300' : 'border-gray-200 focus:ring-emerald-300' }} px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2" 
+                />
+                @error('email')
+                  <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
               </div>
 
               <div>
@@ -76,7 +117,14 @@
                   <a href="#" class="text-sm text-emerald-600 hover:underline">Lupa password?</a>
                 </div>
                 <div class="mt-2 relative">
-                  <input id="password" name="password" type="password" required autocomplete="current-password" class="block w-full rounded-md border border-gray-200 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300" />
+                  <input 
+                    id="password" 
+                    name="password" 
+                    type="password" 
+                    required 
+                    autocomplete="current-password" 
+                    class="block w-full rounded-md border {{ $errors->has('password') ? 'border-red-500 focus:ring-red-300' : 'border-gray-200 focus:ring-emerald-300' }} px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2" 
+                  />
                   <button type="button" id="togglePwd" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -84,6 +132,9 @@
                     </svg>
                   </button>
                 </div>
+                @error('password')
+                  <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
               </div>
 
               <div>
@@ -97,18 +148,7 @@
 
       </div>
     </div>
-      @if ($errors->any())
-      <div class="mt-4">
-        <ul class="list-disc list-inside text-sm text-red-600">
-          @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-        </ul>
-      </div>
-      @endif
-    </form>
-
-
+  </div>
 
   <!-- small script to toggle password visibility -->
   <script>

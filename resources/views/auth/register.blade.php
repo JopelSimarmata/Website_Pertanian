@@ -47,6 +47,25 @@
             <h3 class="text-center text-lg font-semibold text-emerald-800">Buat Akun Baru</h3>
             <p class="text-center text-sm text-gray-500 mt-2">Daftar sekarang dan bergabung dengan komunitas kami</p>
 
+            {{-- Error Messages --}}
+            @if ($errors->any())
+              <div class="mt-4 bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-red-800 text-sm mb-1">Terjadi Kesalahan</h3>
+                    <ul class="text-sm text-red-700 space-y-1">
+                      @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                      @endforeach
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            @endif
+
             <form action="{{ route('register') }}" method="POST" class="mt-6 space-y-4">
               @csrf
 
@@ -65,18 +84,44 @@
 
               <div>
                 <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                <input id="name" name="name" type="text" value="{{ old('name') }}" required class="mt-2 block w-full rounded-md border border-gray-200 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300" />
+                <input 
+                  id="name" 
+                  name="name" 
+                  type="text" 
+                  value="{{ old('name') }}" 
+                  required 
+                  class="mt-2 block w-full rounded-md border {{ $errors->has('name') ? 'border-red-500 focus:ring-red-300' : 'border-gray-200 focus:ring-emerald-300' }} px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2" 
+                />
+                @error('name')
+                  <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
               </div>
 
               <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input id="email" name="email" type="email" value="{{ old('email') }}" required class="mt-2 block w-full rounded-md border border-gray-200 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300" />
+                <input 
+                  id="email" 
+                  name="email" 
+                  type="email" 
+                  value="{{ old('email') }}" 
+                  required 
+                  class="mt-2 block w-full rounded-md border {{ $errors->has('email') ? 'border-red-500 focus:ring-red-300' : 'border-gray-200 focus:ring-emerald-300' }} px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2" 
+                />
+                @error('email')
+                  <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
               </div>
 
               <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Password <span class="text-xs text-gray-400">(minimal 6 karakter)</span></label>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password </label>
                 <div class="mt-2 relative">
-                  <input id="password" name="password" type="password" required class="block w-full rounded-md border border-gray-200 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300" />
+                  <input 
+                    id="password" 
+                    name="password" 
+                    type="password" 
+                    required 
+                    class="block w-full rounded-md border {{ $errors->has('password') ? 'border-red-500 focus:ring-red-300' : 'border-gray-200 focus:ring-emerald-300' }} px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2" 
+                  />
                   <button type="button" id="togglePwd" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -84,12 +129,21 @@
                     </svg>
                   </button>
                 </div>
+                @error('password')
+                  <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
               </div>
 
               <div>
                 <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
                 <div class="mt-2 relative">
-                  <input id="password_confirmation" name="password_confirmation" type="password" required class="block w-full rounded-md border border-gray-200 px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-300" />
+                  <input 
+                    id="password_confirmation" 
+                    name="password_confirmation" 
+                    type="password" 
+                    required 
+                    class="block w-full rounded-md border {{ $errors->has('password_confirmation') ? 'border-red-500 focus:ring-red-300' : 'border-gray-200 focus:ring-emerald-300' }} px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-2" 
+                  />
                   <button type="button" id="toggleConfirm" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

@@ -26,6 +26,17 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|string|in:petani,tengkulak'
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi',
+            'name.max' => 'Nama maksimal 255 karakter',
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Format email tidak valid',
+            'email.unique' => 'Email sudah terdaftar, gunakan email lain',
+            'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password minimal 8 karakter',
+            'password.confirmed' => 'Konfirmasi password tidak cocok',
+            'role.required' => 'Pilih role (Petani/Tengkulak)',
+            'role.in' => 'Role tidak valid'
         ]);
 
         $user = User::create($validated);
@@ -40,16 +51,20 @@ class AuthController extends Controller
         $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string'
+        ], [
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Format email tidak valid',
+            'password.required' => 'Password wajib diisi'
         ]);
 
         if (Auth::attempt($validated)){
             $request->session()->regenerate();
-            return redirect()->route('home');
+            return redirect()->route('home')->with('success', 'Selamat datang kembali!');
         }
 
-        throw ValidationException::withMessages([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return back()->withErrors([
+            'email' => 'Email atau password salah. Silakan coba lagi.',
+        ])->withInput($request->only('email'));
 
 
 

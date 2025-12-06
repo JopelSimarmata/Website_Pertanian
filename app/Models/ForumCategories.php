@@ -41,4 +41,9 @@ class ForumCategories extends Model
     {
         return $this->belongsToMany(User::class, 'forum_category_user', 'category_id', 'user_id')->withTimestamps();
     }
+
+    public function threads()
+    {
+        return $this->hasMany(ForumThread::class, 'category_id', 'category_id');
+    }
 }

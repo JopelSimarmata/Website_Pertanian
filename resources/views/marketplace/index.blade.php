@@ -2,23 +2,22 @@
 <x-navbar></x-navbar>
 
 {{-- Hero Section --}}
-<div class="bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 relative overflow-hidden">
-  <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.05\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 relative">
+<div class="bg-green-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
     <div class="text-center">
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">Marketplace Pertanian</h1>
-      <p class="text-emerald-100 text-lg max-w-2xl mx-auto">Temukan berbagai produk pertanian berkualitas langsung dari petani lokal untuk mendukung kebutuhan Anda.</p>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Marketplace Pertanian</h1>
+      <p class="text-gray-600 text-lg max-w-2xl mx-auto">Temukan berbagai produk pertanian berkualitas langsung dari petani lokal untuk mendukung kebutuhan Anda.</p>
     </div>
 
     {{-- Search Bar --}}
     <form method="GET" action="{{ route('marketplace') }}" class="mt-8 max-w-2xl mx-auto">
-      <div class="relative bg-white rounded-xl shadow-lg overflow-hidden border-2 border-white/20">
-        <svg class="w-5 h-5 text-emerald-500 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="relative bg-gray-50 rounded-xl border-2 border-gray-200 focus-within:border-emerald-500 transition">
+        <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
         </svg>
         <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari produk, kategori, atau penjual..." 
-          class="w-full pl-12 pr-24 py-4 border-0 focus:ring-0 text-gray-900 placeholder-gray-400 bg-transparent" />
-        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-400 transition font-medium shadow-md">
+          class="w-full pl-12 pr-24 py-4 border-0 focus:ring-0 text-gray-900 placeholder-gray-500 bg-transparent" />
+        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
           Cari
         </button>
       </div>
@@ -38,64 +37,130 @@
   @endif
 
   {{-- Filters --}}
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-8">
-    <form method="GET" action="{{ route('marketplace') }}" class="flex flex-col lg:flex-row lg:items-center gap-4">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+    <div class="flex items-center gap-2 mb-4">
+      <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+      </svg>
+      <h2 class="text-lg font-semibold text-gray-900">Filter & Urutkan</h2>
+    </div>
+    
+    <form method="GET" action="{{ route('marketplace') }}">
       {{-- Hidden search field to preserve search query --}}
       @if(request('q'))
         <input type="hidden" name="q" value="{{ request('q') }}">
       @endif
 
-      {{-- Categories --}}
-      <div class="flex-1">
-        <label for="category" class="block text-xs font-medium text-gray-500 mb-1">Kategori</label>
-        <select id="category" name="category" class="w-full rounded-lg border-gray-200 py-2.5 text-sm text-gray-700 focus:ring-emerald-500 focus:border-emerald-500">
-          <option value="all">Semua Kategori</option>
-          @foreach($categories as $cat)
-            <option value="{{ $cat->category_id }}" {{ (string)request('category') === (string)$cat->category_id ? 'selected' : '' }}>
-              {{ ucfirst(str_replace('-', ' ', $cat->slug)) }}
-            </option>
-          @endforeach
-        </select>
-      </div>
-
-      {{-- Price Range --}}
-      <div class="flex items-end gap-2">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {{-- Categories --}}
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Harga Min</label>
-          <input type="number" name="min_price" placeholder="0" value="{{ request('min_price') }}" 
-            class="w-28 rounded-lg border-gray-200 py-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500" />
+          <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+            <svg class="w-4 h-4 inline mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            Kategori
+          </label>
+          <select id="category" name="category" class="w-full rounded-xl border-2 border-gray-300 py-2.5 px-4 text-sm text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            <option value="all">Semua Kategori</option>
+            @foreach($categories as $cat)
+              <option value="{{ $cat->category_id }}" {{ (string)request('category') === (string)$cat->category_id ? 'selected' : '' }}>
+                {{ ucfirst(str_replace('-', ' ', $cat->slug)) }}
+              </option>
+            @endforeach
+          </select>
         </div>
-        <span class="text-gray-300 pb-2.5">—</span>
+
+        {{-- Sort --}}
         <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Harga Max</label>
-          <input type="number" name="max_price" placeholder="∞" value="{{ request('max_price') }}" 
-            class="w-28 rounded-lg border-gray-200 py-2.5 text-sm focus:ring-emerald-500 focus:border-emerald-500" />
+          <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">
+            <svg class="w-4 h-4 inline mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+            </svg>
+            Urutkan
+          </label>
+          <select id="sort" name="sort" class="w-full rounded-xl border-2 border-gray-300 py-2.5 px-4 text-sm text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            <option value="">Terbaru</option>
+            <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Harga Terendah</option>
+            <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Harga Tertinggi</option>
+            <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Rating Tertinggi</option>
+          </select>
+        </div>
+
+        {{-- Price Min --}}
+        <div>
+          <label for="min_price" class="block text-sm font-medium text-gray-700 mb-2">
+            <svg class="w-4 h-4 inline mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Harga Minimum
+          </label>
+          <input type="number" id="min_price" name="min_price" placeholder="Rp 0" value="{{ request('min_price') }}" 
+            class="w-full rounded-xl border-2 border-gray-300 py-2.5 px-4 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition" />
+        </div>
+
+        {{-- Price Max --}}
+        <div>
+          <label for="max_price" class="block text-sm font-medium text-gray-700 mb-2">
+            <svg class="w-4 h-4 inline mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Harga Maximum
+          </label>
+          <input type="number" id="max_price" name="max_price" placeholder="Tidak terbatas" value="{{ request('max_price') }}" 
+            class="w-full rounded-xl border-2 border-gray-300 py-2.5 px-4 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition" />
         </div>
       </div>
 
-      {{-- Sort --}}
-      <div>
-        <label class="block text-xs font-medium text-gray-500 mb-1">Urutkan</label>
-        <select name="sort" class="rounded-lg border-gray-200 py-2.5 text-sm text-gray-700 focus:ring-emerald-500 focus:border-emerald-500">
-          <option value="">Terbaru</option>
-          <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Harga Terendah</option>
-          <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Harga Tertinggi</option>
-          <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Rating Tertinggi</option>
-        </select>
-      </div>
-
-      {{-- Filter Button --}}
-      <div class="flex items-end gap-2">
-        <button type="submit" class="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition font-medium text-sm">
-          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+      {{-- Action Buttons --}}
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button type="submit" class="flex-1 sm:flex-initial inline-flex items-center justify-center px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition font-medium text-sm shadow-sm hover:shadow-md">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
-          Filter
+          Terapkan Filter
         </button>
+        
         @if(request()->hasAny(['q', 'category', 'min_price', 'max_price', 'sort']))
-          <a href="{{ route('marketplace') }}" class="px-4 py-2.5 text-gray-600 hover:text-gray-800 text-sm">Reset</a>
+          <a href="{{ route('marketplace') }}" class="flex-1 sm:flex-initial inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-medium text-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Reset Filter
+          </a>
         @endif
       </div>
+
+      {{-- Active Filters Badge --}}
+      @if(request()->hasAny(['category', 'min_price', 'max_price', 'sort']))
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          <div class="flex flex-wrap gap-2 items-center">
+            <span class="text-sm text-gray-500 font-medium">Filter aktif:</span>
+            @if(request('category') && request('category') !== 'all')
+              @php
+                $selectedCat = $categories->firstWhere('category_id', request('category'));
+              @endphp
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                {{ ucfirst(str_replace('-', ' ', $selectedCat->slug ?? 'Kategori')) }}
+              </span>
+            @endif
+            @if(request('min_price'))
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                Min: Rp {{ number_format(request('min_price'), 0, ',', '.') }}
+              </span>
+            @endif
+            @if(request('max_price'))
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                Max: Rp {{ number_format(request('max_price'), 0, ',', '.') }}
+              </span>
+            @endif
+            @if(request('sort'))
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                {{ request('sort') == 'price_asc' ? 'Harga Terendah' : (request('sort') == 'price_desc' ? 'Harga Tertinggi' : 'Rating Tertinggi') }}
+              </span>
+            @endif
+          </div>
+        </div>
+      @endif
     </form>
   </div>
 

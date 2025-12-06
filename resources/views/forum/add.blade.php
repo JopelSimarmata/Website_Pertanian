@@ -1,60 +1,224 @@
-@extends('layouts.app')
+<x-layout>
+<x-navbar></x-navbar>
 
-@section('title', 'Tambah Diskusi Baru')
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  {{-- Header --}}
+  <div class="mb-6">
+    <a href="{{ route('forum.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-emerald-300 transition font-medium">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      <span>Kembali ke Forum</span>
+    </a>
+  </div>
 
-@section('content')
-<div class="bg-white p-6 rounded-lg shadow max-w-2xl mx-auto">
-    <h2 class="text-2xl font-bold text-black-700 mb-4">Buat Diskusi Baru</h2>
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    
+    {{-- Header Card --}}
+    <div class="bg-gradient-to-r from-emerald-600 to-green-600 px-8 py-6 text-white">
+      <h1 class="text-2xl font-bold mb-2">Buat Thread Baru</h1>
+      <p class="text-emerald-50">Bagikan pertanyaan, pengalaman, atau pengetahuan Anda dengan komunitas</p>
+    </div>
 
-    <form action="{{ route('forum.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-        @csrf
+    {{-- Form --}}
+    <form action="{{ route('forum.store') }}" method="POST" enctype="multipart/form-data" class="p-8">
+      @csrf
+
+      {{-- Error Messages --}}
+      @if ($errors->any())
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h3 class="font-semibold text-red-800 mb-1">Terdapat kesalahan:</h3>
+              <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+                @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+            </div>
+          </div>
+        </div>
+      @endif
+
+      <div class="space-y-6">
+        
+        {{-- Kategori --}}
+        <div>
+          <label class="block text-sm font-bold text-gray-900 mb-2">
+            Kategori <span class="text-red-500">*</span>
+          </label>
+          <select name="category_id" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition">
+            <option value="">Pilih kategori...</option>
+            @foreach(\App\Models\ForumCategories::all() as $cat)
+              <option value="{{ $cat->category_id }}" {{ old('category_id') == $cat->category_id ? 'selected' : '' }}>
+                {{ $cat->name }}
+              </option>
+            @endforeach
+          </select>
+          <p class="text-sm text-gray-500 mt-1">Pilih kategori yang sesuai dengan topik diskusi Anda</p>
+        </div>
+
         {{-- Judul --}}
         <div>
-            <label class="block text-gray-700 font-medium mb-1">Judul</label>
-            <input type="text" name="title" class="w-full border rounded px-3 py-2" placeholder="Masukkan judul diskusi" required>
+          <label class="block text-sm font-bold text-gray-900 mb-2">
+            Judul Thread <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            name="title" 
+            value="{{ old('title') }}"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" 
+            placeholder="Contoh: Bagaimana cara mengatasi hama wereng pada padi?"
+            required
+          >
+          <p class="text-sm text-gray-500 mt-1">Tulis judul yang jelas dan deskriptif</p>
         </div>
 
         {{-- Isi Diskusi --}}
         <div>
-            <label class="block text-gray-700 font-medium mb-1">Isi Diskusi</label>
-            <textarea name="content" rows="5" class="w-full border rounded px-3 py-2" placeholder="Tulis isi diskusi di sini..." required></textarea>
+          <label class="block text-sm font-bold text-gray-900 mb-2">
+            Isi Diskusi <span class="text-red-500">*</span>
+          </label>
+          <textarea 
+            name="content" 
+            rows="8" 
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition resize-none" 
+            placeholder="Jelaskan pertanyaan atau topik diskusi Anda secara detail..."
+            required
+          >{{ old('content') }}</textarea>
+          <p class="text-sm text-gray-500 mt-1">Berikan detail yang cukup agar komunitas dapat membantu Anda</p>
         </div>
 
-        {{-- Tag --}}
+        {{-- Tags --}}
         <div>
-            <label class="block text-gray-700 font-medium mb-1">Tag (opsional)</label>
-            <input type="text" name="tags" class="w-full border rounded px-3 py-2" placeholder="Contoh: hama, pupuk, panen">
+          <label class="block text-sm font-bold text-gray-900 mb-2">
+            Tag <span class="text-gray-500 text-xs font-normal">(opsional)</span>
+          </label>
+          <input 
+            type="text" 
+            name="tags" 
+            value="{{ old('tags') }}"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" 
+            placeholder="pisahkan dengan koma: hama, pupuk, padi"
+          >
+          <p class="text-sm text-gray-500 mt-1">Tambahkan tag untuk memudahkan pencarian (pisahkan dengan koma)</p>
         </div>
 
+        {{-- Image Upload --}}
         <div>
-            <label class="block text-gray-700 font-medium mb-1">Lampiran Gambar (opsional)</label>
-            <input type="file" name="image" accept="image/*" class="w-full border rounded px-3 py-2" onchange="previewImage(event)">
-            
+          <label class="block text-sm font-bold text-gray-900 mb-2">
+            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional)</span>
+          </label>
+          <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-500 transition">
+            <input 
+              type="file" 
+              name="image" 
+              accept="image/*" 
+              class="hidden" 
+              id="image-input"
+              onchange="previewImage(event)"
+            >
+            <label for="image-input" class="cursor-pointer">
+              <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <p class="text-sm text-gray-600 mb-1">
+                  <span class="font-semibold text-emerald-600">Klik untuk upload</span> atau drag and drop
+                </p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB</p>
+              </div>
+            </label>
+          </div>
 
-            <div id="image-preview" class="mt-3 hidden">
-                <p class="text-gray-600 text-sm mb-2">Pratinjau:</p>
-                <img id="preview" class="max-h-60 rounded-lg border shadow-sm">
+          {{-- Image Preview --}}
+          <div id="image-preview" class="mt-4 hidden">
+            <div class="relative inline-block">
+              <img id="preview" class="max-h-64 rounded-xl border-2 border-gray-200 shadow-sm">
+              <button 
+                type="button" 
+                onclick="removeImage()" 
+                class="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
             </div>
+          </div>
         </div>
 
-        <div class="flex justify-end gap-3 pt-3">
-            <a href="{{ route('forum.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-md">Batal</a>
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md">Simpan</button>
+        {{-- Guidelines --}}
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h4 class="font-semibold text-blue-900 mb-2">Panduan Membuat Thread:</h4>
+              <ul class="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                <li>Gunakan judul yang jelas dan spesifik</li>
+                <li>Jelaskan masalah atau topik dengan detail</li>
+                <li>Sertakan konteks yang relevan (lokasi, jenis tanaman, dll)</li>
+                <li>Bersikap sopan dan menghargai pendapat orang lain</li>
+                <li>Gunakan bahasa yang mudah dipahami</li>
+              </ul>
+            </div>
+          </div>
         </div>
+
+      </div>
+
+      {{-- Action Buttons --}}
+      <div class="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-200">
+        <button 
+          type="submit" 
+          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold shadow-lg"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Publikasikan Thread
+        </button>
+        <a 
+          href="{{ route('forum.index') }}" 
+          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-semibold"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Batal
+        </a>
+      </div>
+
     </form>
+  </div>
+
 </div>
 
 <script>
-    function previewImage(event) {
-        const preview = document.getElementById('preview');
-        const container = document.getElementById('image-preview');
-        const file = event.target.files[0];
-        if (file) {
-            preview.src = URL.createObjectURL(file);
-            container.classList.remove('hidden');
-        } else {
-            container.classList.add('hidden');
-        }
+  function previewImage(event) {
+    const preview = document.getElementById('preview');
+    const container = document.getElementById('image-preview');
+    const file = event.target.files[0];
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      container.classList.remove('hidden');
+    } else {
+      container.classList.add('hidden');
     }
+  }
+
+  function removeImage() {
+    const input = document.getElementById('image-input');
+    const container = document.getElementById('image-preview');
+    input.value = '';
+    container.classList.add('hidden');
+  }
 </script>
-@endsection
+
+</x-layout>
