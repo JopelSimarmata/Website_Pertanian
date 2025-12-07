@@ -9,6 +9,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForumThreadController;
 use App\Http\Controllers\VisitRequestController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +75,19 @@ Route::post('/visit-requests/{id}/approve', [VisitRequestController::class, 'app
     ->whereNumber('id')->name('visit_requests.approve');
 Route::post('/visit-requests/{id}/reject', [VisitRequestController::class, 'reject'])
     ->whereNumber('id')->name('visit_requests.reject');
+
+/*
+|--------------------------------------------------------------------------
+| Notifications
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread', [NotificationController::class, 'getUnread'])->name('notifications.unread');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
+});
 
 /*
 |--------------------------------------------------------------------------

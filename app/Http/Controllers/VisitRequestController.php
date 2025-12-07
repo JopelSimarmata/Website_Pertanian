@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\VisitRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
+use App\Http\Controllers\NotificationController;
 
 class VisitRequestController extends Controller
 {
@@ -64,6 +65,18 @@ class VisitRequestController extends Controller
 
         $vr->status = 'approved';
         $vr->save();
+
+        // Create notification for buyer (tengkulak)
+        NotificationController::createNotification(
+            $vr->buyer_id,
+            'visit_request_approved',
+            [
+                'title' => 'Permintaan Kunjungan Disetujui',
+                'message' => 'Permintaan kunjungan Anda untuk produk ' . ($vr->product->name ?? 'produk') . ' telah disetujui',
+                'request_id' => $vr->request_id,
+                'url' => route('visit_requests.show', $vr->request_id)
+            ]
+        );
 
         return redirect()->route('visit_requests.index')->with('success', 'Permintaan kunjungan disetujui');
     }
@@ -148,6 +161,18 @@ class VisitRequestController extends Controller
         $vr->status = 'rejected';
         $vr->save();
 
+        // Create notification for buyer (tengkulak)
+        NotificationController::createNotification(
+            $vr->buyer_id,
+            'visit_request_rejected',
+            [
+                'title' => 'Permintaan Kunjungan Ditolak',
+                'message' => 'Permintaan kunjungan Anda untuk produk ' . ($vr->product->name ?? 'produk') . ' telah ditolak',
+                'request_id' => $vr->request_id,
+                'url' => route('visit_requests.show', $vr->request_id)
+            ]
+        );
+
         return redirect()->route('visit_requests.index')->with('success', 'Permintaan kunjungan ditolak');
         }
 
@@ -209,6 +234,20 @@ class VisitRequestController extends Controller
             'notes' => $data['notes'] ?? null,
             'status' => 'pending',
         ]);
+
+        // Create notification for seller (petani)
+        if ($sellerId) {
+            NotificationController::createNotification(
+                $sellerId,
+                'visit_request_new',
+                [
+                    'title' => 'Permintaan Kunjungan Baru',
+                    'message' => $user->name . ' mengajukan permintaan kunjungan untuk produk ' . ($product->name ?? 'produk Anda'),
+                    'request_id' => $vr->request_id,
+                    'url' => route('visit_requests.show', $vr->request_id)
+                ]
+            );
+        }
 
         return redirect()->route('visit_requests.index')->with('success', 'Permintaan kunjungan berhasil dikirim');
     }

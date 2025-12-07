@@ -34,6 +34,7 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'id_number' => 'nullable|string|max:50',
+            'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'province' => 'nullable|string|max:100',
@@ -65,6 +66,7 @@ class ProfileController extends Controller
         // store profile fields in user_profiles table (include avatar if uploaded)
         $profilePayload = [
             'id_number' => $data['id_number'] ?? null,
+            'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
             'city' => $data['city'] ?? null,
             'province' => $data['province'] ?? null,

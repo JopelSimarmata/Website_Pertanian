@@ -11,7 +11,7 @@
     <div class="relative flex flex-col md:flex-row items-center gap-6">
       <div class="relative">
         @php
-          if (!empty($profile->avatar)) {
+          if (isset($profile) && !empty($profile->avatar)) {
               $avatar = asset('storage/' . $profile->avatar);
           } elseif (!empty($user->profile_photo_url)) {
               $avatar = $user->profile_photo_url;
@@ -43,13 +43,13 @@
             </svg>
             {{ ucfirst($user->role ?? 'User') }}
           </span>
-          @if($profile->city)
+          @if(isset($profile) && !empty($profile->city))
             <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm text-sm">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
               </svg>
-              {{ $profile->city }}{{ $profile->province ? ', ' . $profile->province : '' }}
+              {{ $profile->city }}{{ !empty($profile->province) ? ', ' . $profile->province : '' }}
             </span>
           @endif
         </div>
@@ -132,7 +132,7 @@
               </div>
               <div class="flex-1">
                 <p class="text-xs text-gray-500 mb-1">Nomor ID/KTP</p>
-                <p class="font-semibold text-gray-900">{{ $profile->id_number ?? '—' }}</p>
+                <p class="font-semibold text-gray-900">{{ (isset($profile) ? $profile->id_number : null) ?? '—' }}</p>
               </div>
             </div>
 
@@ -144,7 +144,7 @@
               </div>
               <div class="flex-1">
                 <p class="text-xs text-gray-500 mb-1">Nomor Telepon</p>
-                <p class="font-semibold text-gray-900">{{ $profile->phone ?? $user->phone ?? '—' }}</p>
+                <p class="font-semibold text-gray-900">{{ (isset($profile) ? $profile->phone : null) ?? '—' }}</p>
               </div>
             </div>
           </div>
@@ -164,11 +164,11 @@
               </div>
               <div class="flex-1">
                 <p class="text-xs text-gray-500 mb-1">Alamat</p>
-                <p class="font-semibold text-gray-900">{{ $profile->address ?? '—' }}</p>
-                @if($profile->city || $profile->province)
+                <p class="font-semibold text-gray-900">{{ (isset($profile) ? $profile->address : null) ?? '—' }}</p>
+                @if(isset($profile) && ($profile->city || $profile->province))
                   <p class="text-sm text-gray-600 mt-1">
-                    {{ $profile->city }}{{ $profile->province ? ', ' . $profile->province : '' }}
-                    {{ $profile->postal_code ? ' - ' . $profile->postal_code : '' }}
+                    {{ $profile->city ?? '' }}{{ isset($profile->province) && $profile->province ? ', ' . $profile->province : '' }}
+                    {{ isset($profile->postal_code) && $profile->postal_code ? ' - ' . $profile->postal_code : '' }}
                   </p>
                 @endif
               </div>
@@ -184,15 +184,15 @@
               <div class="space-y-2">
                 <div>
                   <p class="text-xs text-gray-600">Bank</p>
-                  <p class="font-semibold text-gray-900">{{ $profile->bank_name ?? '—' }}</p>
+                  <p class="font-semibold text-gray-900">{{ (isset($profile) ? $profile->bank_name : null) ?? '—' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-600">Nama Pemilik</p>
-                  <p class="font-semibold text-gray-900">{{ $profile->bank_account_name ?? '—' }}</p>
+                  <p class="font-semibold text-gray-900">{{ (isset($profile) ? $profile->bank_account_name : null) ?? '—' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-600">Nomor Rekening</p>
-                  <p class="font-semibold text-gray-900">{{ $profile->bank_account_number ?? '—' }}</p>
+                  <p class="font-semibold text-gray-900">{{ (isset($profile) ? $profile->bank_account_number : null) ?? '—' }}</p>
                 </div>
               </div>
             </div>
@@ -251,11 +251,11 @@
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Nomor ID/KTP</label>
-              <input type="text" name="id_number" value="{{ old('id_number', $profile->id_number ?? '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="id_number" value="{{ old('id_number', isset($profile) ? $profile->id_number : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Nomor Telepon</label>
-              <input type="text" name="phone" value="{{ old('phone', $profile->phone ?? '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="phone" value="{{ old('phone', isset($profile) ? $profile->phone : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
           </div>
         </div>
@@ -266,19 +266,19 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
               <label class="block text-sm font-bold text-gray-900 mb-2">Alamat Lengkap</label>
-              <textarea name="address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition resize-none">{{ old('address', $profile->address ?? '') }}</textarea>
+              <textarea name="address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition resize-none">{{ old('address', isset($profile) ? $profile->address : '') }}</textarea>
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Kota</label>
-              <input type="text" name="city" value="{{ old('city', $profile->city ?? '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="city" value="{{ old('city', isset($profile) ? $profile->city : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Provinsi</label>
-              <input type="text" name="province" value="{{ old('province', $profile->province ?? '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="province" value="{{ old('province', isset($profile) ? $profile->province : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Kode Pos</label>
-              <input type="text" name="postal_code" value="{{ old('postal_code', $profile->postal_code ?? '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="postal_code" value="{{ old('postal_code', isset($profile) ? $profile->postal_code : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
           </div>
         </div>
@@ -289,15 +289,15 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Nama Bank</label>
-              <input type="text" name="bank_name" value="{{ old('bank_name', $profile->bank_name ?? '') }}" placeholder="Contoh: BCA, Mandiri, BRI" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="bank_name" value="{{ old('bank_name', isset($profile) ? $profile->bank_name : '') }}" placeholder="Contoh: BCA, Mandiri, BRI" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Nama Pemilik Rekening</label>
-              <input type="text" name="bank_account_name" value="{{ old('bank_account_name', $profile->bank_account_name ?? '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="bank_account_name" value="{{ old('bank_account_name', isset($profile) ? $profile->bank_account_name : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-bold text-gray-900 mb-2">Nomor Rekening</label>
-              <input type="text" name="bank_account_number" value="{{ old('bank_account_number', $profile->bank_account_number ?? '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <input type="text" name="bank_account_number" value="{{ old('bank_account_number', isset($profile) ? $profile->bank_account_number : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
             </div>
           </div>
         </div>
