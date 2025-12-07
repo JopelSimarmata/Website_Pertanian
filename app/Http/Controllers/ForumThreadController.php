@@ -14,7 +14,7 @@ class ForumThreadController extends Controller
         $search = $request->get('search');
         $category = $request->get('category');
         
-        $query = ForumThread::with('author', 'category');
+        $query = ForumThread::with(['author', 'category', 'likes']);
         
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -52,12 +52,20 @@ class ForumThreadController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('forum-images', 'public');
+        }
 
         ForumThread::create([ 
             'title' => $request->title,
             'content' => $request->content,
-            'author_id' => 1, 
+            'author_id' => auth()->id() ?? 1,
+            'category_id' => $request->category_id,
+            'image' => $imagePath,
         ]);
 
         return redirect()->route('forum.index')->with('success', 'Thread berhasil dibuat!');
@@ -65,7 +73,58 @@ class ForumThreadController extends Controller
 
     public function detail($id)
     {
-        $thread = ForumThread::findOrFail($id);
+        $thread = ForumThread::with(['author', 'category', 'likes'])->findOrFail($id);
         return view('forum.detail', compact('thread'));
+    }
+
+    public function toggleLike($id)
+    {
+        $thread = ForumThread::findOrFail($id);
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Anda harus login untuk menyukai thread'
+            ], 401);
+        }
+
+        $liked = $thread->toggleLike($user);
+
+        return response()->json([
+            'success' => true,
+            'liked' => $liked,
+            'likes_count' => $thread->likes_count
+        ]);
+    }
+
+    public function toggleSolved($id)
+    {
+        $thread = ForumThread::findOrFail($id);
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus login'
+            ], 401);
+        }
+
+        // Only author can mark as solved
+        if ($thread->author_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pembuat thread yang bisa menandai sebagai terjawab'
+            ], 403);
+        }
+
+        $thread->is_solved = !$thread->is_solved;
+        $thread->save();
+
+        return response()->json([
+            'success' => true,
+            'is_solved' => $thread->is_solved,
+            'message' => $thread->is_solved ? 'Thread ditandai sebagai terjawab!' : 'Tandai terjawab dibatalkan'
+        ]);
     }
 }

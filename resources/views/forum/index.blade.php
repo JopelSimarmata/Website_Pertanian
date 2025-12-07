@@ -1,260 +1,647 @@
 <x-layout>
 <x-navbar></x-navbar>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  
-  {{-- Header --}}
-  <div class="bg-gradient-to-r from-emerald-600 to-green-600 rounded-2xl shadow-lg p-8 mb-8 text-white">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-      <div>
-        <h1 class="text-3xl font-bold mb-2">Forum Diskusi Pertanian</h1>
-        <p class="text-emerald-50">Berbagi pengalaman, bertanya, dan belajar bersama komunitas petani</p>
+<style>
+  .thread-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .thread-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(5, 150, 105, 0.15);
+  }
+  .category-chip {
+    transition: all 0.2s ease;
+  }
+  .category-chip:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  }
+  .floating-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 50;
+    animation: pulse-ring 2s infinite;
+  }
+  @keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 hsla(160, 84%, 39%, 0.70); }
+    50% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+  }
+  .search-highlight {
+    transition: all 0.3s ease;
+  }
+  .search-highlight:focus-within {
+    transform: scale(1.01);
+    box-shadow: 0 8px 30px rgba(5, 150, 105, 0.15);
+  }
+  @keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .toast {
+    animation: slideIn 0.3s ease-out;
+  }
+  .help-badge {
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+</style>
+
+{{-- Hero Section - Clean & Simple --}}
+<div class="bg-gradient-to-r from-emerald-600 to-green-600 text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    {{-- Welcome Header --}}
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full mb-4">
+        <span class="text-2xl">🌾</span>
+        <span class="text-sm font-semibold">Komunitas Petani Indonesia</span>
       </div>
-      <a href="{{ route('forum.add') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition shadow-lg">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Buat Thread Baru
-      </a>
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Forum Diskusi</h1>
+      <p class="text-xl text-emerald-50 max-w-2xl mx-auto mb-2">Punya pertanyaan tentang pertanian?</p>
+      <p class="text-lg text-emerald-100">Tanya di sini, kami siap membantu! 💪</p>
     </div>
 
-    {{-- Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+    {{-- Big Search Bar --}}
+    <div class="max-w-3xl mx-auto">
+      <form action="{{ route('forum.index') }}" method="GET" class="search-highlight">
+        <div class="relative">
+          <input 
+            type="text" 
+            name="search" 
+            value="{{ request('search') }}"
+            placeholder="Contoh: Cara mengatasi hama wereng, pupuk terbaik untuk padi..."
+            class="w-full px-6 py-5 pr-14 bg-white text-gray-900 rounded-2xl focus:outline-none focus:ring-4 focus:ring-white/50 text-base shadow-xl"
+          >
+          <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-white text-emerald-600 rounded-xl hover:bg-emerald-50 transition shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{ number_format($totalThreads) }}</p>
-            <p class="text-sm text-emerald-100">Thread</p>
-          </div>
+          </button>
         </div>
+      </form>
+      <p class="text-center text-emerald-100 text-sm mt-3">💡 Cari topik yang kamu butuhkan atau lihat diskusi populer di bawah</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  {{-- Categories - Horizontal Scroll --}}
+  <div class="mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+        <span class="text-2xl">📂</span>
+        Pilih Kategori
+      </h2>
+      <button id="toggleCategories" class="text-sm text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1">
+        <span class="toggle-text">Lihat Semua</span>
+        <svg class="w-4 h-4 toggle-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="relative">
+      {{-- Horizontal Scroll Container --}}
+      <div id="categoriesScroll" class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide scroll-smooth">
+        <a href="{{ route('forum.index') }}" class="category-chip shrink-0 px-6 py-3 rounded-xl font-semibold transition {{ !request('category') ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
+          🔥 Semua Topik
+        </a>
+        @foreach($categories as $cat)
+          <a href="{{ route('forum.index', ['category' => $cat->category_id]) }}" class="category-chip shrink-0 px-6 py-3 rounded-xl font-semibold transition {{ request('category') == $cat->category_id ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
+            {{ $cat->icon }} {{ $cat->name }}
+          </a>
+        @endforeach>
       </div>
-      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{ number_format($totalReplies) }}</p>
-            <p class="text-sm text-emerald-100">Balasan</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
-          </div>
-          <div>
-            <p class="text-2xl font-bold">{{ number_format($totalMembers) }}</p>
-            <p class="text-sm text-emerald-100">Anggota</p>
-          </div>
-        </div>
+
+      {{-- Scroll Arrow Right --}}
+      <button id="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border-2 border-emerald-200 text-emerald-600 p-2 rounded-full shadow-lg hover:bg-emerald-50 transition z-10">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+
+      {{-- Grid View (Hidden by default) --}}
+      <div id="categoriesGrid" class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-4">
+        <a href="{{ route('forum.index') }}" class="category-chip px-6 py-3 rounded-xl font-semibold transition text-center {{ !request('category') ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
+          🔥 Semua Topik
+        </a>
+        @foreach($categories as $cat)
+          <a href="{{ route('forum.index', ['category' => $cat->category_id]) }}" class="category-chip px-6 py-3 rounded-xl font-semibold transition text-center {{ request('category') == $cat->category_id ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
+            {{ $cat->icon }} {{ $cat->name }}
+          </a>
+        @endforeach>
       </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+  {{-- Main Content with Sidebar --}}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
-    {{-- Sidebar --}}
+    {{-- Main Content (Left) --}}
+    <div class="lg:col-span-2">
+
+  {{-- Search Result Info --}}
+  @if(request('search'))
+    <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 flex items-center gap-3">
+      <svg class="w-6 h-6 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <div>
+        <p class="text-sm text-blue-900">
+          Hasil pencarian untuk: <span class="font-bold">"{{ request('search') }}"</span>
+        </p>
+        <p class="text-xs text-blue-700 mt-0.5">Ditemukan {{ $threads->total() }} diskusi</p>
+      </div>
+    </div>
+  @endif
+
+  {{-- Threads List --}}
+  @if($threads->isEmpty())
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+      <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span class="text-5xl">🤔</span>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-3">Belum Ada Diskusi</h3>
+      <p class="text-gray-600 mb-8 max-w-md mx-auto">
+        @if(request('search'))
+          Tidak ditemukan diskusi dengan kata kunci tersebut. Coba kata kunci lain atau buat diskusi baru!
+        @else
+          Jadilah yang pertama memulai diskusi di kategori ini!
+        @endif
+      </p>
+      <a href="{{ route('forum.add') }}" class="inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold text-lg shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Mulai Diskusi Baru
+      </a>
+    </div>
+  @else
+    <div class="space-y-4">
+      @foreach($threads as $thread)
+        <div class="thread-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative" onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'">
+          
+          {{-- Status Badge - Top Right --}}
+          <div class="absolute top-4 right-4 z-10" onclick="event.stopPropagation()">
+            @if($thread->is_solved)
+              <span class="inline-flex items-center px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold shadow-lg">
+                Sudah Terjawab
+              </span>
+            @else
+              <span class="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white rounded-full text-xs font-bold shadow-lg">
+                Belum Terjawab
+              </span>
+            @endif
+          </div>
+
+          <div class="p-6">
+            <div class="flex gap-4">
+              
+              {{-- Avatar --}}
+              <div class="shrink-0">
+                @php
+                  $authorName = $thread->author->name ?? 'User';
+                  $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&color=059669&background=d1fae5&size=56';
+                @endphp
+                <img src="{{ $avatar }}" alt="{{ $authorName }}" class="w-14 h-14 rounded-full border-2 border-emerald-100 shadow-sm">
+              </div>
+
+              {{-- Content --}}
+              <div class="flex-1 min-w-0">
+                
+                {{-- Other Badges (Pinned, Category) --}}
+                @if($thread->is_pinned || $thread->category)
+                  <div class="flex flex-wrap items-center gap-2 mb-2">
+                    @if($thread->is_pinned)
+                      <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold">
+                        📌 Penting
+                      </span>
+                    @endif
+                    @if($thread->category)
+                      <span class="inline-flex items-center px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
+                        {{ $thread->category->icon }} {{ $thread->category->name }}
+                      </span>
+                    @endif
+                  </div>
+                @endif
+                
+                {{-- Title --}}
+                <h3 class="text-xl font-bold text-gray-900 mb-2 hover:text-emerald-600 transition line-clamp-2">
+                  {{ $thread->title }}
+                </h3>
+                
+                {{-- Excerpt --}}
+                <p class="text-gray-600 mb-3 line-clamp-2">{{ Str::limit(strip_tags($thread->content), 180) }}</p>
+
+                {{-- Image Preview --}}
+                @if($thread->image)
+                  <div class="mb-4 rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md max-w-sm">
+                    <div class="aspect-[4/3] w-full overflow-hidden bg-gray-50">
+                      <img src="{{ asset('storage/' . $thread->image) }}" alt="Preview" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                  </div>
+                @endif
+
+                {{-- Meta Info --}}
+                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span class="font-medium text-gray-700">{{ $authorName }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>{{ $thread->created_at->diffForHumans() }}</span>
+                  </div>
+                  
+                  {{-- Like Button --}}
+                  <button onclick="event.stopPropagation(); likeThread({{ $thread->thread_id }}, this)" 
+                    class="like-btn flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-rose-50 transition {{ $thread->isLikedBy(auth()->user()) ? 'text-rose-600' : 'text-gray-500' }}" 
+                    data-thread-id="{{ $thread->thread_id }}" 
+                    data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
+                    <svg class="w-4 h-4 {{ $thread->isLikedBy(auth()->user()) ? 'fill-current' : '' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span class="font-semibold likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
+                  </button>
+
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                    <span class="font-semibold text-emerald-600">{{ number_format($thread->replies_count ?? 0) }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <span>{{ number_format($thread->views_count ?? 0) }}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      @endforeach
+    </div>
+
+    {{-- Pagination --}}
+    <div class="mt-8">
+      {{ $threads->links() }}
+    </div>
+  @endif
+    </div>
+
+    {{-- Sidebar (Right) --}}
     <div class="lg:col-span-1 space-y-6">
       
-      {{-- Search --}}
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-        <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-          Cari Thread
-        </h3>
-        <form method="GET" action="{{ route('forum.index') }}">
-          <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik kata kunci..." class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
-          <button type="submit" class="w-full mt-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-medium text-sm">Cari</button>
-        </form>
-      </div>
+      {{-- Thread Teraktif --}}
+      <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-md border-2 border-amber-300 overflow-hidden">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white text-lg flex items-center gap-2">
+              <span class="text-2xl">🏆</span>
+              Thread Teraktif
+            </h3>
+            <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="text-xs text-white/90 hover:text-white font-semibold flex items-center gap-1">
+              Semua
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
 
-      {{-- Categories --}}
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-          </svg>
-          Kategori
-        </h3>
-        <div class="space-y-2">
-          <a href="{{ route('forum.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 transition {{ !request('category') ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-gray-700' }}">
-            <span class="text-sm">Semua Kategori</span>
-            <span class="text-xs px-2 py-1 bg-gray-100 rounded-full">{{ $totalThreads }}</span>
-          </a>
-          @foreach($categories as $cat)
-            <a href="{{ route('forum.index', ['category' => $cat->category_id]) }}" class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50 transition {{ request('category') == $cat->category_id ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-gray-700' }}">
-              <span class="text-sm">{{ $cat->name }}</span>
-              <span class="text-xs px-2 py-1 bg-gray-100 rounded-full">{{ $cat->threads_count ?? 0 }}</span>
+        @php
+          // Popular threads berdasarkan kombinasi likes, replies, dan views
+          $popularThreads = \App\Models\ForumThread::with(['author', 'category', 'likes'])
+            ->withCount('replies')
+            ->orderByRaw('(likes_count * 3 + replies_count * 2 + COALESCE(views_count, 0)) DESC')
+            ->take(5)
+            ->get();
+        @endphp
+
+        <div class="p-4 space-y-2">
+          @foreach($popularThreads as $index => $popular)
+            <a href="{{ route('forum.detail', $popular->thread_id) }}" class="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 transition group border border-transparent hover:border-emerald-200">
+              {{-- Ranking Badge --}}
+              <div class="shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm
+                  {{ $index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' : '' }}
+                  {{ $index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' : '' }}
+                  {{ $index === 2 ? 'bg-gradient-to-br from-orange-300 to-orange-500 text-white' : '' }}
+                  {{ $index > 2 ? 'bg-gray-100 text-gray-600' : '' }}">
+                  {{ $index + 1 }}
+                </div>
+              </div>
+              
+              {{-- Content --}}
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-sm text-gray-900 group-hover:text-emerald-700 transition line-clamp-1 mb-1">
+                  {{ $popular->title }}
+                </h4>
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <span class="flex items-center gap-0.5">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span class="font-medium text-emerald-600">{{ number_format($popular->replies_count) }}</span>
+                  </span>
+                  <span class="text-gray-300">•</span>
+                  <span class="flex items-center gap-0.5">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    {{ number_format($popular->views_count ?? 0) }}
+                  </span>
+                </div>
+              </div>
+
+              {{-- Arrow --}}
+              <svg class="w-4 h-4 text-gray-300 group-hover:text-emerald-600 transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
             </a>
           @endforeach
         </div>
       </div>
 
-      {{-- Quick Links --}}
-      <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-sm border border-emerald-100 p-4">
-        <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-          Tautan Cepat
+      {{-- Popular Topics --}}
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
+          <span class="text-xl">🔥</span>
+          Topik Populer
         </h3>
-        <div class="space-y-2">
-          <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center gap-2 text-sm text-gray-700 hover:text-emerald-600 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+        <div class="space-y-3">
+          <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
+            <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-700">Hama Wereng Padi</span>
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            Thread Populer
           </a>
-          <a href="{{ route('forum.index', ['filter' => 'solved']) }}" class="flex items-center gap-2 text-sm text-gray-700 hover:text-emerald-600 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
+            <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-700">Pupuk Organik</span>
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            Thread Terjawab
           </a>
-          <a href="{{ route('forum.index', ['filter' => 'unsolved']) }}" class="flex items-center gap-2 text-sm text-gray-700 hover:text-emerald-600 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
+            <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-700">Perawatan Tanaman</span>
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            Butuh Bantuan
           </a>
         </div>
       </div>
-    </div>
 
-    {{-- Main Content --}}
-    <div class="lg:col-span-3">
-      
-      @if(request('search'))
-        <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-          <p class="text-sm text-blue-800">Hasil pencarian untuk: <span class="font-bold">{{ request('search') }}</span></p>
-        </div>
-      @endif
-
-      @if($threads->isEmpty())
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
+      {{-- Tips Card --}}
+      <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-sm border-2 border-emerald-200 p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+            <span class="text-2xl">💡</span>
           </div>
-          <h3 class="text-lg font-bold text-gray-900 mb-2">Belum Ada Thread</h3>
-          <p class="text-gray-600 mb-6">Jadilah yang pertama memulai diskusi!</p>
-          <a href="{{ route('forum.add') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Buat Thread Baru
-          </a>
+          <h3 class="font-bold text-gray-900 text-lg">Tips Bertanya</h3>
         </div>
-      @else
-        <div class="space-y-4">
-          @foreach($threads as $thread)
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition overflow-hidden">
-              <div class="p-6">
-                <div class="flex items-start gap-4">
-                  
-                  {{-- Author Avatar --}}
-                  <div class="shrink-0">
-                    @php
-                      $authorName = $thread->author->name ?? 'User';
-                      $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&color=059669&background=d1fae5&size=48';
-                    @endphp
-                    <img src="{{ $avatar }}" alt="{{ $authorName }}" class="w-12 h-12 rounded-full border-2 border-emerald-100">
-                  </div>
+        <ul class="space-y-3 text-sm text-gray-700">
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <span>Tulis judul yang jelas dan spesifik</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <span>Sertakan foto untuk memperjelas masalah</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <span>Jelaskan detail situasi Anda</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <span>Pilih kategori yang sesuai</span>
+          </li>
+        </ul>
+      </div>
 
-                  {{-- Thread Content --}}
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between gap-4 mb-2">
-                      <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                          @if($thread->is_pinned)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md text-xs font-semibold">
-                              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path>
-                              </svg>
-                              Pinned
-                            </span>
-                          @endif
-                          @if($thread->is_solved)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md text-xs font-semibold">
-                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                              Terjawab
-                            </span>
-                          @endif
-                          @if($thread->category)
-                            <span class="inline-flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                              {{ $thread->category->name }}
-                            </span>
-                          @endif
-                        </div>
-                        
-                        <a href="{{ route('forum.detail', $thread->thread_id) }}" class="text-lg font-bold text-gray-900 hover:text-emerald-600 transition line-clamp-2">
-                          {{ $thread->title }}
-                        </a>
-                        
-                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ Str::limit(strip_tags($thread->content), 150) }}</p>
-                      </div>
-                    </div>
-
-                    {{-- Meta Info --}}
-                    <div class="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
-                      <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                        <span class="font-medium">{{ $authorName }}</span>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span>{{ $thread->created_at->diffForHumans() }}</span>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                        <span>{{ number_format($thread->views_count ?? 0) }} views</span>
-                      </div>
-                      <div class="flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <span>{{ number_format($thread->replies_count ?? 0) }} balasan</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          @endforeach
-        </div>
-
-        {{-- Pagination --}}
-        <div class="mt-8">
-          {{ $threads->links() }}
-        </div>
-      @endif
     </div>
-
   </div>
 
 </div>
+
+{{-- Floating Action Button --}}
+<a href="{{ route('forum.add') }}" class="floating-btn inline-flex items-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition font-bold text-lg shadow-2xl">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+  </svg>
+  <span>Tanya Sekarang</span>
+</a>
+
+{{-- Toast Container --}}
+<div id="toast-container" class="fixed top-6 right-6 z-50 space-y-2"></div>
+
+<script>
+// Auto search submit with debounce
+let searchTimeout;
+const searchInput = document.querySelector('input[name="search"]');
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const value = this.value.trim();
+    
+    if (value.length >= 3) {
+      searchTimeout = setTimeout(() => {
+        this.form.submit();
+      }, 1000);
+    }
+  });
+}
+
+// Category Scroll Functionality
+const scrollContainer = document.getElementById('categoriesScroll');
+const scrollRightBtn = document.getElementById('scrollRight');
+
+if (scrollRightBtn && scrollContainer) {
+  scrollRightBtn.addEventListener('click', () => {
+    scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
+  });
+
+  // Hide/show arrow based on scroll position
+  scrollContainer.addEventListener('scroll', () => {
+    const isAtEnd = scrollContainer.scrollLeft >= (scrollContainer.scrollWidth - scrollContainer.clientWidth - 10);
+    scrollRightBtn.style.display = isAtEnd ? 'none' : 'block';
+  });
+
+  // Check initial state
+  const checkScroll = () => {
+    const isScrollable = scrollContainer.scrollWidth > scrollContainer.clientWidth;
+    scrollRightBtn.style.display = isScrollable ? 'block' : 'none';
+  };
+  checkScroll();
+  window.addEventListener('resize', checkScroll);
+}
+
+// Toggle Categories View
+const toggleBtn = document.getElementById('toggleCategories');
+const categoriesScroll = document.getElementById('categoriesScroll');
+const categoriesGrid = document.getElementById('categoriesGrid');
+
+if (toggleBtn) {
+  toggleBtn.addEventListener('click', () => {
+    const isGridVisible = !categoriesGrid.classList.contains('hidden');
+    
+    if (isGridVisible) {
+      // Switch to scroll view
+      categoriesGrid.classList.add('hidden');
+      categoriesScroll.classList.remove('hidden');
+      scrollRightBtn.style.display = 'block';
+      toggleBtn.querySelector('.toggle-text').textContent = 'Lihat Semua';
+      toggleBtn.querySelector('.toggle-icon').style.transform = 'rotate(0deg)';
+    } else {
+      // Switch to grid view
+      categoriesScroll.classList.add('hidden');
+      scrollRightBtn.style.display = 'none';
+      categoriesGrid.classList.remove('hidden');
+      toggleBtn.querySelector('.toggle-text').textContent = 'Sembunyikan';
+      toggleBtn.querySelector('.toggle-icon').style.transform = 'rotate(180deg)';
+    }
+  });
+}
+
+// Toast notification
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  
+  const colors = {
+    success: 'bg-emerald-500',
+    error: 'bg-red-500',
+    info: 'bg-blue-500',
+    warning: 'bg-amber-500'
+  };
+  
+  const icons = {
+    success: '✅',
+    error: '❌',
+    info: 'ℹ️',
+    warning: '⚠️'
+  };
+  
+  toast.className = `toast flex items-center gap-3 ${colors[type]} text-white px-5 py-4 rounded-xl shadow-2xl min-w-[300px]`;
+  toast.innerHTML = `
+    <span class="text-2xl">${icons[type]}</span>
+    <span class="font-semibold">${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(400px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// Welcome message for first visit
+if (!sessionStorage.getItem('forumVisited')) {
+  setTimeout(() => {
+    showToast('Selamat datang di Forum! 👋', 'success');
+    sessionStorage.setItem('forumVisited', 'true');
+  }, 500);
+}
+
+// Like thread function
+async function likeThread(threadId, button) {
+  try {
+    const response = await fetch(`/forum/${threadId}/like`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      const likesCountEl = button.querySelector('.likes-count');
+      const heartIcon = button.querySelector('svg');
+      
+      // Update counter
+      likesCountEl.textContent = data.likes_count.toLocaleString();
+      
+      // Update button state
+      if (data.liked) {
+        button.classList.add('text-rose-600');
+        button.classList.remove('text-gray-500');
+        heartIcon.setAttribute('fill', 'currentColor');
+        heartIcon.classList.add('fill-current');
+        button.setAttribute('data-liked', 'true');
+        showToast('Berhasil menyukai thread! ❤️', 'success');
+      } else {
+        button.classList.remove('text-rose-600');
+        button.classList.add('text-gray-500');
+        heartIcon.setAttribute('fill', 'none');
+        heartIcon.classList.remove('fill-current');
+        button.setAttribute('data-liked', 'false');
+        showToast('Batal menyukai thread', 'info');
+      }
+      
+      // Update all like buttons for this thread on the page
+      document.querySelectorAll(`[data-thread-id="${threadId}"]`).forEach(btn => {
+        const count = btn.querySelector('.likes-count');
+        const icon = btn.querySelector('svg');
+        if (count) count.textContent = data.likes_count.toLocaleString();
+        if (icon) {
+          if (data.liked) {
+            btn.classList.add('text-rose-600');
+            btn.classList.remove('text-gray-500');
+            icon.setAttribute('fill', 'currentColor');
+            icon.classList.add('fill-current');
+          } else {
+            btn.classList.remove('text-rose-600');
+            btn.classList.add('text-gray-500');
+            icon.setAttribute('fill', 'none');
+            icon.classList.remove('fill-current');
+          }
+        }
+        btn.setAttribute('data-liked', data.liked ? 'true' : 'false');
+      });
+    } else {
+      showToast(data.message || 'Gagal menyukai thread', 'error');
+      if (response.status === 401) {
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Terjadi kesalahan', 'error');
+  }
+}
+
+</script>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
 
 </x-layout>
