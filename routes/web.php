@@ -40,11 +40,13 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index');
-Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->name('forum.detail')->whereNumber('id');
+Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->whereNumber('id')->name('forum.detail');
 
 Route::middleware('auth')->group(function () {
     Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
     Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
+    Route::post('/forum/{id}/like', [ForumThreadController::class, 'toggleLike'])->whereNumber('id')->name('forum.toggle-like');
+    Route::post('/forum/{id}/toggle-solved', [ForumThreadController::class, 'toggleSolved'])->whereNumber('id')->name('forum.toggle-solved');
 });
 
 /*
