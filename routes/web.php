@@ -42,6 +42,8 @@ Route::get('/forum', [ForumThreadController::class, 'index'])->name('forum.index
 Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
 Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
 Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->name('forum.detail');
+Route::post('/forum/{id}/like', [ForumThreadController::class, 'toggleLike'])->name('forum.toggle-like');
+Route::post('/forum/{id}/toggle-solved', [ForumThreadController::class, 'toggleSolved'])->name('forum.toggle-solved');
 
 /*
 |--------------------------------------------------------------------------
