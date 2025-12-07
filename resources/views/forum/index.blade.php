@@ -1,6 +1,49 @@
 <x-layout>
 <x-navbar></x-navbar>
 
+<style>
+  .thread-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .thread-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08);
+  }
+  .like-btn.liked svg {
+    fill: #ef4444;
+    stroke: #ef4444;
+  }
+  .bookmark-btn.bookmarked svg {
+    fill: #f59e0b;
+    stroke: #f59e0b;
+  }
+  .stat-card {
+    transition: transform 0.3s ease;
+  }
+  .stat-card:hover {
+    transform: scale(1.05);
+  }
+  @keyframes slideIn {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  .toast {
+    animation: slideIn 0.3s ease-out;
+  }
+  .search-spinner {
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   
   {{-- Header --}}
@@ -20,7 +63,7 @@
 
     {{-- Stats --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+      <div class="stat-card bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 cursor-pointer">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +76,7 @@
           </div>
         </div>
       </div>
-      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+      <div class="stat-card bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 cursor-pointer">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,7 +89,7 @@
           </div>
         </div>
       </div>
-      <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+      <div class="stat-card bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 cursor-pointer">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,7 +205,7 @@
       @else
         <div class="space-y-4">
           @foreach($threads as $thread)
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition overflow-hidden">
+            <div class="thread-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" data-thread-id="{{ $thread->thread_id }}">
               <div class="p-6">
                 <div class="flex items-start gap-4">
                   
@@ -208,6 +251,20 @@
                         </a>
                         
                         <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ Str::limit(strip_tags($thread->content), 150) }}</p>
+                      </div>
+
+                      {{-- Like & Bookmark Actions --}}
+                      <div class="flex items-center gap-2">
+                        <button class="like-btn p-2 rounded-lg hover:bg-gray-100 transition" data-thread-id="{{ $thread->thread_id }}" title="Suka">
+                          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                          </svg>
+                        </button>
+                        <button class="bookmark-btn p-2 rounded-lg hover:bg-gray-100 transition" data-thread-id="{{ $thread->thread_id }}" title="Simpan">
+                          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                          </svg>
+                        </button>
                       </div>
                     </div>
 
@@ -256,5 +313,168 @@
   </div>
 
 </div>
+
+{{-- Toast Notification Container --}}
+<div id="toast-container" class="fixed top-6 right-6 z-50 space-y-2"></div>
+
+<script>
+// Initialize localStorage for likes and bookmarks
+const likes = JSON.parse(localStorage.getItem('forumLikes') || '[]');
+const bookmarks = JSON.parse(localStorage.getItem('forumBookmarks') || '[]');
+
+// Apply saved states on page load
+document.addEventListener('DOMContentLoaded', () => {
+  // Apply likes
+  likes.forEach(threadId => {
+    const likeBtn = document.querySelector(`.like-btn[data-thread-id="${threadId}"]`);
+    if (likeBtn) {
+      likeBtn.classList.add('liked');
+      likeBtn.querySelector('svg').style.fill = '#ef4444';
+      likeBtn.querySelector('svg').style.stroke = '#ef4444';
+    }
+  });
+
+  // Apply bookmarks
+  bookmarks.forEach(threadId => {
+    const bookmarkBtn = document.querySelector(`.bookmark-btn[data-thread-id="${threadId}"]`);
+    if (bookmarkBtn) {
+      bookmarkBtn.classList.add('bookmarked');
+      bookmarkBtn.querySelector('svg').style.fill = '#f59e0b';
+      bookmarkBtn.querySelector('svg').style.stroke = '#f59e0b';
+    }
+  });
+});
+
+// Like button functionality
+document.querySelectorAll('.like-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const threadId = this.getAttribute('data-thread-id');
+    const svg = this.querySelector('svg');
+    const isLiked = this.classList.contains('liked');
+    
+    if (isLiked) {
+      // Unlike
+      this.classList.remove('liked');
+      svg.style.fill = 'none';
+      svg.style.stroke = 'currentColor';
+      const index = likes.indexOf(threadId);
+      if (index > -1) likes.splice(index, 1);
+      showToast('Thread tidak disukai', 'info');
+    } else {
+      // Like
+      this.classList.add('liked');
+      svg.style.fill = '#ef4444';
+      svg.style.stroke = '#ef4444';
+      likes.push(threadId);
+      showToast('Thread disukai!', 'success');
+    }
+    
+    localStorage.setItem('forumLikes', JSON.stringify(likes));
+  });
+});
+
+// Bookmark button functionality
+document.querySelectorAll('.bookmark-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const threadId = this.getAttribute('data-thread-id');
+    const svg = this.querySelector('svg');
+    const isBookmarked = this.classList.contains('bookmarked');
+    
+    if (isBookmarked) {
+      // Remove bookmark
+      this.classList.remove('bookmarked');
+      svg.style.fill = 'none';
+      svg.style.stroke = 'currentColor';
+      const index = bookmarks.indexOf(threadId);
+      if (index > -1) bookmarks.splice(index, 1);
+      showToast('Bookmark dihapus', 'info');
+    } else {
+      // Add bookmark
+      this.classList.add('bookmarked');
+      svg.style.fill = '#f59e0b';
+      svg.style.stroke = '#f59e0b';
+      bookmarks.push(threadId);
+      showToast('Thread disimpan!', 'success');
+    }
+    
+    localStorage.setItem('forumBookmarks', JSON.stringify(bookmarks));
+  });
+});
+
+// Live search with debounce
+let searchTimeout;
+const searchInput = document.querySelector('input[name="search"]');
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const value = this.value;
+    
+    if (value.length >= 2) {
+      // Show loading indicator
+      this.classList.add('search-loading');
+      
+      searchTimeout = setTimeout(() => {
+        this.form.submit();
+      }, 800);
+    }
+  });
+}
+
+// Toast notification system
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  
+  const colors = {
+    success: 'bg-emerald-500',
+    error: 'bg-red-500',
+    info: 'bg-blue-500',
+    warning: 'bg-amber-500'
+  };
+  
+  const icons = {
+    success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+    error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>',
+    info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+    warning: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>'
+  };
+  
+  toast.className = `toast flex items-center gap-3 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg min-w-[280px]`;
+  toast.innerHTML = `
+    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      ${icons[type]}
+    </svg>
+    <span class="font-medium">${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(400px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// Smooth scroll behavior
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    if (href !== '#') {
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  });
+});
+</script>
 
 </x-layout>
