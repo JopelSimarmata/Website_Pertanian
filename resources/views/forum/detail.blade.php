@@ -369,49 +369,65 @@ async function toggleSolved(threadId) {
     const data = await response.json();
 
     if (data.success) {
-      const newSolved = !currentSolved;
+      // Show toast notification
+      showToast(data.message, data.is_solved ? 'success' : 'info');
       
-      // Update button
-      button.setAttribute('data-solved', newSolved);
-      
-      if (newSolved) {
-        // Changed to Terjawab
-        button.classList.remove('bg-emerald-500', 'text-white', 'hover:bg-emerald-600');
-        button.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-        button.querySelector('.btn-text').textContent = 'Batal Terjawab';
-        button.querySelector('.btn-icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
-        
-        // Update badge in header
-        const badges = document.querySelectorAll('.thread-status-badge');
-        badges.forEach(badge => {
-          badge.className = 'thread-status-badge inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-semibold';
-          badge.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Terjawab';
-        });
-      } else {
-        // Changed to Belum Terjawab
-        button.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-        button.classList.add('bg-emerald-500', 'text-white', 'hover:bg-emerald-600');
-        button.querySelector('.btn-text').textContent = 'Tandai Terjawab';
-        button.querySelector('.btn-icon').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
-        
-        // Update badge in header
-        const badges = document.querySelectorAll('.thread-status-badge');
-        badges.forEach(badge => {
-          badge.className = 'thread-status-badge inline-flex items-center gap-1 px-2.5 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-semibold';
-          badge.innerHTML = 'Belum Terjawab';
-        });
-      }
-      
-      // Show success message
-      alert(data.message);
+      // Reload page after short delay to sync with main list
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } else {
-      alert(data.message || 'Gagal mengubah status');
+      showToast(data.message || 'Gagal mengubah status', 'error');
     }
   } catch (error) {
     console.error('Error:', error);
-    alert('Terjadi kesalahan');
+    showToast('Terjadi kesalahan', 'error');
   }
 }
+
+// Toast notification function
+function showToast(message, type = 'info') {
+  // Create toast container if not exists
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'fixed top-6 right-6 z-50 space-y-2';
+    document.body.appendChild(container);
+  }
+  
+  const toast = document.createElement('div');
+  
+  const colors = {
+    success: 'bg-emerald-500',
+    error: 'bg-red-500',
+    info: 'bg-blue-500',
+    warning: 'bg-amber-500'
+  };
+  
+  const icons = {
+    success: '✅',
+    error: '❌',
+    info: 'ℹ️',
+    warning: '⚠️'
+  };
+  
+  toast.className = `flex items-center gap-3 ${colors[type]} text-white px-5 py-4 rounded-xl shadow-2xl min-w-[300px] animate-slideIn`;
+  toast.innerHTML = `
+    <span class="text-2xl">${icons[type]}</span>
+    <span class="font-semibold">${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(400px)';
+    toast.style.transition = 'all 0.3s ease-out';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
 
 </script>
 
