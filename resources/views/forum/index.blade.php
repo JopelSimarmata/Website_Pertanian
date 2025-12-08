@@ -242,10 +242,20 @@
 
                 {{-- Image Preview --}}
                 @if($thread->image)
-                  <div class="mb-4 rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md max-w-sm">
+                  @php
+                    $imageData = is_array(json_decode($thread->image, true)) ? json_decode($thread->image, true) : [$thread->image];
+                    $firstImage = $imageData[0];
+                    $imageCount = count($imageData);
+                  @endphp
+                  <div class="mb-4 rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md max-w-sm relative">
                     <div class="aspect-[4/3] w-full overflow-hidden bg-gray-50">
-                      <img src="{{ asset('storage/' . $thread->image) }}" alt="Preview" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                      <img src="{{ asset('storage/' . $firstImage) }}" alt="Preview" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
                     </div>
+                    @if($imageCount > 1)
+                      <div class="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full font-medium">
+                        +{{ $imageCount - 1 }} foto
+                      </div>
+                    @endif
                   </div>
                 @endif
 
