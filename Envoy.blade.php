@@ -19,6 +19,7 @@
     handle_storage_directory
     run_migrations
     run_optimize
+    run_npm_build        
     update_symlinks
     delete_git_metadata
     clean_old_releases
@@ -101,6 +102,13 @@
     echo 'Running optimization commands'
     cd {{ $new_release_dir }}
     php artisan optimize:clear
+@endtask
+
+@task('run_npm_build')
+    echo "Running npm install and build..."
+    cd {{ $new_release_dir }}
+    npm install
+    npm run build
 @endtask
 
 @task('update_symlinks')
