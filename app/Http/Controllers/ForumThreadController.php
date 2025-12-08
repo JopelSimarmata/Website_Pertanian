@@ -52,12 +52,18 @@ class ForumThreadController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('forum-images', 'public');
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            $images = $request->file('images');
+            // Limit to 4 images
+            $images = array_slice($images, 0, 4);
+            
+            foreach ($images as $image) {
+                $imagePaths[] = $image->store('forum-images', 'public');
+            }
         }
 
         ForumThread::create([ 
@@ -65,7 +71,7 @@ class ForumThreadController extends Controller
             'content' => $request->content,
             'author_id' => auth()->id() ?? 1,
             'category_id' => $request->category_id,
-            'image' => $imagePath,
+            'image' => !empty($imagePaths) ? json_encode($imagePaths) : null,
         ]);
 
         return redirect()->route('forum.index')->with('success', 'Thread berhasil dibuat!');

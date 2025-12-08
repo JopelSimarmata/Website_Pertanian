@@ -1,6 +1,23 @@
 <x-layout>
 <x-navbar></x-navbar>
 
+<style>
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+</style>
+
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   
   {{-- Back Button --}}
@@ -141,28 +158,57 @@
         {!! nl2br(e($thread->content)) !!}
       </div>
 
-      {{-- Image Attachment --}}
+      {{-- Image Gallery --}}
       @if($thread->image)
+        @php
+          $images = is_array(json_decode($thread->image, true)) ? json_decode($thread->image, true) : [$thread->image];
+        @endphp
+        
         <div class="mt-6 pt-6 border-t border-gray-100">
           <div class="flex items-center gap-2 mb-3">
             <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <span class="text-sm font-semibold text-gray-700">Lampiran Gambar:</span>
+            <span class="text-sm font-semibold text-gray-700">Lampiran Gambar ({{ count($images) }}):</span>
           </div>
-          <div class="relative group rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-emerald-400 transition-all duration-300 cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 shadow-sm hover:shadow-xl" onclick="openImageModal('{{ asset('storage/' . $thread->image) }}')">
-            <div class="aspect-video w-full overflow-hidden">
-              <img src="{{ asset('storage/' . $thread->image) }}" alt="Thread image" class="w-full h-full object-contain bg-white">
-            </div>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
-              <div class="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                </svg>
-                <span class="text-sm font-semibold text-gray-700">Klik untuk Perbesar</span>
+          
+          {{-- Main Image Display --}}
+          <div class="mb-4">
+            <div class="relative group rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-emerald-400 transition-all duration-300 cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 shadow-sm hover:shadow-xl" onclick="openImageModal('{{ asset('storage/' . $images[0]) }}', 0)">
+              <div class="aspect-video w-full overflow-hidden">
+                <img id="main-gallery-image" src="{{ asset('storage/' . $images[0]) }}" alt="Thread image 1" class="w-full h-full object-contain bg-white">
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
+                <div class="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                  </svg>
+                  <span class="text-sm font-semibold text-gray-700">Klik untuk Perbesar</span>
+                </div>
+              </div>
+              <div class="absolute top-3 right-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+                <span id="current-image-index">1</span> / {{ count($images) }}
               </div>
             </div>
           </div>
+
+          {{-- Thumbnail Grid --}}
+          @if(count($images) > 1)
+            <div class="grid grid-cols-4 gap-2">
+              @foreach($images as $index => $imagePath)
+                <div class="relative group cursor-pointer rounded-lg overflow-hidden border-2 {{ $index === 0 ? 'border-emerald-500' : 'border-gray-200' }} hover:border-emerald-400 transition aspect-square gallery-thumbnail" 
+                     data-index="{{ $index }}"
+                     onclick="changeMainImage('{{ asset('storage/' . $imagePath) }}', {{ $index }})">
+                  <img src="{{ asset('storage/' . $imagePath) }}" alt="Thumbnail {{ $index + 1 }}" class="w-full h-full object-cover">
+                  <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200"></div>
+                  <div class="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                    {{ $index + 1 }}
+                  </div>
+                </div>
+              @endforeach
+            </div>
+          @endif
+
           <div class="flex items-center gap-2 mt-3 text-xs text-gray-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -271,26 +317,113 @@
 
 </div>
 
-{{-- Image Modal --}}
-<div id="imageModal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" onclick="closeImageModal()">
-  <div class="relative max-w-6xl max-h-[90vh]">
+{{-- Image Modal with Gallery Navigation --}}
+<div id="imageModal" class="fixed inset-0 bg-black/95 z-50 hidden items-center justify-center p-4" onclick="closeImageModal()">
+  <div class="relative max-w-6xl max-h-[90vh] w-full">
+    {{-- Close Button --}}
     <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition">
       <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
-    <img id="modalImage" src="" alt="Full size" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl">
+    
+    {{-- Navigation Buttons --}}
+    @if($thread->image)
+      @php
+        $modalImages = is_array(json_decode($thread->image, true)) ? json_decode($thread->image, true) : [$thread->image];
+      @endphp
+      
+      @if(count($modalImages) > 1)
+        <button onclick="event.stopPropagation(); previousImage()" id="prevBtn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        <button onclick="event.stopPropagation(); nextImage()" id="nextBtn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      @endif
+    @endif
+    
+    {{-- Image Container --}}
+    <div onclick="event.stopPropagation()" class="relative">
+      <img id="modalImage" src="" alt="Full size" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl mx-auto">
+      
+      {{-- Image Counter --}}
+      @if($thread->image)
+        @php
+          $modalImagesCount = is_array(json_decode($thread->image, true)) ? json_decode($thread->image, true) : [$thread->image];
+        @endphp
+        
+        @if(count($modalImagesCount) > 1)
+          <div class="absolute top-4 right-4 bg-black/70 text-white px-3 py-1.5 rounded-full text-sm font-medium">
+            <span id="modal-image-index">1</span> / {{ count($modalImagesCount) }}
+          </div>
+        @endif
+      @endif
+    </div>
+    
     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-gray-700">
-      Klik di luar untuk tutup
+      Klik di luar untuk tutup 
+      @if($thread->image)
+        @php
+          $navImages = is_array(json_decode($thread->image, true)) ? json_decode($thread->image, true) : [$thread->image];
+        @endphp
+        @if(count($navImages) > 1)• Gunakan ← → untuk navigasi @endif
+      @endif
     </div>
   </div>
 </div>
 
 <script>
-function openImageModal(imageSrc) {
+// Gallery data
+const galleryImages = [
+  @if($thread->image)
+    @php
+      $jsImages = is_array(json_decode($thread->image, true)) ? json_decode($thread->image, true) : [$thread->image];
+    @endphp
+    @foreach($jsImages as $imagePath)
+      '{{ asset('storage/' . $imagePath) }}',
+    @endforeach
+  @endif
+];
+
+let currentImageIndex = 0;
+
+function changeMainImage(imageSrc, index) {
+  const mainImage = document.getElementById('main-gallery-image');
+  mainImage.src = imageSrc;
+  
+  // Update counter
+  document.getElementById('current-image-index').textContent = index + 1;
+  
+  // Update thumbnail borders
+  document.querySelectorAll('.gallery-thumbnail').forEach((thumb, i) => {
+    if (i === index) {
+      thumb.classList.remove('border-gray-200');
+      thumb.classList.add('border-emerald-500');
+    } else {
+      thumb.classList.remove('border-emerald-500');
+      thumb.classList.add('border-gray-200');
+    }
+  });
+  
+  currentImageIndex = index;
+}
+
+function openImageModal(imageSrc, index = 0) {
   const modal = document.getElementById('imageModal');
   const modalImage = document.getElementById('modalImage');
+  
+  currentImageIndex = index;
   modalImage.src = imageSrc;
+  
+  @if($thread->images && $thread->images->count() > 1)
+    document.getElementById('modal-image-index').textContent = index + 1;
+  @endif
+  
   modal.classList.remove('hidden');
   modal.classList.add('flex');
   document.body.style.overflow = 'hidden';
@@ -303,14 +436,54 @@ function closeImageModal() {
   document.body.style.overflow = 'auto';
 }
 
-// Close modal with ESC key
+function nextImage() {
+  if (galleryImages.length === 0) return;
+  currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+  updateModalImage();
+}
+
+function previousImage() {
+  if (galleryImages.length === 0) return;
+  currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+  updateModalImage();
+}
+
+function updateModalImage() {
+  const modalImage = document.getElementById('modalImage');
+  modalImage.src = galleryImages[currentImageIndex];
+  
+  @if($thread->image)
+    @php
+      $updateImages = is_array(json_decode($thread->image, true)) ? json_decode($thread->image, true) : [$thread->image];
+    @endphp
+    @if(count($updateImages) > 1)
+      document.getElementById('modal-image-index').textContent = currentImageIndex + 1;
+    @endif
+  @endif
+  
+  // Also update main gallery image
+  const mainImage = document.getElementById('main-gallery-image');
+  if (mainImage) {
+    changeMainImage(galleryImages[currentImageIndex], currentImageIndex);
+  }
+}
+
+// Keyboard navigation
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeImageModal();
+  const modal = document.getElementById('imageModal');
+  if (!modal.classList.contains('hidden')) {
+    if (e.key === 'Escape') {
+      closeImageModal();
+    } else if (e.key === 'ArrowRight') {
+      nextImage();
+    } else if (e.key === 'ArrowLeft') {
+      previousImage();
+    }
   }
 });
+</script>
 
-// Like thread function
+<script>
 async function likeThread(threadId, button) {
   try {
     const response = await fetch(`/forum/${threadId}/like`, {
