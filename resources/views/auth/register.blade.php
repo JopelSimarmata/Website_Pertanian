@@ -97,6 +97,7 @@
                 @enderror
               </div>
 
+              
               <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input 
@@ -112,7 +113,7 @@
                 @enderror
               </div>
 
-              
+
               <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Password </label>
                 <div class="mt-2 relative">
