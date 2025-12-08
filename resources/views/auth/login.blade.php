@@ -14,12 +14,13 @@
             </div>
             <h1 class="text-2xl lg:text-3xl font-extrabold text-emerald-800">LadangQu</h1>
           </div>
-
+  
           <div>
             <h2 class="text-3xl lg:text-4xl font-bold text-emerald-900 leading-tight">Selamat Datang di Platform Pertanian Indonesia</h2>
             <p class="mt-3 text-emerald-700 max-w-xl">Bergabunglah dengan ribuan petani di seluruh Indonesia untuk berbagi pengalaman, berdiskusi, dan berbelanja kebutuhan pertanian.</p>
           </div>
 
+          
           <div class="mt-4">
               <div class="rounded-2xl overflow-hidden shadow-lg shrink-0">
               <img src="{{ asset('image/field.jpg') }}" alt="field" class="w-full h-64 object-cover">
