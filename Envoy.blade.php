@@ -39,7 +39,7 @@
     echo "Starting deployment ({{ $release }})"
     cd {{ $new_release_dir }}
     echo "Running composer..."
-    composer install --optimize-autoloader
+    COMPOSER_ALLOW_SUPERUSER=1 composer install --optimize-autoloader
 @endtask
 
 @task('create_cache_directory')
