@@ -197,32 +197,43 @@
   let selectedFiles = [];
 
   function previewImages(event) {
-    const files = Array.from(event.target.files);
+    const newFiles = Array.from(event.target.files);
     const container = document.getElementById('image-preview');
     const grid = document.getElementById('preview-grid');
     
-    // Limit to 5 images
-    if (files.length > 5) {
-      alert('Maksimal 5 foto');
+    // Combine existing files with new files
+    const allFiles = [...selectedFiles, ...newFiles];
+    
+    // Limit to 5 images total
+    if (allFiles.length > 5) {
+      alert('Maksimal 5 foto. Anda sudah memilih ' + selectedFiles.length + ' foto, tidak bisa menambahkan ' + newFiles.length + ' foto lagi.');
       event.target.value = '';
       return;
     }
     
     // Check file size (5MB max per file)
-    const oversized = files.filter(file => file.size > 5 * 1024 * 1024);
+    const oversized = newFiles.filter(file => file.size > 5 * 1024 * 1024);
     if (oversized.length > 0) {
       alert('Ukuran file terlalu besar. Maksimal 5MB per file');
       event.target.value = '';
       return;
     }
     
-    selectedFiles = files;
+    // Add new files to existing ones
+    selectedFiles = allFiles;
+    
+    // Update input files with DataTransfer
+    const dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file));
+    event.target.files = dt.files;
+    
+    // Clear and rebuild preview
     grid.innerHTML = '';
     
-    if (files.length > 0) {
+    if (selectedFiles.length > 0) {
       container.classList.remove('hidden');
       
-      files.forEach((file, index) => {
+      selectedFiles.forEach((file, index) => {
         const reader = new FileReader();
         
         reader.onload = function(e) {
@@ -240,7 +251,7 @@
               </svg>
             </button>
             <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-              ${index + 1}/${files.length}
+              ${index + 1}/${selectedFiles.length}
             </div>
           `;
           grid.appendChild(div);
@@ -256,23 +267,50 @@
   function removeImageAt(index) {
     const input = document.getElementById('image-input');
     const container = document.getElementById('image-preview');
+    const grid = document.getElementById('preview-grid');
     
-    // Create new FileList without the removed file
+    // Remove the file at the specified index
+    selectedFiles.splice(index, 1);
+    
+    // Update input files with DataTransfer
     const dt = new DataTransfer();
-    selectedFiles.forEach((file, i) => {
-      if (i !== index) {
-        dt.items.add(file);
-      }
-    });
-    
+    selectedFiles.forEach(file => dt.items.add(file));
     input.files = dt.files;
-    selectedFiles = Array.from(dt.files);
+    
+    // Clear the grid
+    grid.innerHTML = '';
     
     if (selectedFiles.length === 0) {
       container.classList.add('hidden');
+      input.value = '';
     } else {
-      // Recreate preview
-      previewImages({ target: input });
+      // Rebuild preview with updated file list
+      selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const div = document.createElement('div');
+          div.className = 'relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200';
+          div.innerHTML = `
+            <img src="${e.target.result}" alt="Preview ${idx + 1}" class="w-full h-full object-cover">
+            <button 
+              type="button" 
+              onclick="removeImageAt(${idx})" 
+              class="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+              ${idx + 1}/${selectedFiles.length}
+            </div>
+          `;
+          grid.appendChild(div);
+        };
+        
+        reader.readAsDataURL(file);
+      });
     }
   }
 </script>
