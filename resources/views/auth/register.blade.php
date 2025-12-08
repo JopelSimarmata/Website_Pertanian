@@ -112,6 +112,7 @@
                 @enderror
               </div>
 
+              
               <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Password </label>
                 <div class="mt-2 relative">
