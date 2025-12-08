@@ -111,16 +111,17 @@
         {{-- Image Upload --}}
         <div>
           <label class="block text-sm font-bold text-gray-900 mb-2">
-            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional)</span>
+            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, max 5 foto)</span>
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-500 transition">
             <input 
               type="file" 
-              name="image" 
+              name="images[]" 
               accept="image/*" 
+              multiple
               class="hidden" 
               id="image-input"
-              onchange="previewImage(event)"
+              onchange="previewImages(event)"
             >
             <label for="image-input" class="cursor-pointer">
               <div class="flex flex-col items-center">
@@ -130,24 +131,15 @@
                 <p class="text-sm text-gray-600 mb-1">
                   <span class="font-semibold text-emerald-600">Klik untuk upload</span> atau drag and drop
                 </p>
-                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB</p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 5MB per file (max 5 foto)</p>
               </div>
             </label>
           </div>
 
-          {{-- Image Preview --}}
+          {{-- Image Preview Grid --}}
           <div id="image-preview" class="mt-4 hidden">
-            <div class="relative inline-block">
-              <img id="preview" class="max-h-64 rounded-xl border-2 border-gray-200 shadow-sm">
-              <button 
-                type="button" 
-                onclick="removeImage()" 
-                class="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
+            <div id="preview-grid" class="grid grid-cols-2 gap-2"></div>
+          </div>
             </div>
           </div>
         </div>
@@ -171,28 +163,29 @@
           </div>
         </div>
 
-      </div>
+        {{-- Action Buttons --}}
+        <div class="flex items-center justify-between mt-4">
+          <a 
+            href="{{ route('forum.index') }}" 
+            class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-emerald-600 transition-colors duration-200 font-medium"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Kembali ke Forum
+          </a>
+          
+          <button 
+            type="submit" 
+            class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Publikasikan Thread
+          </button>
+        </div>
 
-      {{-- Action Buttons --}}
-      <div class="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-200">
-        <button 
-          type="submit" 
-          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold shadow-lg"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          Publikasikan Thread
-        </button>
-        <a 
-          href="{{ route('forum.index') }}" 
-          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-semibold"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          Batal
-        </a>
       </div>
 
     </form>
@@ -201,23 +194,86 @@
 </div>
 
 <script>
-  function previewImage(event) {
-    const preview = document.getElementById('preview');
+  let selectedFiles = [];
+
+  function previewImages(event) {
+    const files = Array.from(event.target.files);
     const container = document.getElementById('image-preview');
-    const file = event.target.files[0];
-    if (file) {
-      preview.src = URL.createObjectURL(file);
+    const grid = document.getElementById('preview-grid');
+    
+    // Limit to 5 images
+    if (files.length > 5) {
+      alert('Maksimal 5 foto');
+      event.target.value = '';
+      return;
+    }
+    
+    // Check file size (5MB max per file)
+    const oversized = files.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversized.length > 0) {
+      alert('Ukuran file terlalu besar. Maksimal 5MB per file');
+      event.target.value = '';
+      return;
+    }
+    
+    selectedFiles = files;
+    grid.innerHTML = '';
+    
+    if (files.length > 0) {
       container.classList.remove('hidden');
+      
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const div = document.createElement('div');
+          div.className = 'relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200';
+          div.innerHTML = `
+            <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-full object-cover">
+            <button 
+              type="button" 
+              onclick="removeImageAt(${index})" 
+              class="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+              ${index + 1}/${files.length}
+            </div>
+          `;
+          grid.appendChild(div);
+        };
+        
+        reader.readAsDataURL(file);
+      });
     } else {
       container.classList.add('hidden');
     }
   }
 
-  function removeImage() {
+  function removeImageAt(index) {
     const input = document.getElementById('image-input');
     const container = document.getElementById('image-preview');
-    input.value = '';
-    container.classList.add('hidden');
+    
+    // Create new FileList without the removed file
+    const dt = new DataTransfer();
+    selectedFiles.forEach((file, i) => {
+      if (i !== index) {
+        dt.items.add(file);
+      }
+    });
+    
+    input.files = dt.files;
+    selectedFiles = Array.from(dt.files);
+    
+    if (selectedFiles.length === 0) {
+      container.classList.add('hidden');
+    } else {
+      // Recreate preview
+      previewImages({ target: input });
+    }
   }
 </script>
 

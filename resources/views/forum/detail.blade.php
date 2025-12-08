@@ -17,10 +17,10 @@
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
     
     {{-- Thread Header --}}
-    <div class="bg-gradient-to-r from-gray-50 to-white px-8 py-6 border-b border-gray-100">
-      <div class="flex items-start justify-between gap-4 mb-4">
+    <div class="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100">
+      <div class="flex items-start justify-between gap-4 mb-3">
         <div class="flex-1">
-          <div class="flex items-center gap-2 mb-3">
+          <div class="flex items-center gap-2 mb-2">
             @if($thread->is_pinned)
               <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-semibold">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -50,7 +50,7 @@
             @endif
           </div>
 
-          <h1 class="text-3xl font-bold text-gray-900 mb-3">{{ $thread->title }}</h1>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ $thread->title }}</h1>
 
           <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             <div class="flex items-center gap-2">
@@ -117,14 +117,14 @@
 
             {{-- Edit/Delete Buttons --}}
             @if(auth()->id() === $thread->author_id || auth()->user()->role === 'admin')
-              <div class="flex gap-2">
-                <button class="flex-1 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition">
-                  <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex gap-1.5 justify-center">
+                <a href="{{ route('forum.edit', $thread->thread_id) }}" class="p-2 text-gray-500 hover:text-emerald-600 rounded-lg hover:bg-emerald-50 transition">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                   </svg>
-                </button>
-                <button class="flex-1 p-2 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition">
-                  <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                </a>
+                <button onclick="confirmDelete({{ $thread->thread_id }})" class="p-2 text-gray-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
                 </button>
@@ -136,40 +136,141 @@
     </div>
 
     {{-- Thread Content --}}
-    <div class="p-8">
+    <div class="p-6">
       <div class="prose max-w-none text-gray-700 leading-relaxed">
         {!! nl2br(e($thread->content)) !!}
       </div>
 
       {{-- Image Attachment --}}
       @if($thread->image)
+        @php
+          // Decode JSON and handle different formats
+          $images = is_array($thread->image) ? $thread->image : json_decode($thread->image, true);
+          
+          if (!is_array($images) || empty($images)) {
+            // If JSON decode fails or empty, check if it's a single string path
+            if (is_string($thread->image) && !empty($thread->image)) {
+              $images = [$thread->image];
+            } else {
+              $images = [];
+            }
+          }
+          
+          // Normalize paths (convert backslashes to forward slashes)
+          $images = array_map(function($path) {
+            return str_replace('\\', '/', $path);
+          }, $images);
+          
+          // Filter out empty values
+          $images = array_filter($images);
+          $imageCount = count($images);
+        @endphp
+        
+        @if($imageCount > 0)
+        
         <div class="mt-6 pt-6 border-t border-gray-100">
           <div class="flex items-center gap-2 mb-3">
             <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <span class="text-sm font-semibold text-gray-700">Lampiran Gambar:</span>
+            <span class="text-sm font-semibold text-gray-700">{{ $imageCount }} Foto</span>
           </div>
-          <div class="relative group rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-emerald-400 transition-all duration-300 cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 shadow-sm hover:shadow-xl" onclick="openImageModal('{{ asset('storage/' . $thread->image) }}')">
-            <div class="aspect-video w-full overflow-hidden">
-              <img src="{{ asset('storage/' . $thread->image) }}" alt="Thread image" class="w-full h-full object-contain bg-white">
+          
+          {{-- Facebook-style Grid Layout --}}
+          @if($imageCount == 1)
+            {{-- Single image: Large display --}}
+            <div class="rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $images[0]) }}')">
+              <img src="{{ asset('storage/' . $images[0]) }}" alt="Photo 1" class="w-full h-auto max-h-[500px] object-cover">
             </div>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
-              <div class="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2 shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                </svg>
-                <span class="text-sm font-semibold text-gray-700">Klik untuk Perbesar</span>
+          @elseif($imageCount == 2)
+            {{-- 2 images: Side by side --}}
+            <div class="grid grid-cols-2 gap-1 rounded-xl overflow-hidden border border-gray-200">
+              @foreach($images as $index => $img)
+                <div class="aspect-square cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
+                  <img src="{{ asset('storage/' . $img) }}" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover">
+                </div>
+              @endforeach
+            </div>
+          @elseif($imageCount == 3)
+            {{-- 3 images: 2 on top + 1 bottom full width --}}
+            <div class="rounded-xl overflow-hidden border border-gray-200">
+              {{-- Top row: 2 images --}}
+              <div class="grid grid-cols-2 gap-2">
+                @foreach(array_slice($images, 0, 2) as $index => $img)
+                  <div class="aspect-[4/3] cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
+                    <img src="{{ asset('storage/' . $img) }}" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover">
+                  </div>
+                @endforeach
+              </div>
+              {{-- Bottom row: 1 image full width --}}
+              <div class="mt-2 aspect-[21/9] cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $images[2]) }}')">
+                <img src="{{ asset('storage/' . $images[2]) }}" alt="Photo 3" class="w-full h-full object-cover">
               </div>
             </div>
-          </div>
-          <div class="flex items-center gap-2 mt-3 text-xs text-gray-500">
+          @elseif($imageCount == 4)
+            {{-- 4 images: 2x2 grid --}}
+            <div class="grid grid-cols-2 gap-1 rounded-xl overflow-hidden border border-gray-200">
+              @foreach($images as $index => $img)
+                <div class="aspect-square cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
+                  <img src="{{ asset('storage/' . $img) }}" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover">
+                </div>
+              @endforeach
+            </div>
+          @elseif($imageCount == 5)
+            {{-- 5 images: 2 large on top + 3 smaller below (Facebook style) --}}
+            <div class="rounded-xl overflow-hidden border border-gray-200">
+              {{-- Top row: 2 images --}}
+              <div class="grid grid-cols-2 gap-1">
+                @foreach(array_slice($images, 0, 2) as $index => $img)
+                  <div class="aspect-[4/3] cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
+                    <img src="{{ asset('storage/' . $img) }}" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover">
+                  </div>
+                @endforeach
+              </div>
+              {{-- Bottom row: 3 images --}}
+              <div class="grid grid-cols-3 gap-1 mt-1">
+                @foreach(array_slice($images, 2, 3) as $index => $img)
+                  <div class="aspect-square cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
+                    <img src="{{ asset('storage/' . $img) }}" alt="Photo {{ $index + 3 }}" class="w-full h-full object-cover">
+                  </div>
+                @endforeach
+              </div>
+            </div>
+          @else
+            {{-- 6+ images: Show first 5 with +more indicator --}}
+            <div class="rounded-xl overflow-hidden border border-gray-200">
+              {{-- Top row: 2 images --}}
+              <div class="grid grid-cols-2 gap-1">
+                @foreach(array_slice($images, 0, 2) as $index => $img)
+                  <div class="aspect-[4/3] cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
+                    <img src="{{ asset('storage/' . $img) }}" alt="Photo {{ $index + 1 }}" class="w-full h-full object-cover">
+                  </div>
+                @endforeach
+              </div>
+              {{-- Bottom row: 3 images with +more overlay on last --}}
+              <div class="grid grid-cols-3 gap-1 mt-1">
+                @foreach(array_slice($images, 2, 3) as $index => $img)
+                  <div class="relative aspect-square cursor-pointer hover:opacity-95 transition" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
+                    <img src="{{ asset('storage/' . $img) }}" alt="Photo {{ $index + 3 }}" class="w-full h-full object-cover">
+                    @if($index == 2 && $imageCount > 5)
+                      <div class="absolute inset-0 bg-black/70 flex items-center justify-center">
+                        <span class="text-white text-3xl font-bold">+{{ $imageCount - 5 }}</span>
+                      </div>
+                    @endif
+                  </div>
+                @endforeach
+              </div>
+            </div>
+          @endif
+          
+          <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <span>Klik gambar untuk melihat ukuran penuh</span>
-          </div>
+            Klik gambar untuk melihat ukuran penuh
+          </p>
         </div>
+        @endif
       @endif
 
       {{-- Tags --}}
@@ -188,34 +289,79 @@
 
   {{-- Replies Section --}}
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="bg-gray-50 px-8 py-4 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900">
+    <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+      <h2 class="text-lg font-bold text-gray-900">
         {{ number_format($thread->replies_count ?? 0) }} Balasan
       </h2>
     </div>
 
-    <div class="p-8">
+    <div class="p-6">
+      {{-- Success Message --}}
+      @if(session('success'))
+        <div class="mb-6 p-3 rounded-lg bg-green-50 border border-green-200 flex items-center gap-3">
+          <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-green-800 text-sm">{{ session('success') }}</span>
+        </div>
+      @endif
+
+      {{-- Replies List --}}
+      @if($thread->replies && $thread->replies->count() > 0)
+        <div class="mb-8">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            {{ $thread->replies->count() }} Balasan
+          </h3>
+          <div class="space-y-4">
+            @foreach($thread->replies as $reply)
+              @php
+                $replyAuthor = $reply->author->name ?? 'User';
+                $replyAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($replyAuthor) . '&color=6366f1&background=e0e7ff&size=40';
+              @endphp
+              <div class="flex gap-3 pb-4 border-b border-gray-100 last:border-0">
+                <div class="shrink-0">
+                  <img src="{{ $replyAvatar }}" alt="{{ $replyAuthor }}" class="w-10 h-10 rounded-full border-2 border-gray-100">
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="font-bold text-gray-900">{{ $replyAuthor }}</span>
+                    <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                  </div>
+                  <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $reply->content }}</p>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        </div>
+      @endif
+
       {{-- Reply Form --}}
       @auth
-        <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-6 border-2 border-emerald-100 mb-8">
-          <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-green-50 rounded-lg p-4 border border-green-100">
+          <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
             </svg>
             Tulis Balasan
           </h3>
-          <form action="#" method="POST">
+          <form action="{{ route('forum.reply', $thread->thread_id) }}" method="POST">
             @csrf
             <textarea 
               name="reply" 
-              rows="4" 
-              class="w-full px-4 py-3 border-2 border-emerald-200 rounded-xl focus:outline-none focus:border-emerald-500 transition resize-none bg-white" 
+              rows="3" 
+              class="w-full px-3 py-2 text-sm border border-green-200 rounded-lg focus:outline-none focus:border-emerald-500 transition resize-none bg-white" 
               placeholder="Bagikan pendapat atau solusi Anda..."
               required
             ></textarea>
-            <div class="flex justify-end mt-3">
-              <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold shadow-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            @error('reply')
+              <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
+            <div class="flex justify-end mt-2">
+              <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition font-semibold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
                 Kirim Balasan
@@ -224,51 +370,43 @@
           </form>
         </div>
       @else
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center mb-8">
-          <svg class="w-12 h-12 text-blue-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+          <svg class="w-10 h-10 text-blue-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
           </svg>
-          <p class="text-gray-700 mb-4">Login untuk ikut berdiskusi</p>
-          <a href="{{ route('show.login') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold">
+          <p class="text-gray-700 text-sm mb-3">Login untuk ikut berdiskusi</p>
+          <a href="{{ route('show.login') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700 transition font-semibold">
             Login Sekarang
           </a>
         </div>
       @endauth
-
-      {{-- Replies List --}}
-      @if(($thread->replies_count ?? 0) > 0)
-        <div class="space-y-6">
-          {{-- Sample Reply (loop ini nanti) --}}
-          <div class="flex gap-4 pb-6 border-b border-gray-100 last:border-0">
-            <div class="shrink-0">
-              <img src="https://ui-avatars.com/api/?name=Sample+User&color=6366f1&background=e0e7ff&size=40" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-100">
-            </div>
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
-                <span class="font-bold text-gray-900">Sample User</span>
-                <span class="text-sm text-gray-500">2 jam yang lalu</span>
-              </div>
-              <p class="text-gray-700 leading-relaxed">Ini adalah contoh balasan. Data balasan akan diambil dari database nantinya.</p>
-              <div class="flex items-center gap-4 mt-3">
-                <button class="text-sm text-gray-500 hover:text-emerald-600 transition">
-                  👍 Suka
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      @else
-        <div class="text-center py-12">
-          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl">💬</span>
-          </div>
-          <p class="text-gray-600 mb-1">Belum ada balasan</p>
-          <p class="text-sm text-gray-500">Jadilah yang pertama memberikan bantuan!</p>
-        </div>
-      @endif
     </div>
   </div>
 
+</div>
+
+{{-- Delete Confirmation Modal --}}
+<div id="deleteModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all" onclick="event.stopPropagation()">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">Hapus Thread?</h3>
+      <p class="text-gray-600">Apakah Anda yakin ingin menghapus thread ini? Tindakan ini tidak dapat dibatalkan.</p>
+    </div>
+    
+    <div class="flex gap-3">
+      <button id="cancelDeleteBtn" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-semibold">
+        Batal
+      </button>
+      <button id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-semibold">
+        Hapus
+      </button>
+    </div>
+  </div>
 </div>
 
 {{-- Image Modal --}}
@@ -427,6 +565,77 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+
+// Confirm delete function
+async function confirmDelete(threadId) {
+  const modal = document.getElementById('deleteModal');
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  const cancelBtn = document.getElementById('cancelDeleteBtn');
+  
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+  
+  // Remove previous event listeners
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  
+  // Add new event listener for confirm
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+    try {
+      const response = await fetch(`/forum/${threadId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+        
+        showToast('Thread berhasil dihapus', 'success');
+        
+        setTimeout(() => {
+          window.location.href = '/forum';
+        }, 1000);
+      } else {
+        showToast(data.message || 'Gagal menghapus thread', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('Terjadi kesalahan', 'error');
+    }
+  });
+  
+  // Add event listener for cancel
+  document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+  });
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('deleteModal');
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+      }
+    });
+  }
+});
 
 
 </script>

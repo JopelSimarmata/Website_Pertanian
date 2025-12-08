@@ -1,144 +1,76 @@
 <x-layout>
 <x-navbar></x-navbar>
 
-<style>
-  .thread-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-  .thread-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(5, 150, 105, 0.15);
-  }
-  .category-chip {
-    transition: all 0.2s ease;
-  }
-  .category-chip:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-  }
-  .floating-btn {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 50;
-    animation: pulse-ring 2s infinite;
-  }
-  @keyframes pulse-ring {
-    0%, 100% { box-shadow: 0 0 0 0 hsla(160, 84%, 39%, 0.70); }
-    50% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
-  }
-  .search-highlight {
-    transition: all 0.3s ease;
-  }
-  .search-highlight:focus-within {
-    transform: scale(1.01);
-    box-shadow: 0 8px 30px rgba(5, 150, 105, 0.15);
-  }
-  @keyframes slideIn {
-    from { transform: translateX(400px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  .toast {
-    animation: slideIn 0.3s ease-out;
-  }
-  .help-badge {
-    animation: bounce 2s infinite;
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-</style>
+{{-- Hero Section --}}
+<div class="bg-green-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <div class="text-center">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Forum Diskusi</h1>
+      <p class="text-gray-600 text-lg max-w-2xl mx-auto">Punya pertanyaan tentang pertanian? Tanya di sini, kami siap membantu!</p>
+    </div>
 
-{{-- Hero Section - Clean & Simple --}}
-<div class="bg-gradient-to-r from-emerald-600 to-green-600 text-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    
-    {{-- Welcome Header --}}
-    <div class="text-center mb-10">
-      <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full mb-4">
-        <span class="text-2xl">🌾</span>
-        <span class="text-sm font-semibold">Komunitas Petani Indonesia</span>
+    {{-- Search Bar --}}
+    <form method="GET" action="{{ route('forum.index') }}" class="mt-8 max-w-2xl mx-auto">
+      <div class="relative bg-gray-50 rounded-xl border-2 border-gray-200 focus-within:border-emerald-500 transition">
+        <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
+        </svg>
+        <input type="search" name="search" value="{{ request('search') }}" placeholder="Contoh: Cara mengatasi hama wereng, pupuk terbaik untuk padi..." 
+          class="w-full pl-12 pr-24 py-4 border-0 focus:ring-0 text-gray-900 placeholder-gray-500 bg-transparent" />
+        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium">
+          Cari
+        </button>
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">Forum Diskusi</h1>
-      <p class="text-xl text-emerald-50 max-w-2xl mx-auto mb-2">Punya pertanyaan tentang pertanian?</p>
-      <p class="text-lg text-emerald-100">Tanya di sini, kami siap membantu! 💪</p>
-    </div>
-
-    {{-- Big Search Bar --}}
-    <div class="max-w-3xl mx-auto">
-      <form action="{{ route('forum.index') }}" method="GET" class="search-highlight">
-        <div class="relative">
-          <input 
-            type="text" 
-            name="search" 
-            value="{{ request('search') }}"
-            placeholder="Contoh: Cara mengatasi hama wereng, pupuk terbaik untuk padi..."
-            class="w-full px-6 py-5 pr-14 bg-white text-gray-900 rounded-2xl focus:outline-none focus:ring-4 focus:ring-white/50 text-base shadow-xl"
-          >
-          <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-white text-emerald-600 rounded-xl hover:bg-emerald-50 transition shadow-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </button>
-        </div>
-      </form>
-      <p class="text-center text-emerald-100 text-sm mt-3">💡 Cari topik yang kamu butuhkan atau lihat diskusi populer di bawah</p>
-    </div>
-
+    </form>
   </div>
 </div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   
-  {{-- Categories - Horizontal Scroll --}}
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-        <span class="text-2xl">📂</span>
-        Pilih Kategori
-      </h2>
-      <button id="toggleCategories" class="text-sm text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1">
-        <span class="toggle-text">Lihat Semua</span>
-        <svg class="w-4 h-4 toggle-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
-      </button>
+  {{-- Filters --}}
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+    <div class="flex items-center gap-2 mb-4">
+      <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+      </svg>
+      <h2 class="text-lg font-semibold text-gray-900">Kategori Diskusi</h2>
     </div>
     
-    <div class="relative">
-      {{-- Horizontal Scroll Container --}}
-      <div id="categoriesScroll" class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide scroll-smooth">
-        <a href="{{ route('forum.index') }}" class="category-chip shrink-0 px-6 py-3 rounded-xl font-semibold transition {{ !request('category') ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
-          🔥 Semua Topik
-        </a>
-        @foreach($categories as $cat)
-          <a href="{{ route('forum.index', ['category' => $cat->category_id]) }}" class="category-chip shrink-0 px-6 py-3 rounded-xl font-semibold transition {{ request('category') == $cat->category_id ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
-            {{ $cat->icon }} {{ $cat->name }}
-          </a>
-        @endforeach>
-      </div>
+    <form method="GET" action="{{ route('forum.index') }}">
+      {{-- Hidden search field to preserve search query --}}
+      @if(request('search'))
+        <input type="hidden" name="search" value="{{ request('search') }}">
+      @endif
 
-      {{-- Scroll Arrow Right --}}
-      <button id="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border-2 border-emerald-200 text-emerald-600 p-2 rounded-full shadow-lg hover:bg-emerald-50 transition z-10">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
-      </button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{-- Categories --}}
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+            Pilih Kategori
+          </label>
+          <select id="category" name="category" onchange="this.form.submit()" class="w-full rounded-xl border-2 border-gray-300 py-2.5 px-4 text-sm text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            <option value="">Semua Kategori</option>
+            @foreach($categories as $cat)
+              <option value="{{ $cat->category_id }}" {{ request('category') == $cat->category_id ? 'selected' : '' }}>
+                {{ $cat->name }}
+              </option>
+            @endforeach
+          </select>
+        </div>
 
-      {{-- Grid View (Hidden by default) --}}
-      <div id="categoriesGrid" class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-4">
-        <a href="{{ route('forum.index') }}" class="category-chip px-6 py-3 rounded-xl font-semibold transition text-center {{ !request('category') ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
-          🔥 Semua Topik
-        </a>
-        @foreach($categories as $cat)
-          <a href="{{ route('forum.index', ['category' => $cat->category_id]) }}" class="category-chip px-6 py-3 rounded-xl font-semibold transition text-center {{ request('category') == $cat->category_id ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300' }}">
-            {{ $cat->icon }} {{ $cat->name }}
-          </a>
-        @endforeach>
+        {{-- Status Filter --}}
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+            Status Diskusi
+          </label>
+          <select id="status" name="status" onchange="this.form.submit()" class="w-full rounded-xl border-2 border-gray-300 py-2.5 px-4 text-sm text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            <option value="">Semua Status</option>
+            <option value="solved" {{ request('status') == 'solved' ? 'selected' : '' }}>Sudah Terjawab</option>
+            <option value="unsolved" {{ request('status') == 'unsolved' ? 'selected' : '' }}>Belum Terjawab</option>
+          </select>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 
   {{-- Main Content with Sidebar --}}
@@ -186,16 +118,16 @@
   @else
     <div class="space-y-4">
       @foreach($threads as $thread)
-        <div class="thread-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative" onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors overflow-hidden relative cursor-pointer" onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'">
           
           {{-- Status Badge - Top Right --}}
           <div class="absolute top-4 right-4 z-10" onclick="event.stopPropagation()">
             @if($thread->is_solved)
-              <span class="inline-flex items-center px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold shadow-lg">
+              <span class="inline-flex items-center px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold">
                 Sudah Terjawab
               </span>
             @else
-              <span class="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white rounded-full text-xs font-bold shadow-lg">
+              <span class="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white rounded-full text-xs font-bold">
                 Belum Terjawab
               </span>
             @endif
@@ -240,13 +172,93 @@
                 {{-- Excerpt --}}
                 <p class="text-gray-600 mb-3 line-clamp-2">{{ Str::limit(strip_tags($thread->content), 180) }}</p>
 
-                {{-- Image Preview --}}
+                {{-- Image Preview Grid (Facebook Style) --}}
                 @if($thread->image)
-                  <div class="mb-4 rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md max-w-sm">
-                    <div class="aspect-[4/3] w-full overflow-hidden bg-gray-50">
-                      <img src="{{ asset('storage/' . $thread->image) }}" alt="Preview" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                  @php
+                    // Parse JSON array or single string
+                    $images = is_array($thread->image) ? $thread->image : json_decode($thread->image, true);
+                    if (!is_array($images)) {
+                      $images = [$thread->image];
+                    }
+                    // Normalize paths
+                    $images = array_map(function($path) {
+                      return str_replace('\\', '/', $path);
+                    }, $images);
+                    $images = array_filter($images);
+                    $imageCount = count($images);
+                  @endphp
+                  
+                  @if($imageCount > 0)
+                    <div class="mb-4 w-full">
+                      @if($imageCount == 1)
+                        {{-- Single image: Large preview --}}
+                        <div class="rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
+                          <div class="w-full bg-gray-50" style="max-height: 350px;">
+                            <img src="{{ asset('storage/' . $images[0]) }}" alt="Preview" class="w-full h-full object-cover">
+                          </div>
+                        </div>
+                      @elseif($imageCount == 2)
+                        {{-- 2 images: Side by side --}}
+                        <div class="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
+                          @foreach($images as $img)
+                            <div class="bg-gray-50" style="height: 250px;">
+                              <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
+                            </div>
+                          @endforeach
+                        </div>
+                      @elseif($imageCount == 3)
+                        {{-- 3 images: 2 on top + 1 bottom (Facebook style) --}}
+                        <div class="rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
+                          {{-- Top row: 2 images --}}
+                          <div class="grid grid-cols-2 gap-2">
+                            @foreach(array_slice($images, 0, 2) as $img)
+                              <div class="bg-gray-50" style="height: 180px;">
+                                <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
+                              </div>
+                            @endforeach
+                          </div>
+                          {{-- Bottom row: 1 image full width --}}
+                          <div class="mt-2 bg-gray-50" style="height: 140px;">
+                            <img src="{{ asset('storage/' . $images[2]) }}" alt="Preview" class="w-full h-full object-cover">
+                          </div>
+                        </div>
+                      @elseif($imageCount == 4)
+                        {{-- 4 images: 2x2 grid --}}
+                        <div class="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
+                          @foreach($images as $img)
+                            <div class="bg-gray-50" style="height: 200px;">
+                              <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
+                            </div>
+                          @endforeach
+                        </div>
+                      @else
+                        {{-- 5+ images: Facebook style - all visible --}}
+                        <div class="rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
+                          {{-- Top row: 2 larger images --}}
+                          <div class="grid grid-cols-2 gap-2">
+                            @foreach(array_slice($images, 0, 2) as $img)
+                              <div class="bg-gray-50" style="height: 180px;">
+                                <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
+                              </div>
+                            @endforeach
+                          </div>
+                          {{-- Bottom row: 3 smaller images --}}
+                          <div class="grid grid-cols-3 gap-2 mt-2">
+                            @foreach(array_slice($images, 2, 3) as $index => $img)
+                              <div class="relative bg-gray-50" style="height: 120px;">
+                                <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
+                                @if($index == 2 && $imageCount > 5)
+                                  <div class="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm">
+                                    <span class="text-white text-xl font-bold">+{{ $imageCount - 5 }}</span>
+                                  </div>
+                                @endif
+                              </div>
+                            @endforeach
+                          </div>
+                        </div>
+                      @endif
                     </div>
-                  </div>
+                  @endif
                 @endif
 
                 {{-- Meta Info --}}
@@ -308,8 +320,8 @@
     <div class="lg:col-span-1 space-y-6">
       
       {{-- Thread Teraktif --}}
-      <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-md border-2 border-amber-300 overflow-hidden">
-        <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-4">
+      <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-md border-2 border-emerald-300 overflow-hidden">
+        <div class="bg-gradient-to-r from-emerald-500 to-green-500 px-5 py-4">
           <div class="flex items-center justify-between">
             <h3 class="font-bold text-white text-lg flex items-center gap-2">
               <span class="text-2xl">🏆</span>
@@ -339,9 +351,9 @@
               {{-- Ranking Badge --}}
               <div class="shrink-0">
                 <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm
-                  {{ $index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' : '' }}
-                  {{ $index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' : '' }}
-                  {{ $index === 2 ? 'bg-gradient-to-br from-orange-300 to-orange-500 text-white' : '' }}
+                  {{ $index === 0 ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' : '' }}
+                  {{ $index === 1 ? 'bg-gradient-to-br from-green-400 to-green-600 text-white' : '' }}
+                  {{ $index === 2 ? 'bg-gradient-to-br from-teal-400 to-teal-600 text-white' : '' }}
                   {{ $index > 2 ? 'bg-gray-100 text-gray-600' : '' }}">
                   {{ $index + 1 }}
                 </div>
@@ -441,126 +453,14 @@
 </div>
 
 {{-- Floating Action Button --}}
-<a href="{{ route('forum.add') }}" class="floating-btn inline-flex items-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition font-bold text-lg shadow-2xl">
+<a href="{{ route('forum.add') }}" class="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition font-bold text-lg shadow-lg">
   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
   </svg>
-  <span>Tanya Sekarang</span>
+  <span>Buat Thread</span>
 </a>
 
-{{-- Toast Container --}}
-<div id="toast-container" class="fixed top-6 right-6 z-50 space-y-2"></div>
-
 <script>
-// Auto search submit with debounce
-let searchTimeout;
-const searchInput = document.querySelector('input[name="search"]');
-if (searchInput) {
-  searchInput.addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    const value = this.value.trim();
-    
-    if (value.length >= 3) {
-      searchTimeout = setTimeout(() => {
-        this.form.submit();
-      }, 1000);
-    }
-  });
-}
-
-// Category Scroll Functionality
-const scrollContainer = document.getElementById('categoriesScroll');
-const scrollRightBtn = document.getElementById('scrollRight');
-
-if (scrollRightBtn && scrollContainer) {
-  scrollRightBtn.addEventListener('click', () => {
-    scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
-  });
-
-  // Hide/show arrow based on scroll position
-  scrollContainer.addEventListener('scroll', () => {
-    const isAtEnd = scrollContainer.scrollLeft >= (scrollContainer.scrollWidth - scrollContainer.clientWidth - 10);
-    scrollRightBtn.style.display = isAtEnd ? 'none' : 'block';
-  });
-
-  // Check initial state
-  const checkScroll = () => {
-    const isScrollable = scrollContainer.scrollWidth > scrollContainer.clientWidth;
-    scrollRightBtn.style.display = isScrollable ? 'block' : 'none';
-  };
-  checkScroll();
-  window.addEventListener('resize', checkScroll);
-}
-
-// Toggle Categories View
-const toggleBtn = document.getElementById('toggleCategories');
-const categoriesScroll = document.getElementById('categoriesScroll');
-const categoriesGrid = document.getElementById('categoriesGrid');
-
-if (toggleBtn) {
-  toggleBtn.addEventListener('click', () => {
-    const isGridVisible = !categoriesGrid.classList.contains('hidden');
-    
-    if (isGridVisible) {
-      // Switch to scroll view
-      categoriesGrid.classList.add('hidden');
-      categoriesScroll.classList.remove('hidden');
-      scrollRightBtn.style.display = 'block';
-      toggleBtn.querySelector('.toggle-text').textContent = 'Lihat Semua';
-      toggleBtn.querySelector('.toggle-icon').style.transform = 'rotate(0deg)';
-    } else {
-      // Switch to grid view
-      categoriesScroll.classList.add('hidden');
-      scrollRightBtn.style.display = 'none';
-      categoriesGrid.classList.remove('hidden');
-      toggleBtn.querySelector('.toggle-text').textContent = 'Sembunyikan';
-      toggleBtn.querySelector('.toggle-icon').style.transform = 'rotate(180deg)';
-    }
-  });
-}
-
-// Toast notification
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  
-  const colors = {
-    success: 'bg-emerald-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500',
-    warning: 'bg-amber-500'
-  };
-  
-  const icons = {
-    success: '✅',
-    error: '❌',
-    info: 'ℹ️',
-    warning: '⚠️'
-  };
-  
-  toast.className = `toast flex items-center gap-3 ${colors[type]} text-white px-5 py-4 rounded-xl shadow-2xl min-w-[300px]`;
-  toast.innerHTML = `
-    <span class="text-2xl">${icons[type]}</span>
-    <span class="font-semibold">${message}</span>
-  `;
-  
-  container.appendChild(toast);
-  
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(400px)';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
-}
-
-// Welcome message for first visit
-if (!sessionStorage.getItem('forumVisited')) {
-  setTimeout(() => {
-    showToast('Selamat datang di Forum! 👋', 'success');
-    sessionStorage.setItem('forumVisited', 'true');
-  }, 500);
-}
-
 // Like thread function
 async function likeThread(threadId, button) {
   try {
@@ -588,14 +488,12 @@ async function likeThread(threadId, button) {
         heartIcon.setAttribute('fill', 'currentColor');
         heartIcon.classList.add('fill-current');
         button.setAttribute('data-liked', 'true');
-        showToast('Berhasil menyukai thread! ❤️', 'success');
       } else {
         button.classList.remove('text-rose-600');
         button.classList.add('text-gray-500');
         heartIcon.setAttribute('fill', 'none');
         heartIcon.classList.remove('fill-current');
         button.setAttribute('data-liked', 'false');
-        showToast('Batal menyukai thread', 'info');
       }
       
       // Update all like buttons for this thread on the page
@@ -619,29 +517,16 @@ async function likeThread(threadId, button) {
         btn.setAttribute('data-liked', data.liked ? 'true' : 'false');
       });
     } else {
-      showToast(data.message || 'Gagal menyukai thread', 'error');
       if (response.status === 401) {
         setTimeout(() => {
           window.location.href = '/login';
-        }, 1500);
+        }, 1000);
       }
     }
   } catch (error) {
     console.error('Error:', error);
-    showToast('Terjadi kesalahan', 'error');
   }
 }
-
 </script>
-
-<style>
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-</style>
 
 </x-layout>
