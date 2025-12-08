@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id('notification_id');
             $table->unsignedBigInteger('user_id')->index();
             $table->string('type', 100);
-            $table->text('message');
+            $table->json('data')->nullable();
             $table->boolean('is_read')->default(false);
-            $table->string('title');
-            $table->unsignedBigInteger('reference_id')->index();
             $table->timestamps();
+            
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -78,14 +78,33 @@
         @endguest
 
         @auth
-          <!-- notification button -->
-          <button type="button" class="relative rounded-full p-1 text-gray-700 hover:text-gray-900 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
-            <span class="absolute -inset-1.5"></span>
-            <span class="sr-only">View notifications</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
-              <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </button>
+          <!-- notification dropdown -->
+          <div class="relative">
+            <el-dropdown>
+              <button type="button" class="relative rounded-full p-1 text-gray-700 hover:text-gray-900 focus:outline-2 focus:outline-offset-2 focus:outline-emerald-500">
+                <span class="absolute -inset-1.5"></span>
+                <span class="sr-only">View notifications</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
+                  <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span id="notif-badge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+
+              <el-menu anchor="bottom end" popover class="w-80 origin-top-right rounded-lg bg-white shadow-lg outline outline-black/5">
+                <div class="px-4 py-3 border-b border-gray-200">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900">Notifikasi</h3>
+                    <a href="/notifications" class="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Lihat Semua</a>
+                  </div>
+                </div>
+                <div id="notification-list" class="max-h-96 overflow-y-auto">
+                  <div class="px-4 py-8 text-center text-sm text-gray-500">
+                    Memuat notifikasi...
+                  </div>
+                </div>
+              </el-menu>
+            </el-dropdown>
+          </div>
 
           <!-- profile dropdown -->
           <div class="relative ml-3">
@@ -94,14 +113,14 @@
                 <span class="sr-only">Open user menu</span>
                     @php
                       $navUser = Auth::user();
-                      $avatar = 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
-                      if ($navUser) {
-                        $dbAvatar = \Illuminate\Support\Facades\DB::table('user_profiles')->where('user_id', $navUser->id)->value('avatar');
-                        if (!empty($dbAvatar)) {
-                          $avatar = asset('storage/' . $dbAvatar);
-                        } elseif (!empty($navUser->profile_photo_url)) {
-                          $avatar = $navUser->profile_photo_url;
-                        }
+                      $dbAvatar = \Illuminate\Support\Facades\DB::table('user_profiles')->where('user_id', $navUser->id)->value('avatar');
+                      if (!empty($dbAvatar)) {
+                        $avatar = asset('storage/' . $dbAvatar);
+                      } elseif (!empty($navUser->profile_photo_url)) {
+                        $avatar = $navUser->profile_photo_url;
+                      } else {
+                        $avatarName = $navUser->name ?? 'User';
+                        $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($avatarName) . '&color=ffffff&background=059669&size=128';
                       }
                     @endphp
                     <img src="{{ $avatar }}" alt="{{ $navUser->name ?? '' }}" class="h-8 w-8 rounded-full object-cover" />
@@ -113,8 +132,8 @@
 
 
               <el-menu anchor="bottom end" popover class="w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5">
-                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700">Profile</a>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700">Settings</a>
+                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile</a>
+                <a href="/notifications" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Notifikasi</a>
                 <form method="POST" action="/logout">
                   @csrf
                   <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700">Keluar</button>
@@ -141,3 +160,142 @@
     </div>
   </el-disclosure>
 </nav>
+
+@auth
+<script>
+  // Load notifications on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    loadNotifications();
+    // Refresh notifications every 30 seconds
+    setInterval(loadNotifications, 30000);
+  });
+
+  function loadNotifications() {
+    fetch('/notifications/unread')
+      .then(response => response.json())
+      .then(data => {
+        const badge = document.getElementById('notif-badge');
+        const list = document.getElementById('notification-list');
+        
+        // Update badge
+        if (data.unread_count > 0) {
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+
+        // Update notification list
+        if (data.notifications.length > 0) {
+          let html = '';
+          data.notifications.forEach(notif => {
+            const iconHtml = getNotificationIcon(notif.type);
+            const timeAgo = formatTimeAgo(notif.created_at);
+            
+            html += `
+              <a href="${notif.data.url || '#'}" 
+                 onclick="markNotificationRead(${notif.notification_id})"
+                 class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition">
+                <div class="flex items-start gap-3">
+                  ${iconHtml}
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-gray-900 truncate">
+                      ${notif.data.title || 'Notifikasi'}
+                    </p>
+                    <p class="text-xs text-gray-600 mt-1 line-clamp-2">${notif.data.message || ''}</p>
+                    <p class="text-xs text-gray-400 mt-1">${timeAgo}</p>
+                  </div>
+                </div>
+              </a>
+            `;
+          });
+          
+          html += `
+            <div class="px-4 py-3 text-center border-t border-gray-200">
+              <a href="/notifications" class="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+                Lihat Semua Notifikasi
+              </a>
+            </div>
+          `;
+          
+          list.innerHTML = html;
+        } else {
+          list.innerHTML = `
+            <div class="px-4 py-8 text-center text-sm text-gray-500">
+              Tidak ada notifikasi baru
+            </div>
+          `;
+        }
+      })
+      .catch(err => {
+        console.error('Error loading notifications:', err);
+        document.getElementById('notification-list').innerHTML = `
+          <div class="px-4 py-8 text-center text-sm text-red-500">
+            Gagal memuat notifikasi
+          </div>
+        `;
+      });
+  }
+
+  function getNotificationIcon(type) {
+    const icons = {
+      'visit_request_new': `
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </div>
+      `,
+      'visit_request_approved': `
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+          <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      `,
+      'visit_request_rejected': `
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+          <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      `
+    };
+    
+    return icons[type] || `
+      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+        </svg>
+      </div>
+    `;
+  }
+
+  function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    
+    if (seconds < 60) return 'Baru saja';
+    if (seconds < 3600) return Math.floor(seconds / 60) + ' menit lalu';
+    if (seconds < 86400) return Math.floor(seconds / 3600) + ' jam lalu';
+    if (seconds < 604800) return Math.floor(seconds / 86400) + ' hari lalu';
+    return Math.floor(seconds / 604800) + ' minggu lalu';
+  }
+
+  function markNotificationRead(notificationId) {
+    fetch(`/notifications/${notificationId}/read`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+      }
+    })
+    .then(() => {
+      // Reload notifications after marking as read
+      setTimeout(loadNotifications, 500);
+    })
+    .catch(err => console.error('Error marking notification as read:', err));
+  }
+</script>
+@endauth
