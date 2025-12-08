@@ -16,7 +16,7 @@
         <!-- Left Text -->
         <div class="md:w-1/2 animate-fade">
             <span class="text-green-800 font-semibold bg-green-200 px-3 py-1 rounded-full shadow-sm">
-                Platform Pertanian Terpadu
+                Platform Pertanian terpadu
             </span>
 
             <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mt-5 leading-tight">
