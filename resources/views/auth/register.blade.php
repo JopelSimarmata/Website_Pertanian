@@ -97,7 +97,6 @@
                 @enderror
               </div>
 
-              
               <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input 
