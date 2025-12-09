@@ -82,13 +82,14 @@
             <form action="{{ route('login') }}" method="POST" class="mt-6 space-y-4">
               @csrf
 
-              <button type="button" class="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-md px-4 py-2 text-sm hover:bg-gray-50">
-                <!-- Google icon -->
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M21.6 10.23h-9.6v3.54h5.52c-.24 1.5-1.68 4.41-5.52 4.41-3.33 0-6.03-2.73-6.03-6.09S8.19 6 11.52 6c1.86 0 3.12.78 3.84 1.44l2.64-2.56C16.44 3.18 14.28 2 11.52 2 6.63 2 2.76 5.94 2.76 11s3.87 9 8.76 9c5.04 0 8.4-3.54 8.4-8.55 0-.57-.06-1.02-.12-1.22z" fill="#EA4335"/>
-                </svg>
-                <span class="text-sm text-gray-700">Masuk dengan Google</span>
-              </button>
+              <a href="{{ route('google.redirect') }}" 
+                class="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-md px-4 py-2 text-sm hover:bg-gray-50">
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+                    <path d="M21.6 10.23h-9.6v3.54h5.52c-.24 1.5-1.68 4.41-5.52 4.41-3.33 0-6.03-2.73-6.03-6.09S8.19 6 11.52 6c1.86 0 3.12.78 3.84 1.44l2.64-2.56C16.44 3.18 14.28 2 11.52 2 6.63 2 2.76 5.94 2.76 11s3.87 9 8.76 9c5.04 0 8.4-3.54 8.4-8.55 0-.57-.06-1.02-.12-1.22z" fill="#EA4335"/>
+                  </svg>
+                  <span class="text-sm text-gray-700">Masuk dengan Google</span>
+              </a>
+
 
               <div class="flex items-center gap-3">
                 <div class="flex-1 h-px bg-gray-200"></div>
@@ -115,7 +116,7 @@
               <div>
                 <div class="flex items-center justify-between">
                   <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                  <a href="#" class="text-sm text-emerald-600 hover:underline">Lupa password?</a>
+                  <a href="{{ route('password.request') }}" class="text-sm text-emerald-600 hover:underline">Lupa password?</a>
                 </div>
                 <div class="mt-2 relative">
                   <input 

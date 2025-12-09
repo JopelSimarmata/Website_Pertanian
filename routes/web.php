@@ -10,6 +10,22 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForumThreadController;
 use App\Http\Controllers\VisitRequestController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
+
+/*
+|--------------------------------------------------------------------------
+| Authentication via Google
+|--------------------------------------------------------------------------
+*/
+Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+
+Route::get('/fpassword', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/fpassword', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 /*
 |--------------------------------------------------------------------------
