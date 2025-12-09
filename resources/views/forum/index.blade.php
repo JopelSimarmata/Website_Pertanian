@@ -122,19 +122,19 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors overflow-hidden relative cursor-pointer" onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'">
           
           {{-- Status Badge - Top Right --}}
-          <div class="absolute top-4 right-4 z-10" onclick="event.stopPropagation()">
+          <div class="absolute top-4 right-4 z-10 mt-2" onclick="event.stopPropagation()">
             @if($thread->is_solved)
-              <span class="inline-flex items-center px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold">
+              <span class="inline-flex items-center px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold shadow-md">
                 Sudah Terjawab
               </span>
             @else
-              <span class="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white rounded-full text-xs font-bold">
+              <span class="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white rounded-full text-xs font-bold shadow-md">
                 Belum Terjawab
               </span>
             @endif
           </div>
 
-          <div class="p-6">
+          <div class="p-6 pt-14">
             <div class="flex gap-4">
               
               {{-- Avatar --}}
