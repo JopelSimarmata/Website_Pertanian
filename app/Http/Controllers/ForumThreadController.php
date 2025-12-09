@@ -14,6 +14,7 @@ class ForumThreadController extends Controller
     {
         $search = $request->get('search');
         $category = $request->get('category');
+        $status = $request->get('status');
         
         $query = ForumThread::with(['author', 'category', 'likes']);
         
@@ -26,6 +27,13 @@ class ForumThreadController extends Controller
         
         if ($category) {
             $query->where('category_id', $category);
+        }
+        
+        // Filter by status
+        if ($status === 'solved') {
+            $query->where('is_solved', true);
+        } elseif ($status === 'unsolved') {
+            $query->where('is_solved', false);
         }
         
         // Pinned threads first, then by latest
@@ -88,7 +96,7 @@ class ForumThreadController extends Controller
     public function storeReply(Request $request, $id)
     {
         $request->validate([
-            'reply' => 'required|string|min:10',
+            'reply' => 'required|string',
         ]);
 
         $thread = ForumThread::findOrFail($id);

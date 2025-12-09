@@ -400,7 +400,7 @@
         </h3>
         <div class="space-y-3">
           <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
-            <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-700">Hama Wereng Padi</span>
+            <span class="text-sm font-medium text-  -700 group-hover:text-emerald-700">Hama Wereng Padi</span>
             <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
