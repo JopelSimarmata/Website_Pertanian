@@ -19,6 +19,7 @@ class ForumThread extends Model
         'tags',
         'image',
         'views_count',
+        'likes_count',
         'replies_count',
         'is_pinned',
         'is_solved',
@@ -43,5 +44,30 @@ class ForumThread extends Model
     public function replies()
     {
         return $this->hasMany(ForumReplies::class, 'thread_id', 'thread_id');
+    }
+
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'forum_thread_likes', 'thread_id', 'user_id')
+                    ->withTimestamps();
+    }
+
+    public function isLikedBy($user)
+    {
+        if (!$user) return false;
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
+
+    public function toggleLike($user)
+    {
+        if ($this->isLikedBy($user)) {
+            $this->likes()->detach($user->id);
+            $this->decrement('likes_count');
+            return false; // unliked
+        } else {
+            $this->likes()->attach($user->id);
+            $this->increment('likes_count');
+            return true; // liked
+        }
     }
 }

@@ -111,16 +111,17 @@
         {{-- Image Upload --}}
         <div>
           <label class="block text-sm font-bold text-gray-900 mb-2">
-            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional)</span>
+            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, maksimal 4 gambar)</span>
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-500 transition">
             <input 
               type="file" 
-              name="image" 
+              name="images[]" 
               accept="image/*" 
+              multiple
               class="hidden" 
               id="image-input"
-              onchange="previewImage(event)"
+              onchange="previewImages(event)"
             >
             <label for="image-input" class="cursor-pointer">
               <div class="flex flex-col items-center">
@@ -130,24 +131,18 @@
                 <p class="text-sm text-gray-600 mb-1">
                   <span class="font-semibold text-emerald-600">Klik untuk upload</span> atau drag and drop
                 </p>
-                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB</p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB per gambar (maks. 4 gambar)</p>
               </div>
             </label>
           </div>
 
-          {{-- Image Preview --}}
-          <div id="image-preview" class="mt-4 hidden">
-            <div class="relative inline-block">
-              <img id="preview" class="max-h-64 rounded-xl border-2 border-gray-200 shadow-sm">
-              <button 
-                type="button" 
-                onclick="removeImage()" 
-                class="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
+          {{-- Images Preview Grid --}}
+          <div id="images-preview" class="mt-4 hidden">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="preview-grid">
+              <!-- Preview items will be inserted here -->
+            </div>
+            <div class="mt-2 text-sm text-gray-600">
+              <span id="image-count">0</span> / 4 gambar
             </div>
           </div>
         </div>
@@ -201,23 +196,111 @@
 </div>
 
 <script>
-  function previewImage(event) {
-    const preview = document.getElementById('preview');
-    const container = document.getElementById('image-preview');
-    const file = event.target.files[0];
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-      container.classList.remove('hidden');
-    } else {
-      container.classList.add('hidden');
+  let selectedFiles = [];
+  const MAX_IMAGES = 4;
+
+  function previewImages(event) {
+    const files = Array.from(event.target.files);
+    const container = document.getElementById('images-preview');
+    const grid = document.getElementById('preview-grid');
+    const countDisplay = document.getElementById('image-count');
+
+    // Check if adding new files would exceed the limit
+    if (selectedFiles.length + files.length > MAX_IMAGES) {
+      alert(`Maksimal ${MAX_IMAGES} gambar. Anda sudah memilih ${selectedFiles.length} gambar.`);
+      return;
     }
+
+    // Add new files to selectedFiles array
+    files.forEach((file, index) => {
+      if (selectedFiles.length < MAX_IMAGES) {
+        selectedFiles.push(file);
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const previewItem = document.createElement('div');
+          previewItem.className = 'relative group';
+          previewItem.innerHTML = `
+            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+            <button 
+              type="button" 
+              onclick="removeImage(${selectedFiles.length - 1})" 
+              class="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+              ${selectedFiles.length}
+            </div>
+          `;
+          grid.appendChild(previewItem);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Update display
+    if (selectedFiles.length > 0) {
+      container.classList.remove('hidden');
+      countDisplay.textContent = selectedFiles.length;
+    }
+
+    // Reset input to allow selecting same files again if needed
+    event.target.value = '';
   }
 
-  function removeImage() {
+  function removeImage(index) {
+    selectedFiles.splice(index, 1);
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const container = document.getElementById('images-preview');
+    const grid = document.getElementById('preview-grid');
+    const countDisplay = document.getElementById('image-count');
     const input = document.getElementById('image-input');
-    const container = document.getElementById('image-preview');
-    input.value = '';
-    container.classList.add('hidden');
+
+    grid.innerHTML = '';
+
+    if (selectedFiles.length === 0) {
+      container.classList.add('hidden');
+      return;
+    }
+
+    selectedFiles.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const previewItem = document.createElement('div');
+        previewItem.className = 'relative group';
+        previewItem.innerHTML = `
+          <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+          <button 
+            type="button" 
+            onclick="removeImage(${index})" 
+            class="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+          <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+            ${index + 1}
+          </div>
+        `;
+        grid.appendChild(previewItem);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    countDisplay.textContent = selectedFiles.length;
+    container.classList.remove('hidden');
+
+    // Update file input with current selection
+    const dataTransfer = new DataTransfer();
+    selectedFiles.forEach(file => dataTransfer.items.add(file));
+    input.files = dataTransfer.files;
   }
 </script>
 
