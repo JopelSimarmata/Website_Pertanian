@@ -61,8 +61,12 @@ Route::get('/forum/{id}', [ForumThreadController::class, 'detail'])->whereNumber
 Route::middleware('auth')->group(function () {
     Route::get('/forum/add', [ForumThreadController::class, 'add'])->name('forum.add');
     Route::post('/forum/store', [ForumThreadController::class, 'store'])->name('forum.store');
+    Route::get('/forum/{id}/edit', [ForumThreadController::class, 'edit'])->whereNumber('id')->name('forum.edit');
+    Route::put('/forum/{id}', [ForumThreadController::class, 'update'])->whereNumber('id')->name('forum.update');
+    Route::delete('/forum/{id}', [ForumThreadController::class, 'destroy'])->whereNumber('id')->name('forum.destroy');
     Route::post('/forum/{id}/like', [ForumThreadController::class, 'toggleLike'])->whereNumber('id')->name('forum.toggle-like');
     Route::post('/forum/{id}/toggle-solved', [ForumThreadController::class, 'toggleSolved'])->whereNumber('id')->name('forum.toggle-solved');
+    Route::post('/forum/{id}/reply', [ForumThreadController::class, 'storeReply'])->whereNumber('id')->name('forum.reply');
 });
 
 /*

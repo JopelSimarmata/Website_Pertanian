@@ -111,7 +111,7 @@
         {{-- Image Upload --}}
         <div>
           <label class="block text-sm font-bold text-gray-900 mb-2">
-            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, maksimal 4 gambar)</span>
+            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, max 5 foto)</span>
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-500 transition">
             <input 
@@ -131,18 +131,15 @@
                 <p class="text-sm text-gray-600 mb-1">
                   <span class="font-semibold text-emerald-600">Klik untuk upload</span> atau drag and drop
                 </p>
-                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB per gambar (maks. 4 gambar)</p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 5MB per file (max 5 foto)</p>
               </div>
             </label>
           </div>
 
-          {{-- Images Preview Grid --}}
-          <div id="images-preview" class="mt-4 hidden">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="preview-grid">
-              <!-- Preview items will be inserted here -->
-            </div>
-            <div class="mt-2 text-sm text-gray-600">
-              <span id="image-count">0</span> / 4 gambar
+          {{-- Image Preview Grid --}}
+          <div id="image-preview" class="mt-4 hidden">
+            <div id="preview-grid" class="grid grid-cols-2 gap-2"></div>
+          </div>
             </div>
           </div>
         </div>
@@ -166,28 +163,29 @@
           </div>
         </div>
 
-      </div>
+        {{-- Action Buttons --}}
+        <div class="flex items-center justify-between mt-4">
+          <a 
+            href="{{ route('forum.index') }}" 
+            class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-emerald-600 transition-colors duration-200 font-medium"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Kembali ke Forum
+          </a>
+          
+          <button 
+            type="submit" 
+            class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Publikasikan Thread
+          </button>
+        </div>
 
-      {{-- Action Buttons --}}
-      <div class="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-200">
-        <button 
-          type="submit" 
-          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-semibold shadow-lg"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          Publikasikan Thread
-        </button>
-        <a 
-          href="{{ route('forum.index') }}" 
-          class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-semibold"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-          Batal
-        </a>
       </div>
 
     </form>
@@ -197,110 +195,123 @@
 
 <script>
   let selectedFiles = [];
-  const MAX_IMAGES = 4;
 
   function previewImages(event) {
-    const files = Array.from(event.target.files);
-    const container = document.getElementById('images-preview');
+    const newFiles = Array.from(event.target.files);
+    const container = document.getElementById('image-preview');
     const grid = document.getElementById('preview-grid');
-    const countDisplay = document.getElementById('image-count');
-
-    // Check if adding new files would exceed the limit
-    if (selectedFiles.length + files.length > MAX_IMAGES) {
-      alert(`Maksimal ${MAX_IMAGES} gambar. Anda sudah memilih ${selectedFiles.length} gambar.`);
+    
+    // Combine existing files with new files
+    const allFiles = [...selectedFiles, ...newFiles];
+    
+    // Limit to 5 images total
+    if (allFiles.length > 5) {
+      alert('Maksimal 5 foto. Anda sudah memilih ' + selectedFiles.length + ' foto, tidak bisa menambahkan ' + newFiles.length + ' foto lagi.');
+      event.target.value = '';
       return;
     }
-
-    // Add new files to selectedFiles array
-    files.forEach((file, index) => {
-      if (selectedFiles.length < MAX_IMAGES) {
-        selectedFiles.push(file);
-        
+    
+    // Check file size (5MB max per file)
+    const oversized = newFiles.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversized.length > 0) {
+      alert('Ukuran file terlalu besar. Maksimal 5MB per file');
+      event.target.value = '';
+      return;
+    }
+    
+    // Add new files to existing ones
+    selectedFiles = allFiles;
+    
+    // Update input files with DataTransfer
+    const dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file));
+    event.target.files = dt.files;
+    
+    // Clear and rebuild preview
+    grid.innerHTML = '';
+    
+    if (selectedFiles.length > 0) {
+      container.classList.remove('hidden');
+      
+      selectedFiles.forEach((file, index) => {
         const reader = new FileReader();
+        
         reader.onload = function(e) {
-          const previewItem = document.createElement('div');
-          previewItem.className = 'relative group';
-          previewItem.innerHTML = `
-            <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+          const div = document.createElement('div');
+          div.className = 'relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200';
+          div.innerHTML = `
+            <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-full object-cover">
             <button 
               type="button" 
-              onclick="removeImage(${selectedFiles.length - 1})" 
-              class="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100"
+              onclick="removeImageAt(${index})" 
+              class="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
-            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-              ${selectedFiles.length}
+            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+              ${index + 1}/${selectedFiles.length}
             </div>
           `;
-          grid.appendChild(previewItem);
+          grid.appendChild(div);
         };
+        
         reader.readAsDataURL(file);
-      }
-    });
-
-    // Update display
-    if (selectedFiles.length > 0) {
-      container.classList.remove('hidden');
-      countDisplay.textContent = selectedFiles.length;
+      });
+    } else {
+      container.classList.add('hidden');
     }
-
-    // Reset input to allow selecting same files again if needed
-    event.target.value = '';
   }
 
-  function removeImage(index) {
-    selectedFiles.splice(index, 1);
-    updatePreview();
-  }
-
-  function updatePreview() {
-    const container = document.getElementById('images-preview');
-    const grid = document.getElementById('preview-grid');
-    const countDisplay = document.getElementById('image-count');
+  function removeImageAt(index) {
     const input = document.getElementById('image-input');
-
+    const container = document.getElementById('image-preview');
+    const grid = document.getElementById('preview-grid');
+    
+    // Remove the file at the specified index
+    selectedFiles.splice(index, 1);
+    
+    // Update input files with DataTransfer
+    const dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file));
+    input.files = dt.files;
+    
+    // Clear the grid
     grid.innerHTML = '';
-
+    
     if (selectedFiles.length === 0) {
       container.classList.add('hidden');
-      return;
+      input.value = '';
+    } else {
+      // Rebuild preview with updated file list
+      selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const div = document.createElement('div');
+          div.className = 'relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200';
+          div.innerHTML = `
+            <img src="${e.target.result}" alt="Preview ${idx + 1}" class="w-full h-full object-cover">
+            <button 
+              type="button" 
+              onclick="removeImageAt(${idx})" 
+              class="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+              ${idx + 1}/${selectedFiles.length}
+            </div>
+          `;
+          grid.appendChild(div);
+        };
+        
+        reader.readAsDataURL(file);
+      });
     }
-
-    selectedFiles.forEach((file, index) => {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const previewItem = document.createElement('div');
-        previewItem.className = 'relative group';
-        previewItem.innerHTML = `
-          <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
-          <button 
-            type="button" 
-            onclick="removeImage(${index})" 
-            class="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-          <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-            ${index + 1}
-          </div>
-        `;
-        grid.appendChild(previewItem);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    countDisplay.textContent = selectedFiles.length;
-    container.classList.remove('hidden');
-
-    // Update file input with current selection
-    const dataTransfer = new DataTransfer();
-    selectedFiles.forEach(file => dataTransfer.items.add(file));
-    input.files = dataTransfer.files;
   }
 </script>
 
