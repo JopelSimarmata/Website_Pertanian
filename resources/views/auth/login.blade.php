@@ -20,7 +20,6 @@
             <p class="mt-3 text-emerald-700 max-w-xl">Bergabunglah dengan ribuan petani di seluruh Indonesia untuk berbagi pengalaman, berdiskusi, dan berbelanja kebutuhan pertanian.</p>
           </div>
 
-          
           <div class="mt-4">
               <div class="rounded-2xl overflow-hidden shadow-lg shrink-0">
               <img src="{{ asset('image/field.jpg') }}" alt="field" class="w-full h-64 object-cover">
