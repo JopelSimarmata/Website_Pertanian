@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -29,7 +30,6 @@ class ResetPasswordController extends Controller
 
         return $status === Password::PASSWORD_RESET
             ? redirect('/login')->with('status', 'Password berhasil direset!')
-            : back()->withErrors(['email' => 'Terjadi kesalahan.']);
+            : back()->withErrors(['email' => 'Terjadi kesalahan saat mereset password.']);
     }
 }
-

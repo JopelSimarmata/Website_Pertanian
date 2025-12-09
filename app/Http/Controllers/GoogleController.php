@@ -45,7 +45,7 @@ class GoogleController extends Controller
 
         } catch (\Exception $e) {
             // Tampilkan error Google sebenarnya untuk debug
-            return redirect('/login')->withErrors('Gagal login dengan Google: ' . $e->getMessage());
+            return redirect('/login')->withErrors('Gagal login dengan Google: ');
         }
     }
 }
