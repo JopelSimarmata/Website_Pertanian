@@ -124,11 +124,11 @@
           {{-- Status Badge - Top Right --}}
           <div class="absolute top-4 right-4 z-10 mt-2" onclick="event.stopPropagation()">
             @if($thread->is_solved)
-              <span class="inline-flex items-center px-3 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold shadow-md">
+              <span class="inline-flex items-center px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">
                 Sudah Terjawab
               </span>
             @else
-              <span class="inline-flex items-center px-3 py-1.5 bg-rose-500 text-white rounded-full text-xs font-bold shadow-md">
+              <span class="inline-flex items-center px-3 py-1.5 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold">
                 Belum Terjawab
               </span>
             @endif
@@ -329,23 +329,17 @@
       {{-- Thread Teraktif --}}
       <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-md border-2 border-emerald-300 overflow-hidden">
         <div class="bg-gradient-to-r from-emerald-500 to-green-500 px-5 py-4">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center">
             <h3 class="font-bold text-white text-lg flex items-center gap-2">
               <span class="text-2xl">🏆</span>
               Thread Teraktif
             </h3>
-            <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="text-xs text-white/90 hover:text-white font-semibold flex items-center gap-1">
-              Semua
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </a>
           </div>
         </div>
 
         @php
           // Popular threads berdasarkan kombinasi likes, replies, dan views
-          $popularThreads = \App\Models\ForumThread::with(['author', 'category', 'likes'])
+          $popularThreads = \App\Models\ForumThread::with(['author.profile', 'category', 'likes'])
             ->withCount('replies')
             ->orderByRaw('(likes_count * 3 + replies_count * 2 + COALESCE(views_count, 0)) DESC')
             ->take(5)
@@ -371,7 +365,22 @@
                 <h4 class="font-semibold text-sm text-gray-900 group-hover:text-emerald-700 transition line-clamp-1 mb-1">
                   {{ $popular->title }}
                 </h4>
+                
+                {{-- Author & Stats --}}
                 <div class="flex items-center gap-2 text-xs text-gray-500">
+                  {{-- Author Avatar --}}
+                  @php
+                    $popAuthorName = $popular->author->name ?? 'User';
+                    $hasPopAvatar = $popular->author->profile && $popular->author->profile->avatar;
+                    if ($hasPopAvatar) {
+                      $popAvatar = asset('storage/' . $popular->author->profile->avatar);
+                    } else {
+                      $popAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($popAuthorName) . '&color=ffffff&background=059669&size=20';
+                    }
+                  @endphp
+                  <img src="{{ $popAvatar }}" alt="{{ $popAuthorName }}" class="w-4 h-4 rounded-full border border-emerald-100 object-cover">
+                  
+                  {{-- Replies --}}
                   <span class="flex items-center gap-0.5">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
@@ -379,6 +388,8 @@
                     <span class="font-medium text-emerald-600">{{ number_format($popular->replies_count) }}</span>
                   </span>
                   <span class="text-gray-300">•</span>
+                  
+                  {{-- Views --}}
                   <span class="flex items-center gap-0.5">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
