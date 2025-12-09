@@ -16,7 +16,7 @@ class ForumThreadController extends Controller
         $category = $request->get('category');
         $status = $request->get('status');
         
-        $query = ForumThread::with(['author', 'category', 'likes']);
+        $query = ForumThread::with(['author.profile', 'category', 'likes']);
         
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -85,7 +85,7 @@ class ForumThreadController extends Controller
 
     public function detail($id)
     {
-        $thread = ForumThread::with(['author', 'category', 'likes', 'replies.author'])->findOrFail($id);
+        $thread = ForumThread::with(['author.profile', 'category', 'likes', 'replies.author.profile'])->findOrFail($id);
         
         // Increment views count
         $thread->increment('views_count');

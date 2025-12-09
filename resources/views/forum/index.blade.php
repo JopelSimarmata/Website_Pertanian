@@ -141,9 +141,15 @@
               <div class="shrink-0">
                 @php
                   $authorName = $thread->author->name ?? 'User';
-                  $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&color=059669&background=d1fae5&size=56';
+                  // Check if user has uploaded avatar
+                  $hasAvatar = $thread->author->profile && $thread->author->profile->avatar;
+                  if ($hasAvatar) {
+                    $avatar = asset('storage/' . $thread->author->profile->avatar);
+                  } else {
+                    $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&color=ffffff&background=059669&size=56';
+                  }
                 @endphp
-                <img src="{{ $avatar }}" alt="{{ $authorName }}" class="w-14 h-14 rounded-full border-2 border-emerald-100 shadow-sm">
+                <img src="{{ $avatar }}" alt="{{ $authorName }}" class="w-14 h-14 rounded-full border-2 border-emerald-100 shadow-sm object-cover">
               </div>
 
               {{-- Content --}}

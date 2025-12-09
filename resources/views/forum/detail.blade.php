@@ -56,9 +56,15 @@
             <div class="flex items-center gap-2">
               @php
                 $authorName = $thread->author->name ?? 'User';
-                $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&color=059669&background=d1fae5&size=32';
+                // Check if user has uploaded avatar
+                $hasAvatar = $thread->author->profile && $thread->author->profile->avatar;
+                if ($hasAvatar) {
+                  $avatar = asset('storage/' . $thread->author->profile->avatar);
+                } else {
+                  $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&color=ffffff&background=059669&size=32';
+                }
               @endphp
-              <img src="{{ $avatar }}" alt="{{ $authorName }}" class="w-8 h-8 rounded-full border-2 border-emerald-100">
+              <img src="{{ $avatar }}" alt="{{ $authorName }}" class="w-8 h-8 rounded-full border-2 border-emerald-100 object-cover">
               <span class="font-semibold text-gray-900">{{ $authorName }}</span>
             </div>
             <div class="flex items-center gap-1">
@@ -319,11 +325,17 @@
             @foreach($thread->replies as $reply)
               @php
                 $replyAuthor = $reply->author->name ?? 'User';
-                $replyAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($replyAuthor) . '&color=6366f1&background=e0e7ff&size=40';
+                // Check if reply author has uploaded avatar
+                $hasReplyAvatar = $reply->author->profile && $reply->author->profile->avatar;
+                if ($hasReplyAvatar) {
+                  $replyAvatar = asset('storage/' . $reply->author->profile->avatar);
+                } else {
+                  $replyAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($replyAuthor) . '&color=ffffff&background=059669&size=40';
+                }
               @endphp
               <div class="flex gap-3 pb-4 border-b border-gray-100 last:border-0">
                 <div class="shrink-0">
-                  <img src="{{ $replyAvatar }}" alt="{{ $replyAuthor }}" class="w-10 h-10 rounded-full border-2 border-gray-100">
+                  <img src="{{ $replyAvatar }}" alt="{{ $replyAuthor }}" class="w-10 h-10 rounded-full border-2 border-gray-100 object-cover">
                 </div>
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-1">
