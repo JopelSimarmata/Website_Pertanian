@@ -147,6 +147,23 @@
         {!! nl2br(e($thread->content)) !!}
       </div>
 
+      {{-- Tags --}}
+      @if($thread->tags)
+        @php
+          $threadTags = is_array($thread->tags) ? $thread->tags : json_decode($thread->tags, true);
+        @endphp
+        @if($threadTags && is_array($threadTags) && count($threadTags) > 0)
+          <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+            <span class="text-sm text-gray-500 font-medium">Tags:</span>
+            @foreach($threadTags as $tag)
+              <span class="inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium">
+                #{{ $tag }}
+              </span>
+            @endforeach
+          </div>
+        @endif
+      @endif
+
       {{-- Image Attachment --}}
       @if($thread->image)
         @php
@@ -277,18 +294,6 @@
           </p>
         </div>
         @endif
-      @endif
-
-      {{-- Tags --}}
-      @if($thread->tags && count($thread->tags) > 0)
-        <div class="flex flex-wrap gap-2 mt-6 pt-6 border-t border-gray-100">
-          <span class="text-sm text-gray-500 font-medium">Tags:</span>
-          @foreach($thread->tags as $tag)
-            <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition cursor-pointer">
-              #{{ $tag }}
-            </span>
-          @endforeach
-        </div>
       @endif
     </div>
   </div>

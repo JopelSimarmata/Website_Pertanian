@@ -165,7 +165,7 @@
                     @endif
                     @if($thread->category)
                       <span class="inline-flex items-center px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
-                        {{ $thread->category->icon }} {{ $thread->category->name }}
+                        {{ $thread->category->name }}
                       </span>
                     @endif
                   </div>
@@ -178,6 +178,17 @@
                 
                 {{-- Excerpt --}}
                 <p class="text-gray-600 mb-3 line-clamp-2">{{ Str::limit(strip_tags($thread->content), 180) }}</p>
+
+                {{-- Tags --}}
+                @if($thread->tags && is_array($thread->tags) && count($thread->tags) > 0)
+                  <div class="flex flex-wrap gap-1.5 mb-3">
+                    @foreach($thread->tags as $tag)
+                      <span class="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                        #{{ $tag }}
+                      </span>
+                    @endforeach
+                  </div>
+                @endif
 
                 {{-- Image Preview Grid (Facebook Style) --}}
                 @if($thread->image)

@@ -21,7 +21,8 @@ class ForumThreadController extends Controller
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhere('tags', 'like', "%{$search}%");
             });
         }
         
@@ -61,6 +62,8 @@ class ForumThreadController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'category_id' => 'required|exists:forum_categories,category_id',
+            'tags' => 'nullable|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
@@ -72,11 +75,20 @@ class ForumThreadController extends Controller
             }
         }
 
+        // Process tags - split by comma and clean up
+        $tags = null;
+        if ($request->tags) {
+            $tagsArray = array_map('trim', explode(',', $request->tags));
+            $tagsArray = array_filter($tagsArray); // Remove empty values
+            $tags = !empty($tagsArray) ? json_encode($tagsArray) : null;
+        }
+
         ForumThread::create([ 
             'title' => $request->title,
             'content' => $request->content,
             'author_id' => auth()->id() ?? 1,
             'category_id' => $request->category_id,
+            'tags' => $tags,
             'image' => !empty($imagePaths) ? json_encode($imagePaths) : null,
         ]);
 
