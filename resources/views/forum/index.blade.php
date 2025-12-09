@@ -97,8 +97,9 @@
   {{-- Threads List --}}
   @if($threads->isEmpty())
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
-      <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <span class="text-5xl">🤔</span>
+      <div class="w-20 h-20 overflow-hidden flex items-center justify-center mx-auto mb-6">
+        <img src="{{ asset('icons/icons8-thinking-80.png') }}" 
+             class="w-20 h-20 object-cover">
       </div>
       <h3 class="text-2xl font-bold text-gray-900 mb-3">Belum Ada Diskusi</h3>
       <p class="text-gray-600 mb-8 max-w-md mx-auto">
