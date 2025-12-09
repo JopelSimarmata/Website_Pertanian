@@ -279,7 +279,7 @@
                   @endif
                 @endif
 
-                {{-- Meta Info --}}
+                {{-- Meta Info (Author, Time, Views) --}}
                 <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                   <div class="flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,24 +293,6 @@
                     </svg>
                     <span>{{ $thread->created_at->diffForHumans() }}</span>
                   </div>
-                  
-                  {{-- Like Button --}}
-                  <button onclick="event.stopPropagation(); likeThread({{ $thread->thread_id }}, this)" 
-                    class="like-btn flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-rose-50 transition {{ $thread->isLikedBy(auth()->user()) ? 'text-rose-600' : 'text-gray-500' }}" 
-                    data-thread-id="{{ $thread->thread_id }}" 
-                    data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
-                    <svg class="w-4 h-4 {{ $thread->isLikedBy(auth()->user()) ? 'fill-current' : '' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                    </svg>
-                    <span class="font-semibold likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
-                  </button>
-
-                  <div class="flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                    </svg>
-                    <span class="font-semibold text-emerald-600">{{ number_format($thread->replies_count ?? 0) }}</span>
-                  </div>
                   <div class="flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -318,6 +300,28 @@
                     </svg>
                     <span>{{ number_format($thread->views_count ?? 0) }}</span>
                   </div>
+                </div>
+
+                {{-- Action Buttons (Like & Comment) - Bottom Section --}}
+                <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+                  {{-- Like Button --}}
+                  <button onclick="event.stopPropagation(); likeThread({{ $thread->thread_id }}, this)" 
+                    class="like-btn flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-rose-50 transition-all active:scale-95 {{ $thread->isLikedBy(auth()->user()) ? 'text-rose-600 bg-rose-50' : 'text-gray-600 hover:text-rose-600' }}" 
+                    data-thread-id="{{ $thread->thread_id }}" 
+                    data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
+                    <svg class="w-6 h-6 {{ $thread->isLikedBy(auth()->user()) ? 'fill-current' : '' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <span class="font-bold text-base likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
+                  </button>
+
+                  {{-- Comment Button --}}
+                  <button onclick="event.stopPropagation();" class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-emerald-50 transition-all active:scale-95 text-gray-600 hover:text-emerald-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                    <span class="font-bold text-base text-emerald-600">{{ number_format($thread->replies_count ?? 0) }}</span>
+                  </button>
                 </div>
               </div>
 

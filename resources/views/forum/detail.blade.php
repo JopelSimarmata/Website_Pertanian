@@ -73,30 +73,12 @@
               </svg>
               <span>{{ $thread->created_at->diffForHumans() }}</span>
             </div>
-            
-            {{-- Like Button --}}
-            <button onclick="likeThread({{ $thread->thread_id }}, this)" 
-              class="like-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition {{ $thread->isLikedBy(auth()->user()) ? 'text-rose-600 bg-rose-50' : 'text-gray-600' }}" 
-              data-thread-id="{{ $thread->thread_id }}" 
-              data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
-              <svg class="w-4 h-4 {{ $thread->isLikedBy(auth()->user()) ? 'fill-current' : '' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-              <span class="font-semibold likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
-            </button>
-            
             <div class="flex items-center gap-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
               </svg>
               <span>{{ number_format($thread->views_count ?? 0) }}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-              </svg>
-              <span>{{ number_format($thread->replies_count ?? 0) }}</span>
             </div>
           </div>
         </div>
@@ -142,7 +124,7 @@
     </div>
 
     {{-- Thread Content --}}
-    <div class="p-6">
+    <div class="px-6 pt-3 pb-2">
       <div class="prose max-w-none text-gray-700 leading-relaxed">
         {!! nl2br(e($thread->content)) !!}
       </div>
@@ -153,7 +135,7 @@
           $threadTags = is_array($thread->tags) ? $thread->tags : json_decode($thread->tags, true);
         @endphp
         @if($threadTags && is_array($threadTags) && count($threadTags) > 0)
-          <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+          <div class="flex flex-wrap gap-2 mt-1 pt-1 border-t border-gray-100">
             <span class="text-sm text-gray-500 font-medium">Tags:</span>
             @foreach($threadTags as $tag)
               <span class="inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium">
@@ -292,8 +274,52 @@
             </svg>
             Klik gambar untuk melihat ukuran penuh
           </p>
+
+          {{-- Action Buttons (Like & Comment) - Below Images --}}
+          <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+            {{-- Like Button --}}
+            <button onclick="likeThread({{ $thread->thread_id }}, this)" 
+              class="like-btn flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-rose-50 transition-all active:scale-95 {{ $thread->isLikedBy(auth()->user()) ? 'text-rose-600 bg-rose-50' : 'text-gray-600 hover:text-rose-600' }}" 
+              data-thread-id="{{ $thread->thread_id }}" 
+              data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
+              <svg class="w-5 h-5 {{ $thread->isLikedBy(auth()->user()) ? 'fill-current' : '' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              </svg>
+              <span class="font-bold text-base likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
+            </button>
+            
+            {{-- Comment Button --}}
+            <button onclick="document.getElementById('reply-section').scrollIntoView({ behavior: 'smooth' })" class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-emerald-50 transition-all active:scale-95 text-gray-600 hover:text-emerald-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+              <span class="font-bold text-base text-emerald-600">{{ number_format($thread->replies_count ?? 0) }}</span>
+            </button>
+          </div>
         </div>
         @endif
+      @else
+        {{-- No images: Show action buttons after tags --}}
+        <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">
+          {{-- Like Button --}}
+          <button onclick="likeThread({{ $thread->thread_id }}, this)" 
+            class="like-btn flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-rose-50 transition-all active:scale-95 {{ $thread->isLikedBy(auth()->user()) ? 'text-rose-600 bg-rose-50' : 'text-gray-600 hover:text-rose-600' }}" 
+            data-thread-id="{{ $thread->thread_id }}" 
+            data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
+            <svg class="w-5 h-5 {{ $thread->isLikedBy(auth()->user()) ? 'fill-current' : '' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            <span class="font-bold text-base likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
+          </button>
+          
+          {{-- Comment Button --}}
+          <button onclick="document.getElementById('reply-section').scrollIntoView({ behavior: 'smooth' })" class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-emerald-50 transition-all active:scale-95 text-gray-600 hover:text-emerald-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            <span class="font-bold text-base text-emerald-600">{{ number_format($thread->replies_count ?? 0) }}</span>
+          </button>
+        </div>
       @endif
     </div>
   </div>
