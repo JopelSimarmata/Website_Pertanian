@@ -155,6 +155,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payments.success');
 });
 
+
 // Public endpoints for Midtrans webhooks
 Route::post('/payment/notification', [PaymentController::class, 'handleCallback']);
 Route::post('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');
