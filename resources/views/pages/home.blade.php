@@ -1,4 +1,3 @@
-
 <!--
   This example requires updating your template:
 
@@ -17,7 +16,7 @@
         <!-- Left Text -->
         <div class="md:w-1/2 animate-fade">
             <span class="text-green-800 font-semibold bg-green-200 px-3 py-1 rounded-full shadow-sm">
-                🌿 Platform Pertanian Terpadu
+                Platform Pertanian terpadu
             </span>
 
             <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mt-5 leading-tight">
@@ -30,11 +29,11 @@
             </p>
 
             <div class="flex gap-4">
-                <a href="/forum" class="bg-green-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-green-700 transition">
+                <a href="/marketplace" class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-xl hover:bg-emerald-100 transition">
                     Jelajahi Forum
                 </a>
 
-                <a href="/marketplace" class="border border-green-600 text-green-600 px-6 py-3 rounded-xl hover:bg-green-100 transition">
+                <a href="/marketplace" class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-xl hover:bg-emerald-100 transition">
                     Lihat Marketplace
                 </a>
             </div>
