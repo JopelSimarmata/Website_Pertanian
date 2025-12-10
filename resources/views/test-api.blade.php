@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API - Web Pertanian</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #10b981;
+            border-bottom: 3px solid #10b981;
+            padding-bottom: 10px;
+        }
+        .endpoint {
+            background: #f9fafb;
+            padding: 15px;
+            border-left: 4px solid #10b981;
+            margin: 20px 0;
+        }
+        button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        pre {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .loading {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            border: 2px solid #d1d5db;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #10b981;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Home</a>
+        <h1>🌾 Web Pertanian - API Test Page</h1>
+        <p>Test API endpoints untuk mengambil data produk dan harga</p>
+        <p><strong>Base URL:</strong> {{ url('/') }}</p>
+
+        <div class="endpoint">
+            <h3>1. Get All Products</h3>
+            <button onclick="testProducts()">Test /api/products</button>
+            <button onclick="testProductsWithFilter()">Test with Filter (pupuk)</button>
+            <div id="products-result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>2. Get Single Product</h3>
+            <input type="number" id="product-id" placeholder="Product ID" value="1">
+            <button onclick="testSingleProduct()">Test /api/products/{id}</button>
+            <div id="single-product-result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>3. Get Prices Only</h3>
+            <button onclick="testPrices()">Test /api/prices</button>
+            <button onclick="testPricesWithCategory()">Test with Category (pupuk)</button>
+            <div id="prices-result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>4. Search Products</h3>
+            <input type="text" id="search-query" placeholder="Search keyword" value="organik">
+            <button onclick="testSearch()">Test Search</button>
+            <div id="search-result"></div>
+        </div>
+
+        <div class="endpoint">
+            <h3>5. Indonesian Regions API</h3>
+            <button onclick="testProvinces()">Test /api/provinces</button>
+            <button onclick="testRegencies()">Test /api/regencies/11 (Aceh)</button>
+            <div id="regions-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = '{{ url('/') }}';
+
+        function showLoading(elementId) {
+            document.getElementById(elementId).innerHTML = '<p class="loading">Loading...</p>';
+        }
+
+        function showError(elementId, error) {
+            document.getElementById(elementId).innerHTML = `<p class="error">Error: ${error}</p>`;
+        }
+
+        function showResult(elementId, data) {
+            document.getElementById(elementId).innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function testProducts() {
+            const resultId = 'products-result';
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/products`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+
+        async function testProductsWithFilter() {
+            const resultId = 'products-result';
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/products?category=pupuk&per_page=5`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+
+        async function testSingleProduct() {
+            const resultId = 'single-product-result';
+            const productId = document.getElementById('product-id').value;
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/products/${productId}`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+
+        async function testPrices() {
+            const resultId = 'prices-result';
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/prices`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+
+        async function testPricesWithCategory() {
+            const resultId = 'prices-result';
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/prices?category=pupuk`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+
+        async function testSearch() {
+            const resultId = 'search-result';
+            const searchQuery = document.getElementById('search-query').value;
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/products?search=${encodeURIComponent(searchQuery)}&per_page=10`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+
+        async function testProvinces() {
+            const resultId = 'regions-result';
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/provinces`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+
+        async function testRegencies() {
+            const resultId = 'regions-result';
+            showLoading(resultId);
+            try {
+                const response = await fetch(`${baseUrl}/api/regencies/11`);
+                const data = await response.json();
+                showResult(resultId, data);
+            } catch (error) {
+                showError(resultId, error.message);
+            }
+        }
+    </script>
+</body>
+</html>

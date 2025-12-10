@@ -1,63 +1,236 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌾 Web Pertanian - Agricultural E-Commerce Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.x-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## About Laravel
+> Platform e-commerce untuk produk pertanian dengan fitur marketplace, forum diskusi, dan sistem pembayaran terintegrasi.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**🌐 Live Demo:** [https://jopel.my.id](https://jopel.my.id)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ Features
 
-## Learning Laravel
+### 🛒 Marketplace
+- Product listing dengan kategori (Pupuk, Bibit, Pestisida, dll)
+- Search & filter produk
+- Product reviews & ratings
+- Shopping cart & checkout
+- Order management
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 💳 Payment Gateway
+- Integrasi Midtrans
+- Multiple payment methods (Bank Transfer, E-wallet, Credit Card)
+- Real-time payment status via webhook
+- Order invoice & payment confirmation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 👥 User Management
+- Authentication (Login/Register)
+- Google OAuth integration
+- User profiles dengan alamat Indonesia (API wilayah)
+- Role-based access (Petani/Tengkulak)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 💬 Forum Discussion
+- Create threads dengan kategori
+- Reply & like system
+- Upload images di thread
+- Mark solved untuk Q&A
 
-## Laravel Sponsors
+### 📝 Visit Request
+- Request kunjungan ke petani
+- Approve/reject system
+- Real-time notifications
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🔔 Notifications
+- Real-time notification system
+- AJAX auto-refresh
+- Mark as read/unread
+- Notification per user
 
-### Premium Partners
+### 🌍 API Endpoints
+- Public API untuk produk & harga
+- RESTful architecture
+- JSON response format
+- Pagination support
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 📋 Requirements
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- PHP >= 8.1
+- Composer
+- MySQL >= 5.7
+- Node.js & NPM
+- Web server (Nginx/Apache)
 
-## Code of Conduct
+## 📋 Requirements
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- PHP >= 8.1
+- Composer
+- MySQL >= 5.7
+- Node.js & NPM
+- Web server (Nginx/Apache)
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🚀 Installation
 
-## License
+### 1. Clone Repository
+```bash
+git clone https://github.com/JopelSimarmata/Website_Pertanian.git
+cd Website_Pertanian
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 2. Install Dependencies
+```bash
+composer install
+npm install
+```
 
+### 3. Environment Setup
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+### 4. Database Configuration
+Edit `.env`:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=petanian_db
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+### 5. Run Migrations
+```bash
+php artisan migrate
+php artisan db:seed  # Optional: seed sample data
+```
+
+### 6. Storage Link
+```bash
+php artisan storage:link
+```
+
+### 7. Build Assets
+```bash
+npm run build
+```
+
+### 8. Run Development Server
+```bash
+php artisan serve
+```
+
+Access: `http://localhost:8000`
+
+---
+
+## 🔧 Configuration
+
+### Midtrans Payment Gateway
+Edit `.env`:
+```env
+MIDTRANS_SERVER_KEY=your_server_key
+MIDTRANS_CLIENT_KEY=your_client_key
+MIDTRANS_IS_PRODUCTION=false
+```
+
+### Google OAuth (Optional)
+```env
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+```
+
+---
+
+## 📚 Documentation
+
+- **[API Documentation](API_DOCUMENTATION.md)** - RESTful API endpoints
+- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment steps
+- **[Database Schema](database/migrations/)** - Database structure
+
+---
+
+## 🔗 API Endpoints
+
+Base URL: `https://jopel.my.id`
+
+### Products
+```bash
+GET /api/products              # All products with pagination
+GET /api/products/{id}         # Single product detail
+GET /api/prices                # Product prices only
+```
+
+**Example:**
+```bash
+curl https://jopel.my.id/api/products
+curl https://jopel.my.id/api/products/1
+curl https://jopel.my.id/api/prices?category=pupuk
+```
+
+See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for complete documentation.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** Laravel 10.x
+- **Frontend:** Blade Templates, TailwindCSS
+- **Database:** MySQL
+- **Payment:** Midtrans
+- **Authentication:** Laravel Sanctum, Google OAuth
+- **File Storage:** Laravel Storage
+- **API:** RESTful JSON API
+
+---
+
+## 📱 Screenshots
+
+[Add screenshots here]
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is open-sourced software licensed under the [MIT license](LICENSE).
+
+---
+
+## 👨‍💻 Author
+
+**Jopel Simarmata**
+- GitHub: [@JopelSimarmata](https://github.com/JopelSimarmata)
+- Website: [jopel.my.id](https://jopel.my.id)
+
+---
+
+## 🙏 Acknowledgments
+
+- [Laravel Framework](https://laravel.com) - The PHP framework
+- [TailwindCSS](https://tailwindcss.com) - CSS framework
+- [Midtrans](https://midtrans.com) - Payment gateway
+- [emsifa/api-wilayah-indonesia](https://github.com/emsifa/api-wilayah-indonesia) - Indonesian regions API
+
+---
+
+**Made with ❤️ for Indonesian Farmers**
 

@@ -12,6 +12,14 @@ class OrderController extends Controller
 {
     public function show(Order $order)
     {
+        // Load all necessary relationships
+        $order->load([
+            'user',
+            'orderDetails.product.images',
+            'orderDetails.product.category',
+            'payments'
+        ]);
+        
         // get latest payment record for this order (if any)
         $payment = $order->payments()->latest()->first();
         // prefer existing snap token from latest payment if available

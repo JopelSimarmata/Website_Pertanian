@@ -18,6 +18,7 @@ class UserProfile extends Model
         'address',
         'city',
         'province',
+        'district',
         'postal_code',
         'bank_name',
         'bank_account_name',

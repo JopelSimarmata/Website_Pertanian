@@ -36,6 +36,10 @@ Route::get('/', function () {
     return view('pages.home');
 })->name('home');
 
+Route::get('/test-api', function () {
+    return view('test-api');
+})->name('test.api');
+
 /*
 |--------------------------------------------------------------------------
 | Authentication
@@ -77,6 +81,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    
+    // API for Indonesia regions
+    Route::get('/api/provinces', [ProfileController::class, 'getProvinces'])->name('api.provinces');
+    Route::get('/api/regencies/{provinceId}', [ProfileController::class, 'getRegencies'])->name('api.regencies');
+    Route::get('/api/districts/{regencyId}', [ProfileController::class, 'getDistricts'])->name('api.districts');
 });
 
 /*
@@ -159,3 +168,19 @@ Route::middleware('auth')->group(function () {
 // Public endpoints for Midtrans webhooks
 Route::post('/payment/notification', [PaymentController::class, 'handleCallback']);
 Route::post('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');
+
+/*
+|--------------------------------------------------------------------------
+| Public API Endpoints
+|--------------------------------------------------------------------------
+*/
+Route::prefix('api')->group(function () {
+    // Get all products with pagination and filters
+    Route::get('/products', [ProductController::class, 'apiGetProducts'])->name('api.products');
+    
+    // Get single product by ID
+    Route::get('/products/{id}', [ProductController::class, 'apiGetProduct'])->name('api.product');
+    
+    // Get product prices only (lightweight endpoint)
+    Route::get('/prices', [ProductController::class, 'apiGetPrices'])->name('api.prices');
+});

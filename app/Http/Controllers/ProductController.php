@@ -267,4 +267,152 @@ class ProductController extends Controller
 
         return redirect()->route('marketplace')->with('success', 'Produk berhasil diunggah');
     }
+
+    /**
+     * API: Get all products with prices
+     */
+    public function apiGetProducts(Request $request)
+    {
+        $query = Product::with(['images', 'seller', 'category']);
+
+        // Filter by category if provided
+        if ($request->has('category')) {
+            $query->whereHas('category', function($q) use ($request) {
+                $q->where('slug', $request->category)
+                  ->orWhere('name', 'like', '%' . $request->category . '%');
+            });
+        }
+
+        // Filter by seller if provided
+        if ($request->has('seller_id')) {
+            $query->where('seller_id', $request->seller_id);
+        }
+
+        // Search by name
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 20);
+        $products = $query->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $products->map(function($product) {
+                return [
+                    'id' => $product->product_id,
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'price' => $product->price,
+                    'stock' => $product->stock,
+                    'unit' => $product->unit,
+                    'category' => $product->category ? [
+                        'id' => $product->category->category_id,
+                        'name' => $product->category->name,
+                        'slug' => $product->category->slug,
+                    ] : null,
+                    'seller' => $product->seller ? [
+                        'id' => $product->seller->id,
+                        'name' => $product->seller->name,
+                    ] : null,
+                    'images' => $product->images->map(function($img) {
+                        return url($img->path);
+                    }),
+                    'created_at' => $product->created_at,
+                    'updated_at' => $product->updated_at,
+                ];
+            }),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ]
+        ]);
+    }
+
+    /**
+     * API: Get single product by ID
+     */
+    public function apiGetProduct($id)
+    {
+        $product = Product::with(['images', 'seller', 'category', 'reviews.user'])
+            ->where('product_id', $id)
+            ->first();
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $product->product_id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->price,
+                'stock' => $product->stock,
+                'unit' => $product->unit,
+                'category' => $product->category ? [
+                    'id' => $product->category->category_id,
+                    'name' => $product->category->name,
+                    'slug' => $product->category->slug,
+                ] : null,
+                'seller' => $product->seller ? [
+                    'id' => $product->seller->id,
+                    'name' => $product->seller->name,
+                    'email' => $product->seller->email,
+                ] : null,
+                'images' => $product->images->map(function($img) {
+                    return url($img->path);
+                }),
+                'reviews' => $product->reviews->map(function($review) {
+                    return [
+                        'id' => $review->review_id,
+                        'rating' => $review->rating,
+                        'comment' => $review->comment,
+                        'user' => $review->user ? $review->user->name : null,
+                        'created_at' => $review->created_at,
+                    ];
+                }),
+                'created_at' => $product->created_at,
+                'updated_at' => $product->updated_at,
+            ]
+        ]);
+    }
+
+    /**
+     * API: Get product prices only
+     */
+    public function apiGetPrices(Request $request)
+    {
+        $query = Product::with('category');
+
+        // Filter by category if provided
+        if ($request->has('category')) {
+            $query->whereHas('category', function($q) use ($request) {
+                $q->where('slug', $request->category)
+                  ->orWhere('name', 'like', '%' . $request->category . '%');
+            });
+        }
+
+        $products = $query->get(['product_id', 'name', 'price', 'unit', 'category_id']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $products->map(function($product) {
+                return [
+                    'id' => $product->product_id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'unit' => $product->unit,
+                    'category' => $product->category ? $product->category->name : null,
+                ];
+            })
+        ]);
+    }
 }

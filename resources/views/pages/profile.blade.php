@@ -264,21 +264,34 @@
         <div>
           <h3 class="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">Informasi Alamat</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <label class="block text-sm font-bold text-gray-900 mb-2">Alamat Lengkap</label>
-              <textarea name="address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition resize-none">{{ old('address', isset($profile) ? $profile->address : '') }}</textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-bold text-gray-900 mb-2">Kota</label>
-              <input type="text" name="city" value="{{ old('city', isset($profile) ? $profile->city : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
-            </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Provinsi</label>
-              <input type="text" name="province" value="{{ old('province', isset($profile) ? $profile->province : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+              <select id="province" name="province" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition">
+                <option value="">Pilih Provinsi</option>
+              </select>
+              <input type="hidden" id="province_name" name="province_name" value="{{ old('province', isset($profile) ? $profile->province : '') }}">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-900 mb-2">Kota/Kabupaten</label>
+              <select id="city" name="city" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" disabled>
+                <option value="">Pilih Provinsi dulu</option>
+              </select>
+              <input type="hidden" id="city_name" name="city_name" value="{{ old('city', isset($profile) ? $profile->city : '') }}">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-900 mb-2">Kecamatan</label>
+              <select id="district" name="district" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" disabled>
+                <option value="">Pilih Kota dulu</option>
+              </select>
+              <input type="hidden" id="district_name" name="district_name" value="{{ old('district', isset($profile) ? $profile->district : '') }}">
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-900 mb-2">Kode Pos</label>
               <input type="text" name="postal_code" value="{{ old('postal_code', isset($profile) ? $profile->postal_code : '') }}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-bold text-gray-900 mb-2">Alamat Lengkap (Nama Jalan, RT/RW, Desa/Kelurahan)</label>
+              <textarea name="address" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 transition resize-none">{{ old('address', isset($profile) ? $profile->address : '') }}</textarea>
             </div>
           </div>
         </div>
@@ -361,6 +374,127 @@
         }
         reader.readAsDataURL(file);
       });
+    }
+
+    // API Wilayah Indonesia Integration
+    const provinceSelect = document.getElementById('province');
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+    const provinceNameInput = document.getElementById('province_name');
+    const cityNameInput = document.getElementById('city_name');
+    const districtNameInput = document.getElementById('district_name');
+
+    // Load provinces on page load
+    fetch('/api/provinces')
+      .then(response => response.json())
+      .then(provinces => {
+        provinces.forEach(province => {
+          const option = document.createElement('option');
+          option.value = province.id;
+          option.textContent = province.name;
+          if (provinceNameInput.value === province.name) {
+            option.selected = true;
+          }
+          provinceSelect.appendChild(option);
+        });
+        
+        // If there's a saved province, trigger city load
+        if (provinceSelect.value) {
+          loadCities(provinceSelect.value);
+        }
+      })
+      .catch(error => console.error('Error loading provinces:', error));
+
+    // Province change handler
+    provinceSelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      provinceNameInput.value = selectedOption.textContent;
+      
+      citySelect.innerHTML = '<option value="">Memuat...</option>';
+      citySelect.disabled = true;
+      districtSelect.innerHTML = '<option value="">Pilih Kota dulu</option>';
+      districtSelect.disabled = true;
+      cityNameInput.value = '';
+      districtNameInput.value = '';
+      
+      if (this.value) {
+        loadCities(this.value);
+      } else {
+        citySelect.innerHTML = '<option value="">Pilih Provinsi dulu</option>';
+      }
+    });
+
+    // City change handler
+    citySelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      cityNameInput.value = selectedOption.textContent;
+      
+      districtSelect.innerHTML = '<option value="">Memuat...</option>';
+      districtSelect.disabled = true;
+      districtNameInput.value = '';
+      
+      if (this.value) {
+        loadDistricts(this.value);
+      } else {
+        districtSelect.innerHTML = '<option value="">Pilih Kota dulu</option>';
+      }
+    });
+
+    // District change handler
+    districtSelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      districtNameInput.value = selectedOption.textContent;
+    });
+
+    // Load cities function
+    function loadCities(provinceId) {
+      fetch(`/api/regencies/${provinceId}`)
+        .then(response => response.json())
+        .then(cities => {
+          citySelect.innerHTML = '<option value="">Pilih Kota/Kabupaten</option>';
+          cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.id;
+            option.textContent = city.name;
+            if (cityNameInput.value === city.name) {
+              option.selected = true;
+            }
+            citySelect.appendChild(option);
+          });
+          citySelect.disabled = false;
+          
+          // If there's a saved city, trigger district load
+          if (citySelect.value) {
+            loadDistricts(citySelect.value);
+          }
+        })
+        .catch(error => {
+          console.error('Error loading cities:', error);
+          citySelect.innerHTML = '<option value="">Error loading cities</option>';
+        });
+    }
+
+    // Load districts function
+    function loadDistricts(cityId) {
+      fetch(`/api/districts/${cityId}`)
+        .then(response => response.json())
+        .then(districts => {
+          districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+          districts.forEach(district => {
+            const option = document.createElement('option');
+            option.value = district.id;
+            option.textContent = district.name;
+            if (districtNameInput.value === district.name) {
+              option.selected = true;
+            }
+            districtSelect.appendChild(option);
+          });
+          districtSelect.disabled = false;
+        })
+        .catch(error => {
+          console.error('Error loading districts:', error);
+          districtSelect.innerHTML = '<option value="">Error loading districts</option>';
+        });
     }
   });
 </script>
