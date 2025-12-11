@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/forum/{id}/dislike', [ForumThreadController::class, 'toggleDislike'])->whereNumber('id')->name('forum.toggle-dislike');
     Route::post('/forum/{id}/toggle-solved', [ForumThreadController::class, 'toggleSolved'])->whereNumber('id')->name('forum.toggle-solved');
     Route::post('/forum/{id}/reply', [ForumThreadController::class, 'storeReply'])->whereNumber('id')->name('forum.reply');
+    Route::post('/forum/reply/{id}/toggle-solution', [ForumThreadController::class, 'markAsSolution'])->whereNumber('id')->name('forum.toggle-solution');
 });
 
 /*

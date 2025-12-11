@@ -353,7 +353,7 @@
   </div>
 
   {{-- Replies Section --}}
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div id="reply-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
       <h2 class="text-lg font-bold text-gray-900">
         {{ number_format($thread->replies_count ?? 0) }} Balasan
@@ -392,14 +392,38 @@
                   $replyAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($replyAuthor) . '&color=ffffff&background=059669&size=40';
                 }
               @endphp
-              <div class="flex gap-3 pb-4 border-b border-gray-100 last:border-0">
+              <div class="flex gap-3 pb-4 border-b border-gray-100 last:border-0 {{ $reply->is_solution ? 'bg-emerald-50/50 -mx-4 px-4 py-4 rounded-lg' : '' }}">
                 <div class="shrink-0">
                   <img src="{{ $replyAvatar }}" alt="{{ $replyAuthor }}" class="w-10 h-10 rounded-full border-2 border-gray-100 object-cover">
                 </div>
                 <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-bold text-gray-900">{{ $replyAuthor }}</span>
-                    <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                  <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-gray-900">{{ $replyAuthor }}</span>
+                      <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                      @if($reply->is_solution)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-600 text-white text-xs font-bold rounded-md">
+                          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                          </svg>
+                          Menjawab
+                        </span>
+                      @endif
+                    </div>
+                    
+                    {{-- Toggle Solution Button (Only for Thread Owner) --}}
+                    @auth
+                      @if($thread->author_id == auth()->id())
+                        <button onclick="toggleSolution({{ $reply->reply_id }}, {{ $reply->is_solution ? 'true' : 'false' }})" 
+                          id="solution-btn-{{ $reply->reply_id }}"
+                          class="text-xs font-semibold px-3 py-1.5 rounded-md transition flex items-center gap-1 {{ $reply->is_solution ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <span class="solution-text">{{ $reply->is_solution ? 'Menjawab' : 'Tandai Menjawab' }}</span>
+                        </button>
+                      @endif
+                    @endauth
                   </div>
                   <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $reply->content }}</p>
                 </div>
@@ -539,15 +563,19 @@ async function likeThread(threadId, button) {
       const likeButtons = document.querySelectorAll(`.like-btn[data-thread-id="${threadId}"]`);
       
       likeButtons.forEach(btn => {
+        // Reset button classes first
+        btn.className = 'like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200';
+        
         if (data.liked) {
           // User just liked - HIJAU TERISI PENUH (seperti Instagram/Facebook)
           console.log('Setting LIKED state - GREEN FILLED');
           btn.innerHTML = `
-            <svg class="w-5 h-5" viewBox="0 0 24 24" style="fill: #10b981 !important; stroke: #10b981 !important; stroke-width: 0;">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" style="fill: #10b981 !important; stroke: none;">
               <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path>
             </svg>
             <span class="text-sm font-semibold likes-count" style="color: #10b981 !important;">${data.likes_count.toLocaleString()}</span>
           `;
+          btn.style.color = '#10b981';
           btn.setAttribute('data-liked', 'true');
         } else {
           // User unliked - ABU-ABU OUTLINE SAJA (seperti Instagram/Facebook sebelum di-like)
@@ -558,6 +586,7 @@ async function likeThread(threadId, button) {
             </svg>
             <span class="text-sm font-semibold likes-count" style="color: #6b7280 !important;">${data.likes_count.toLocaleString()}</span>
           `;
+          btn.style.color = '#6b7280';
           btn.setAttribute('data-liked', 'false');
         }
       });
@@ -676,6 +705,34 @@ async function toggleSolved(threadId) {
       setTimeout(() => {
         window.location.reload();
       }, 1000);
+    } else {
+      showToast(data.message || 'Gagal mengubah status', 'error');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Terjadi kesalahan', 'error');
+  }
+}
+
+// Toggle reply as solution
+async function toggleSolution(replyId, currentStatus) {
+  try {
+    const response = await fetch(`/forum/reply/${replyId}/toggle-solution`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showToast(data.message, 'success');
+      // Reload page to show updated state
+      setTimeout(() => {
+        location.reload();
+      }, 800);
     } else {
       showToast(data.message || 'Gagal mengubah status', 'error');
     }

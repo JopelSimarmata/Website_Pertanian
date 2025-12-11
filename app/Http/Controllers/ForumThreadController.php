@@ -168,35 +168,7 @@ class ForumThreadController extends Controller
         ]);
     }
 
-    public function toggleSolved($id)
-    {
-        $thread = ForumThread::findOrFail($id);
-        $user = auth()->user();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda harus login'
-            ], 401);
-        }
-
-        // Only author can mark as solved
-        if ($thread->author_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hanya pembuat thread yang bisa menandai sebagai terjawab'
-            ], 403);
-        }
-
-        $thread->is_solved = !$thread->is_solved;
-        $thread->save();
-
-        return response()->json([
-            'success' => true,
-            'is_solved' => $thread->is_solved,
-            'message' => $thread->is_solved ? 'Thread ditandai sebagai terjawab!' : 'Tandai terjawab dibatalkan'
-        ]);
-    }
 
     public function edit($id)
     {
@@ -278,6 +250,73 @@ class ForumThreadController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Thread berhasil dihapus'
+        ]);
+    }
+
+    public function markAsSolution($replyId)
+    {
+        $reply = \App\Models\ForumReplies::findOrFail($replyId);
+        $thread = $reply->thread;
+        
+        // Check if user is the thread owner
+        if ($thread->author_id != auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pembuat thread yang dapat menandai jawaban'
+            ], 403);
+        }
+
+        // Toggle solution status
+        $reply->is_solution = !$reply->is_solution;
+        $reply->save();
+
+        $message = $reply->is_solution 
+            ? 'Balasan berhasil ditandai menjawab!' 
+            : 'Balasan tidak lagi ditandai menjawab';
+
+        return response()->json([
+            'success' => true,
+            'is_solution' => $reply->is_solution,
+            'message' => $message
+        ]);
+    }
+
+    public function toggleSolved($id)
+    {
+        $thread = ForumThread::findOrFail($id);
+        
+        // Check if user is the thread owner
+        if ($thread->author_id != auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pembuat thread yang dapat mengubah status'
+            ], 403);
+        }
+
+        // If trying to mark as solved, check if there's at least one solution
+        if (!$thread->is_solved) {
+            $hasSolution = \App\Models\ForumReplies::where('thread_id', $thread->thread_id)
+                ->where('is_solution', true)
+                ->exists();
+            
+            if (!$hasSolution) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tandai minimal 1 balasan sebagai "Menjawab" terlebih dahulu'
+                ], 400);
+            }
+        }
+
+        // Toggle solved status
+        $thread->is_solved = !$thread->is_solved;
+        $thread->save();
+
+        return response()->json([
+            'success' => true,
+            'is_solved' => $thread->is_solved,
+            'message' => $thread->is_solved 
+                ? 'Thread ditandai sebagai terjawab' 
+                : 'Thread tidak lagi ditandai terjawab'
         ]);
     }
 }

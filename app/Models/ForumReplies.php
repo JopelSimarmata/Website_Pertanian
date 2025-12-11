@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\ForumThreads;
+use App\Models\ForumThread;
 use App\Models\User;
 
 class ForumReplies extends Model
@@ -15,14 +15,13 @@ class ForumReplies extends Model
         'thread_id',
         'author_id',
         'content',
-        'is_accepted',
+        'is_solution',
     ];
 
     // Relasi ke thread
     public function thread()
     {
-        // ubah ForumThreads::class dan kunci jika model/PK Anda berbeda
-        return $this->belongsTo(ForumThreads::class, 'thread_id', 'thread_id');
+        return $this->belongsTo(ForumThread::class, 'thread_id', 'thread_id');
     }
 
     // Relasi ke user/author
