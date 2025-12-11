@@ -191,19 +191,34 @@
                 @endif
 
                 {{-- Image Preview Grid (Facebook Style) --}}
-                @if($thread->image)
+                @if($thread->image && $thread->image != 'null' && $thread->image != '[]')
                   @php
-                    // Parse JSON array or single string
-                    $images = is_array($thread->image) ? $thread->image : json_decode($thread->image, true);
-                    if (!is_array($images)) {
-                      $images = [$thread->image];
+                    try {
+                      // Parse JSON array or single string
+                      $images = is_array($thread->image) ? $thread->image : json_decode($thread->image, true);
+                      
+                      // If still not array, try to make it one
+                      if (!is_array($images)) {
+                        $images = [$thread->image];
+                      }
+                      
+                      // Normalize paths and remove empty values
+                      $images = array_map(function($path) {
+                        if (is_string($path)) {
+                          return str_replace('\\', '/', trim($path));
+                        }
+                        return null;
+                      }, $images);
+                      
+                      $images = array_filter($images, function($img) {
+                        return !empty($img) && is_string($img);
+                      });
+                      
+                      $imageCount = count($images);
+                    } catch (\Exception $e) {
+                      $images = [];
+                      $imageCount = 0;
                     }
-                    // Normalize paths
-                    $images = array_map(function($path) {
-                      return str_replace('\\', '/', $path);
-                    }, $images);
-                    $images = array_filter($images);
-                    $imageCount = count($images);
                   @endphp
                   
                   @if($imageCount > 0)

@@ -99,13 +99,22 @@ class ForumThreadController extends Controller
             $tags = !empty($tagsArray) ? json_encode($tagsArray) : null;
         }
 
+        $imageData = !empty($imagePaths) ? json_encode($imagePaths) : null;
+        
+        // Debug log
+        \Log::info('Creating thread with images', [
+            'image_paths' => $imagePaths,
+            'image_data' => $imageData,
+            'has_images' => !empty($imagePaths)
+        ]);
+
         ForumThread::create([ 
             'title' => $request->title,
             'content' => $request->content,
             'author_id' => auth()->id() ?? 1,
             'category_id' => $request->category_id,
             'tags' => $tags,
-            'image' => !empty($imagePaths) ? json_encode($imagePaths) : null,
+            'image' => $imageData,
         ]);
 
         return redirect()->route('forum.index')->with('success', 'Thread berhasil dibuat!');
