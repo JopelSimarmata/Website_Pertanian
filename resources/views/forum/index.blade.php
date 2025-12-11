@@ -522,52 +522,48 @@ async function likeThread(threadId, button) {
     const data = await response.json();
 
     if (data.success) {
-      const likesCountEl = button.querySelector('.likes-count');
-      const heartIcon = button.querySelector('svg');
+      // Update the button that was clicked
+      const svg = button.querySelector('svg');
+      const countSpan = button.querySelector('.likes-count');
       
-      // Update counter
-      likesCountEl.textContent = data.likes_count.toLocaleString();
+      if (data.liked) {
+        // LIKED - Green filled icon
+        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#10b981';
+        button.style.color = '#10b981';
+        countSpan.style.color = '#10b981';
+      } else {
+        // UNLIKED - Gray outline only
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
+      }
       
-      // Update all like buttons for this thread on the page
-      document.querySelectorAll(`.like-btn[data-thread-id="${threadId}"]`).forEach(btn => {
-        const count = btn.querySelector('.likes-count');
-        const icon = btn.querySelector('svg');
-        
-        if (count) count.textContent = data.likes_count.toLocaleString();
-        
-        if (data.liked) {
-          // LIKED - HIJAU
-          btn.style.setProperty('color', '#059669', 'important');
-          if (icon) {
-            icon.setAttribute('fill', 'currentColor');
-            icon.style.setProperty('fill', '#059669', 'important');
-          }
-          btn.setAttribute('data-liked', 'true');
-        } else {
-          // UNLIKED - GRAY
-          btn.style.setProperty('color', '#6b7280', 'important');
-          if (icon) {
-            icon.setAttribute('fill', 'none');
-            icon.style.setProperty('fill', 'transparent', 'important');
-          }
-          btn.setAttribute('data-liked', 'false');
-        }
-      });
+      // Update count
+      countSpan.textContent = data.likes_count.toLocaleString();
+      button.setAttribute('data-liked', data.liked ? 'true' : 'false');
 
-      // Update all dislike buttons for this thread - reset to inactive state
-      document.querySelectorAll(`.dislike-btn[data-thread-id="${threadId}"]`).forEach(btn => {
-        const count = btn.querySelector('.dislikes-count');
-        const icon = btn.querySelector('svg');
-        if (count) count.textContent = data.dislikes_count.toLocaleString();
-        // Reset dislike button to inactive (karena user baru like)
-        btn.classList.remove('text-gray-600');
-        btn.classList.add('text-gray-500');
-        if (icon) {
-          icon.setAttribute('fill', 'none');
-          icon.classList.remove('fill-current');
+      // Update dislike button if it exists on same card
+      const card = button.closest('.bg-white');
+      if (card) {
+        const dislikeBtn = card.querySelector(`.dislike-btn[data-thread-id="${threadId}"]`);
+        if (dislikeBtn) {
+          const dislikeSvg = dislikeBtn.querySelector('svg');
+          const dislikeCount = dislikeBtn.querySelector('.dislikes-count');
+          
+          // Reset to gray outline
+          dislikeSvg.setAttribute('fill', 'none');
+          dislikeSvg.setAttribute('stroke', 'currentColor');
+          dislikeSvg.style.color = '#6b7280';
+          dislikeBtn.style.color = '#6b7280';
+          dislikeCount.style.color = '#6b7280';
+          dislikeCount.textContent = data.dislikes_count.toLocaleString();
+          dislikeBtn.setAttribute('data-disliked', 'false');
         }
-        btn.setAttribute('data-disliked', 'false');
-      });
+      }
     } else {
       if (response.status === 401) {
         setTimeout(() => {
@@ -594,53 +590,48 @@ async function dislikeThread(threadId, button) {
     const data = await response.json();
 
     if (data.success) {
-      const dislikesCountEl = button.querySelector('.dislikes-count');
-      const icon = button.querySelector('svg');
+      // Update the button that was clicked
+      const svg = button.querySelector('svg');
+      const countSpan = button.querySelector('.dislikes-count');
       
-      // Update counter
-      dislikesCountEl.textContent = data.dislikes_count.toLocaleString();
-      
-      // Update button state
       if (data.disliked) {
-        button.classList.add('text-gray-600');
-        button.classList.remove('text-gray-500');
-        icon.setAttribute('fill', 'currentColor');
-        icon.classList.add('fill-current');
-        button.setAttribute('data-disliked', 'true');
+        // DISLIKED - Gray filled icon
+        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
       } else {
-        button.classList.remove('text-gray-600');
-        button.classList.add('text-gray-500');
-        icon.setAttribute('fill', 'none');
-        icon.classList.remove('fill-current');
-        button.setAttribute('data-disliked', 'false');
+        // UN-DISLIKED - Gray outline only
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
       }
       
-      // Update all dislike buttons for this thread on the page
-      document.querySelectorAll(`.dislike-btn[data-thread-id="${threadId}"]`).forEach(btn => {
-        const count = btn.querySelector('.dislikes-count');
-        const icon = btn.querySelector('svg');
-        if (count) count.textContent = data.dislikes_count.toLocaleString();
-        if (icon) {
-          if (data.disliked) {
-            btn.classList.add('text-gray-600');
-            btn.classList.remove('text-gray-500');
-            icon.setAttribute('fill', 'currentColor');
-            icon.classList.add('fill-current');
-          } else {
-            btn.classList.remove('text-gray-600');
-            btn.classList.add('text-gray-500');
-            icon.setAttribute('fill', 'none');
-            icon.classList.remove('fill-current');
-          }
-        }
-        btn.setAttribute('data-disliked', data.disliked ? 'true' : 'false');
-      });
+      // Update count
+      countSpan.textContent = data.dislikes_count.toLocaleString();
+      button.setAttribute('data-disliked', data.disliked ? 'true' : 'false');
 
-      // Update all like buttons for this thread
-      document.querySelectorAll(`.like-btn[data-thread-id="${threadId}"]`).forEach(btn => {
-        const count = btn.querySelector('.likes-count');
-        if (count) count.textContent = data.likes_count.toLocaleString();
-      });
+      // Update like button if it exists on same card
+      const card = button.closest('.bg-white');
+      if (card) {
+        const likeBtn = card.querySelector(`.like-btn[data-thread-id="${threadId}"]`);
+        if (likeBtn) {
+          const likeSvg = likeBtn.querySelector('svg');
+          const likeCount = likeBtn.querySelector('.likes-count');
+          
+          // Reset to gray outline
+          likeSvg.setAttribute('fill', 'none');
+          likeSvg.setAttribute('stroke', 'currentColor');
+          likeSvg.style.color = '#6b7280';
+          likeBtn.style.color = '#6b7280';
+          likeCount.style.color = '#6b7280';
+          likeCount.textContent = data.likes_count.toLocaleString();
+          likeBtn.setAttribute('data-liked', 'false');
+        }
+      }
     } else {
       if (response.status === 401) {
         setTimeout(() => {
