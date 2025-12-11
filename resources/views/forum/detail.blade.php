@@ -86,23 +86,6 @@
         {{-- Actions --}}
         <div class="flex flex-col gap-2">
           @auth
-            {{-- Mark as Solved Button (Only for Thread Author) --}}
-            @if(auth()->id() === $thread->author_id)
-              <button onclick="toggleSolved({{ $thread->thread_id }})" id="toggleSolvedBtn" 
-                class="w-full px-4 py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2 text-sm
-                {{ $thread->is_solved ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-emerald-500 text-white hover:bg-emerald-600' }}"
-                data-solved="{{ $thread->is_solved ? 'true' : 'false' }}">
-                <svg class="w-4 h-4 btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  @if($thread->is_solved)
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  @else
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  @endif
-                </svg>
-                <span class="btn-text">{{ $thread->is_solved ? 'Batal Terjawab' : 'Tandai Terjawab' }}</span>
-              </button>
-            @endif
-
             {{-- Edit/Delete Buttons --}}
             @if(auth()->id() === $thread->author_id || auth()->user()->role === 'admin')
               <div class="flex gap-1.5 justify-center">
@@ -674,38 +657,6 @@ async function dislikeThread(threadId, button) {
 }
 
 // Toggle solved status
-async function toggleSolved(threadId) {
-  const button = document.getElementById('toggleSolvedBtn');
-  const currentSolved = button.getAttribute('data-solved') === 'true';
-  
-  try {
-    const response = await fetch(`/forum/${threadId}/toggle-solved`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-      }
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      // Show toast notification
-      showToast(data.message, data.is_solved ? 'success' : 'info');
-      
-      // Reload page after short delay to sync with main list
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } else {
-      showToast(data.message || 'Gagal mengubah status', 'error');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showToast('Terjadi kesalahan', 'error');
-  }
-}
-
 // Toggle reply as solution
 async function toggleSolution(replyId, currentStatus) {
   try {

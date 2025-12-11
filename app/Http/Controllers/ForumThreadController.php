@@ -306,13 +306,19 @@ class ForumThreadController extends Controller
         $reply->is_solution = !$reply->is_solution;
         $reply->save();
 
+        // Auto-update thread solved status based on replies
+        $hasSolution = $thread->replies()->where('is_solution', true)->exists();
+        $thread->is_solved = $hasSolution;
+        $thread->save();
+
         $message = $reply->is_solution 
-            ? 'Balasan berhasil ditandai menjawab!' 
-            : 'Balasan tidak lagi ditandai menjawab';
+            ? 'Balasan berhasil ditandai menjawab! Thread otomatis ditandai sebagai Terjawab.' 
+            : 'Balasan tidak lagi ditandai menjawab.';
 
         return response()->json([
             'success' => true,
             'is_solution' => $reply->is_solution,
+            'is_solved' => $thread->is_solved,
             'message' => $message
         ]);
     }
