@@ -129,7 +129,7 @@
         {{-- Image Upload --}}
         <div>
           <label class="block text-sm font-bold text-gray-900 mb-2">
-            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, max 5 foto)</span>
+            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, maksimal 5 foto)</span>
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-500 transition">
             <input 
@@ -149,7 +149,7 @@
                 <p class="text-sm text-gray-600 mb-1">
                   <span class="font-semibold text-emerald-600">Klik untuk upload</span> atau drag and drop
                 </p>
-                <p class="text-xs text-gray-500">PNG, JPG, GIF (max 5 foto)</p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF (maksimal 5 foto)</p>
               </div>
             </label>
           </div>
