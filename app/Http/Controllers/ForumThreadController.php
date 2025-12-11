@@ -47,7 +47,54 @@ class ForumThreadController extends Controller
         $totalReplies = \App\Models\ForumReplies::count();
         $totalMembers = User::count();
         
-        return view('forum.index', compact('threads', 'categories', 'totalThreads', 'totalReplies', 'totalMembers'));
+        // Get popular topics based on thread activity (views + likes + replies)
+        $popularTopics = ForumThread::with('replies')
+            ->withCount('likes', 'replies')
+            ->whereNotNull('tags')
+            ->where('tags', '!=', '[]')
+            ->where('tags', '!=', 'null')
+            ->select('thread_id', 'title', 'tags', 'views_count', 'created_at')
+            ->get()
+            ->map(function($thread) {
+                // Calculate popularity score: views + (likes * 2) + (replies * 3)
+                $thread->popularity_score = $thread->views_count + ($thread->likes_count * 2) + ($thread->replies_count * 3);
+                return $thread;
+            })
+            ->sortByDesc('popularity_score')
+            ->take(10); // Get top 10 popular threads
+        
+        // Extract unique tags from popular threads
+        $popularTagsData = [];
+        foreach ($popularTopics as $thread) {
+            $tags = is_string($thread->tags) ? json_decode($thread->tags, true) : $thread->tags;
+            if (is_array($tags)) {
+                foreach ($tags as $tag) {
+                    if (!isset($popularTagsData[$tag])) {
+                        $popularTagsData[$tag] = [
+                            'tag' => $tag,
+                            'count' => 0,
+                            'total_views' => 0,
+                            'total_likes' => 0,
+                            'total_replies' => 0,
+                            'popularity_score' => 0
+                        ];
+                    }
+                    $popularTagsData[$tag]['count']++;
+                    $popularTagsData[$tag]['total_views'] += $thread->views_count;
+                    $popularTagsData[$tag]['total_likes'] += $thread->likes_count;
+                    $popularTagsData[$tag]['total_replies'] += $thread->replies_count;
+                    $popularTagsData[$tag]['popularity_score'] += $thread->popularity_score;
+                }
+            }
+        }
+        
+        // Sort by popularity score and take top 3
+        $popularTags = collect($popularTagsData)
+            ->sortByDesc('popularity_score')
+            ->take(3)
+            ->values();
+        
+        return view('forum.index', compact('threads', 'categories', 'totalThreads', 'totalReplies', 'totalMembers', 'popularTags'));
     }
 
 
