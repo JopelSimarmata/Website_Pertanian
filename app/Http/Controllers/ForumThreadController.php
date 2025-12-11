@@ -312,8 +312,8 @@ class ForumThreadController extends Controller
         $thread->save();
 
         $message = $reply->is_solution 
-            ? 'Balasan berhasil ditandai menjawab! Thread otomatis ditandai sebagai Terjawab.' 
-            : 'Balasan tidak lagi ditandai menjawab.';
+            ? 'Balasan ditandai sebagai jawaban!' 
+            : 'Tanda jawaban dihapus';
 
         return response()->json([
             'success' => true,
