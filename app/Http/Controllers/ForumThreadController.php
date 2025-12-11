@@ -141,7 +141,30 @@ class ForumThreadController extends Controller
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $thread->likes_count
+            'likes_count' => $thread->likes_count,
+            'dislikes_count' => $thread->dislikes_count
+        ]);
+    }
+
+    public function toggleDislike($id)
+    {
+        $thread = ForumThread::findOrFail($id);
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Anda harus login untuk tidak menyukai thread'
+            ], 401);
+        }
+
+        $disliked = $thread->toggleDislike($user);
+
+        return response()->json([
+            'success' => true,
+            'disliked' => $disliked,
+            'likes_count' => $thread->likes_count,
+            'dislikes_count' => $thread->dislikes_count
         ]);
     }
 
