@@ -59,19 +59,35 @@ class ForumThreadController extends Controller
 
     public function store(Request $request)
     {
+        // Validate basic fields first
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'required|exists:forum_categories,category_id',
             'tags' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        // Validate images separately with better error handling
+        if ($request->has('images') && $request->images) {
+            $request->validate([
+                'images' => 'array|max:5',
+                'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp|max:5120',
+            ], [
+                'images.*.file' => 'File harus berupa gambar',
+                'images.*.mimes' => 'Format gambar harus: JPEG, JPG, PNG, GIF, atau WEBP',
+                'images.*.mimetypes' => 'File harus berupa gambar yang valid',
+                'images.*.max' => 'Ukuran gambar maksimal 5MB',
+                'images.max' => 'Maksimal 5 foto',
+            ]);
+        }
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('forum-images', 'public');
-                $imagePaths[] = $path;
+                if ($image->isValid()) {
+                    $path = $image->store('forum-images', 'public');
+                    $imagePaths[] = $path;
+                }
             }
         }
 
@@ -196,7 +212,8 @@ class ForumThreadController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'nullable|exists:forum_categories,category_id',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp|max:5120',
         ]);
 
         $thread->title = $request->title;
