@@ -528,40 +528,30 @@ async function likeThread(threadId, button) {
       // Update counter
       likesCountEl.textContent = data.likes_count.toLocaleString();
       
-      // Update button state
-      if (data.liked) {
-        button.classList.add('text-emerald-600');
-        button.classList.remove('text-gray-500');
-        heartIcon.setAttribute('fill', 'currentColor');
-        heartIcon.classList.add('fill-current');
-        button.setAttribute('data-liked', 'true');
-      } else {
-        button.classList.remove('text-emerald-600');
-        button.classList.add('text-gray-500');
-        heartIcon.setAttribute('fill', 'none');
-        heartIcon.classList.remove('fill-current');
-        button.setAttribute('data-liked', 'false');
-      }
-      
       // Update all like buttons for this thread on the page
       document.querySelectorAll(`.like-btn[data-thread-id="${threadId}"]`).forEach(btn => {
         const count = btn.querySelector('.likes-count');
         const icon = btn.querySelector('svg');
+        
         if (count) count.textContent = data.likes_count.toLocaleString();
-        if (icon) {
-          if (data.liked) {
-            btn.classList.add('text-emerald-600');
-            btn.classList.remove('text-gray-500');
+        
+        if (data.liked) {
+          // LIKED - HIJAU
+          btn.style.setProperty('color', '#059669', 'important');
+          if (icon) {
             icon.setAttribute('fill', 'currentColor');
-            icon.classList.add('fill-current');
-          } else {
-            btn.classList.remove('text-emerald-600');
-            btn.classList.add('text-gray-500');
-            icon.setAttribute('fill', 'none');
-            icon.classList.remove('fill-current');
+            icon.style.setProperty('fill', '#059669', 'important');
           }
+          btn.setAttribute('data-liked', 'true');
+        } else {
+          // UNLIKED - GRAY
+          btn.style.setProperty('color', '#6b7280', 'important');
+          if (icon) {
+            icon.setAttribute('fill', 'none');
+            icon.style.setProperty('fill', 'transparent', 'important');
+          }
+          btn.setAttribute('data-liked', 'false');
         }
-        btn.setAttribute('data-liked', data.liked ? 'true' : 'false');
       });
 
       // Update all dislike buttons for this thread - reset to inactive state
