@@ -222,10 +222,10 @@
                   @endphp
                   
                   @if($imageCount > 0)
-                    <div class="mb-4 w-full">
+                    <div class="mb-4 w-full" onclick="event.stopPropagation()">
                       @if($imageCount == 1)
                         {{-- Single image: Large preview --}}
-                        <div class="rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
+                        <div class="rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md cursor-pointer" onclick="openImageModal('{{ asset('storage/' . $images[0]) }}')">
                           <div class="w-full bg-gray-50" style="max-height: 350px;">
                             <img src="{{ asset('storage/' . $images[0]) }}" alt="Preview" class="w-full h-full object-cover">
                           </div>
@@ -234,7 +234,7 @@
                         {{-- 2 images: Side by side --}}
                         <div class="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
                           @foreach($images as $img)
-                            <div class="bg-gray-50" style="height: 250px;">
+                            <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 250px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                               <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                             </div>
                           @endforeach
@@ -245,13 +245,13 @@
                           {{-- Top row: 2 images --}}
                           <div class="grid grid-cols-2 gap-2">
                             @foreach(array_slice($images, 0, 2) as $img)
-                              <div class="bg-gray-50" style="height: 180px;">
+                              <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 180px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                                 <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                               </div>
                             @endforeach
                           </div>
                           {{-- Bottom row: 1 image full width --}}
-                          <div class="mt-2 bg-gray-50" style="height: 140px;">
+                          <div class="mt-2 bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 140px;" onclick="openImageModal('{{ asset('storage/' . $images[2]) }}')">
                             <img src="{{ asset('storage/' . $images[2]) }}" alt="Preview" class="w-full h-full object-cover">
                           </div>
                         </div>
@@ -259,7 +259,7 @@
                         {{-- 4 images: 2x2 grid --}}
                         <div class="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
                           @foreach($images as $img)
-                            <div class="bg-gray-50" style="height: 200px;">
+                            <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 200px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                               <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                             </div>
                           @endforeach
@@ -270,7 +270,7 @@
                           {{-- Top row: 2 larger images --}}
                           <div class="grid grid-cols-2 gap-2">
                             @foreach(array_slice($images, 0, 2) as $img)
-                              <div class="bg-gray-50" style="height: 180px;">
+                              <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 180px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                                 <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                               </div>
                             @endforeach
@@ -278,10 +278,10 @@
                           {{-- Bottom row: 3 smaller images --}}
                           <div class="grid grid-cols-3 gap-2 mt-2">
                             @foreach(array_slice($images, 2, 3) as $index => $img)
-                              <div class="relative bg-gray-50" style="height: 120px;">
+                              <div class="relative bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 120px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                                 <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                                 @if($index == 2 && $imageCount > 5)
-                                  <div class="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm">
+                                  <div class="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm pointer-events-none">
                                     <span class="text-white text-xl font-bold">+{{ $imageCount - 5 }}</span>
                                   </div>
                                 @endif
@@ -658,6 +658,35 @@ async function dislikeThread(threadId, button) {
     console.error('Error:', error);
   }
 }
+
+// Image modal functionality
+function openImageModal(imageUrl) {
+  const modal = document.getElementById('imageModal');
+  const modalImage = document.getElementById('modalImage');
+  modalImage.src = imageUrl;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+  const modal = document.getElementById('imageModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.style.overflow = 'auto';
+}
 </script>
+
+<!-- Image Preview Modal -->
+<div id="imageModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-80 p-4" onclick="closeImageModal()">
+  <div class="relative max-w-7xl max-h-[90vh]">
+    <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white hover:text-gray-300 transition">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <img id="modalImage" src="" alt="Preview" class="max-w-full max-h-[85vh] object-contain rounded-lg" onclick="event.stopPropagation()">
+  </div>
+</div>
 
 </x-layout>
