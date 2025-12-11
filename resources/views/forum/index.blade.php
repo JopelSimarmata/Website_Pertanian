@@ -119,7 +119,28 @@
   @else
     <div class="space-y-4">
       @foreach($threads as $thread)
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors overflow-hidden relative cursor-pointer" onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'">
+        @php
+          // Prepare images array for modal navigation
+          $threadImages = [];
+          if($thread->image && $thread->image != 'null' && $thread->image != '[]') {
+            try {
+              $imgData = is_string($thread->image) ? json_decode($thread->image, true) : $thread->image;
+              if (is_array($imgData)) {
+                $threadImages = array_filter(array_map(function($path) {
+                  return is_string($path) ? str_replace('\\', '/', trim($path)) : null;
+                }, $imgData), function($img) {
+                  return !empty($img) && is_string($img);
+                });
+              }
+            } catch (\Exception $e) {
+              $threadImages = [];
+            }
+          }
+        @endphp
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors overflow-hidden relative cursor-pointer" 
+             onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'"
+             data-thread-images='@json(array_values($threadImages))'>
           
           {{-- Status Badge - Top Right --}}
           <div class="absolute top-4 right-4 z-10 mt-2" onclick="event.stopPropagation()">
@@ -660,13 +681,32 @@ async function dislikeThread(threadId, button) {
 }
 
 // Image modal functionality
+let currentImageIndex = 0;
+let currentImageArray = [];
+
 function openImageModal(imageUrl) {
+  // Find which thread this image belongs to
+  const allThreads = document.querySelectorAll('[data-thread-images]');
+  
+  for (let thread of allThreads) {
+    const images = JSON.parse(thread.dataset.threadImages || '[]');
+    const imageIndex = images.findIndex(img => imageUrl.includes(img));
+    
+    if (imageIndex !== -1) {
+      currentImageArray = images;
+      currentImageIndex = imageIndex;
+      break;
+    }
+  }
+  
   const modal = document.getElementById('imageModal');
   const modalImage = document.getElementById('modalImage');
   modalImage.src = imageUrl;
   modal.classList.remove('hidden');
   modal.classList.add('flex');
   document.body.style.overflow = 'hidden';
+  
+  updateNavigationButtons();
 }
 
 function closeImageModal() {
@@ -675,17 +715,80 @@ function closeImageModal() {
   modal.classList.remove('flex');
   document.body.style.overflow = 'auto';
 }
+
+function navigateImage(direction) {
+  currentImageIndex += direction;
+  
+  if (currentImageIndex < 0) {
+    currentImageIndex = currentImageArray.length - 1;
+  } else if (currentImageIndex >= currentImageArray.length) {
+    currentImageIndex = 0;
+  }
+  
+  const modalImage = document.getElementById('modalImage');
+  modalImage.src = '{{ asset('storage') }}/' + currentImageArray[currentImageIndex];
+  
+  updateNavigationButtons();
+}
+
+function updateNavigationButtons() {
+  const prevBtn = document.getElementById('prevImageBtn');
+  const nextBtn = document.getElementById('nextImageBtn');
+  
+  if (currentImageArray.length <= 1) {
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+  } else {
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+  }
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  const modal = document.getElementById('imageModal');
+  if (!modal.classList.contains('hidden')) {
+    if (e.key === 'ArrowLeft') {
+      navigateImage(-1);
+    } else if (e.key === 'ArrowRight') {
+      navigateImage(1);
+    } else if (e.key === 'Escape') {
+      closeImageModal();
+    }
+  }
+});
 </script>
 
 <!-- Image Preview Modal -->
-<div id="imageModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-80 p-4" onclick="closeImageModal()">
-  <div class="relative max-w-7xl max-h-[90vh]">
-    <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white hover:text-gray-300 transition">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div id="imageModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-90 p-4" onclick="closeImageModal()">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <!-- Close Button -->
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 transition z-10">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
-    <img id="modalImage" src="" alt="Preview" class="max-w-full max-h-[85vh] object-contain rounded-lg" onclick="event.stopPropagation()">
+    
+    <!-- Previous Button -->
+    <button id="prevImageBtn" onclick="navigateImage(-1); event.stopPropagation();" 
+            class="absolute left-6 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-4 rounded-full transition-all duration-200 z-10 shadow-xl hover:shadow-2xl hover:scale-110">
+      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
+    
+    <!-- Image Container -->
+    <div class="relative max-w-7xl max-h-[90vh] flex items-center justify-center">
+      <img id="modalImage" src="" alt="Preview" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" onclick="event.stopPropagation()">
+    </div>
+    
+    <!-- Next Button -->
+    <button id="nextImageBtn" onclick="navigateImage(1); event.stopPropagation();" 
+            class="absolute right-6 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-4 rounded-full transition-all duration-200 z-10 shadow-xl hover:shadow-2xl hover:scale-110">
+      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
   </div>
 </div>
 
