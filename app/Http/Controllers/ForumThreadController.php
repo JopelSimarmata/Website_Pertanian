@@ -124,8 +124,18 @@ class ForumThreadController extends Controller
     {
         $thread = ForumThread::with(['author.profile', 'category', 'likes', 'replies.author.profile'])->findOrFail($id);
         
-        // Increment views count
-        $thread->increment('views_count');
+        // Increment views count - only once per user per day
+        $viewKey = 'thread_view_' . $id;
+        $lastViewed = session($viewKey);
+        $today = now()->format('Y-m-d');
+        
+        // Only increment if:
+        // 1. User hasn't viewed this thread today, OR
+        // 2. User is not the author (don't count author's own views)
+        if ((!$lastViewed || $lastViewed !== $today) && auth()->id() !== $thread->author_id) {
+            $thread->increment('views_count');
+            session([$viewKey => $today]);
+        }
         
         return view('forum.detail', compact('thread'));
     }
@@ -296,13 +306,19 @@ class ForumThreadController extends Controller
         $reply->is_solution = !$reply->is_solution;
         $reply->save();
 
+        // Auto-update thread solved status based on replies
+        $hasSolution = $thread->replies()->where('is_solution', true)->exists();
+        $thread->is_solved = $hasSolution;
+        $thread->save();
+
         $message = $reply->is_solution 
-            ? 'Balasan berhasil ditandai menjawab!' 
-            : 'Balasan tidak lagi ditandai menjawab';
+            ? 'Balasan ditandai sebagai jawaban!' 
+            : 'Tanda jawaban dihapus';
 
         return response()->json([
             'success' => true,
             'is_solution' => $reply->is_solution,
+            'is_solved' => $thread->is_solved,
             'message' => $message
         ]);
     }
