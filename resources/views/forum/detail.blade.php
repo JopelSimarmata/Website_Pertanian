@@ -156,7 +156,7 @@
         
         @if($imageCount > 0)
         
-        <div class="mt-6 pt-6 border-t border-gray-100">
+        <div class="mt-6 pt-6 border-t border-gray-100" data-thread-images='@json(array_values($images))'>
           <div class="flex items-center gap-2 mb-3">
             <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -488,28 +488,63 @@
 </div>
 
 {{-- Image Modal --}}
-<div id="imageModal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" onclick="closeImageModal()">
-  <div class="relative max-w-6xl max-h-[90vh]">
-    <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div id="imageModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-90 p-4" onclick="closeImageModal()">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <!-- Close Button -->
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 transition z-10">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
-    <img id="modalImage" src="" alt="Full size" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl">
-    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-gray-700">
-      Klik di luar untuk tutup
+    
+    <!-- Previous Button -->
+    <button id="prevImageBtn" onclick="navigateImage(-1); event.stopPropagation();" 
+            class="absolute left-6 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-4 rounded-full transition-all duration-200 z-10 shadow-xl hover:shadow-2xl hover:scale-110">
+      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
+    
+    <!-- Image Container -->
+    <div class="relative max-w-7xl max-h-[90vh] flex items-center justify-center">
+      <img id="modalImage" src="" alt="Preview" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" onclick="event.stopPropagation()">
     </div>
+    
+    <!-- Next Button -->
+    <button id="nextImageBtn" onclick="navigateImage(1); event.stopPropagation();" 
+            class="absolute right-6 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-4 rounded-full transition-all duration-200 z-10 shadow-xl hover:shadow-2xl hover:scale-110">
+      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
   </div>
 </div>
 
 <script>
-function openImageModal(imageSrc) {
+// Image modal functionality
+let currentImageIndex = 0;
+let currentImageArray = [];
+
+function openImageModal(imageUrl) {
+  // Get images from thread data
+  const threadImages = document.querySelector('[data-thread-images]');
+  if (threadImages) {
+    currentImageArray = JSON.parse(threadImages.dataset.threadImages || '[]');
+    currentImageIndex = currentImageArray.findIndex(img => imageUrl.includes(img));
+    if (currentImageIndex === -1) currentImageIndex = 0;
+  } else {
+    currentImageArray = [imageUrl];
+    currentImageIndex = 0;
+  }
+  
   const modal = document.getElementById('imageModal');
   const modalImage = document.getElementById('modalImage');
-  modalImage.src = imageSrc;
+  modalImage.src = imageUrl;
   modal.classList.remove('hidden');
   modal.classList.add('flex');
   document.body.style.overflow = 'hidden';
+  
+  updateNavigationButtons();
 }
 
 function closeImageModal() {
@@ -519,10 +554,45 @@ function closeImageModal() {
   document.body.style.overflow = 'auto';
 }
 
-// Close modal with ESC key
+function navigateImage(direction) {
+  currentImageIndex += direction;
+  
+  if (currentImageIndex < 0) {
+    currentImageIndex = currentImageArray.length - 1;
+  } else if (currentImageIndex >= currentImageArray.length) {
+    currentImageIndex = 0;
+  }
+  
+  const modalImage = document.getElementById('modalImage');
+  modalImage.src = '{{ asset('storage') }}/' + currentImageArray[currentImageIndex];
+  
+  updateNavigationButtons();
+}
+
+function updateNavigationButtons() {
+  const prevBtn = document.getElementById('prevImageBtn');
+  const nextBtn = document.getElementById('nextImageBtn');
+  
+  if (currentImageArray.length <= 1) {
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+  } else {
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+  }
+}
+
+// Keyboard navigation
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeImageModal();
+  const modal = document.getElementById('imageModal');
+  if (!modal.classList.contains('hidden')) {
+    if (e.key === 'ArrowLeft') {
+      navigateImage(-1);
+    } else if (e.key === 'ArrowRight') {
+      navigateImage(1);
+    } else if (e.key === 'Escape') {
+      closeImageModal();
+    }
   }
 });
 

@@ -119,7 +119,28 @@
   @else
     <div class="space-y-4">
       @foreach($threads as $thread)
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors overflow-hidden relative cursor-pointer" onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'">
+        @php
+          // Prepare images array for modal navigation
+          $threadImages = [];
+          if($thread->image && $thread->image != 'null' && $thread->image != '[]') {
+            try {
+              $imgData = is_string($thread->image) ? json_decode($thread->image, true) : $thread->image;
+              if (is_array($imgData)) {
+                $threadImages = array_filter(array_map(function($path) {
+                  return is_string($path) ? str_replace('\\', '/', trim($path)) : null;
+                }, $imgData), function($img) {
+                  return !empty($img) && is_string($img);
+                });
+              }
+            } catch (\Exception $e) {
+              $threadImages = [];
+            }
+          }
+        @endphp
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors overflow-hidden relative cursor-pointer" 
+             onclick="window.location='{{ route('forum.detail', $thread->thread_id) }}'"
+             data-thread-images='@json(array_values($threadImages))'>
           
           {{-- Status Badge - Top Right --}}
           <div class="absolute top-4 right-4 z-10 mt-2" onclick="event.stopPropagation()">
@@ -222,10 +243,10 @@
                   @endphp
                   
                   @if($imageCount > 0)
-                    <div class="mb-4 w-full">
+                    <div class="mb-4 w-full" onclick="event.stopPropagation()">
                       @if($imageCount == 1)
                         {{-- Single image: Large preview --}}
-                        <div class="rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
+                        <div class="rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md cursor-pointer" onclick="openImageModal('{{ asset('storage/' . $images[0]) }}')">
                           <div class="w-full bg-gray-50" style="max-height: 350px;">
                             <img src="{{ asset('storage/' . $images[0]) }}" alt="Preview" class="w-full h-full object-cover">
                           </div>
@@ -234,7 +255,7 @@
                         {{-- 2 images: Side by side --}}
                         <div class="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
                           @foreach($images as $img)
-                            <div class="bg-gray-50" style="height: 250px;">
+                            <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 250px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                               <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                             </div>
                           @endforeach
@@ -245,13 +266,13 @@
                           {{-- Top row: 2 images --}}
                           <div class="grid grid-cols-2 gap-2">
                             @foreach(array_slice($images, 0, 2) as $img)
-                              <div class="bg-gray-50" style="height: 180px;">
+                              <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 180px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                                 <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                               </div>
                             @endforeach
                           </div>
                           {{-- Bottom row: 1 image full width --}}
-                          <div class="mt-2 bg-gray-50" style="height: 140px;">
+                          <div class="mt-2 bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 140px;" onclick="openImageModal('{{ asset('storage/' . $images[2]) }}')">
                             <img src="{{ asset('storage/' . $images[2]) }}" alt="Preview" class="w-full h-full object-cover">
                           </div>
                         </div>
@@ -259,7 +280,7 @@
                         {{-- 4 images: 2x2 grid --}}
                         <div class="grid grid-cols-2 gap-2 rounded-xl overflow-hidden border border-gray-200 hover:border-emerald-300 transition-all shadow-sm hover:shadow-md">
                           @foreach($images as $img)
-                            <div class="bg-gray-50" style="height: 200px;">
+                            <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 200px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                               <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                             </div>
                           @endforeach
@@ -270,7 +291,7 @@
                           {{-- Top row: 2 larger images --}}
                           <div class="grid grid-cols-2 gap-2">
                             @foreach(array_slice($images, 0, 2) as $img)
-                              <div class="bg-gray-50" style="height: 180px;">
+                              <div class="bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 180px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                                 <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                               </div>
                             @endforeach
@@ -278,10 +299,10 @@
                           {{-- Bottom row: 3 smaller images --}}
                           <div class="grid grid-cols-3 gap-2 mt-2">
                             @foreach(array_slice($images, 2, 3) as $index => $img)
-                              <div class="relative bg-gray-50" style="height: 120px;">
+                              <div class="relative bg-gray-50 cursor-pointer hover:opacity-90 transition" style="height: 120px;" onclick="openImageModal('{{ asset('storage/' . $img) }}')">
                                 <img src="{{ asset('storage/' . $img) }}" alt="Preview" class="w-full h-full object-cover">
                                 @if($index == 2 && $imageCount > 5)
-                                  <div class="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm">
+                                  <div class="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm pointer-events-none">
                                     <span class="text-white text-xl font-bold">+{{ $imageCount - 5 }}</span>
                                   </div>
                                 @endif
@@ -375,7 +396,9 @@
         <div class="bg-gradient-to-r from-emerald-500 to-green-500 px-5 py-4">
           <div class="flex items-center">
             <h3 class="font-bold text-white text-lg flex items-center gap-2">
-              <span class="text-2xl">🏆</span>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              </svg>
               Thread Teraktif
             </h3>
           </div>
@@ -456,28 +479,47 @@
       {{-- Popular Topics --}}
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-          <span class="text-xl">🔥</span>
+          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+          </svg>
           Topik Populer
         </h3>
         <div class="space-y-3">
-          <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
-            <span class="text-sm font-medium text-  -700 group-hover:text-emerald-700">Hama Wereng Padi</span>
-            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </a>
-          <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
-            <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-700">Pupuk Organik</span>
-            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </a>
-          <a href="{{ route('forum.index', ['sort' => 'popular']) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
-            <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-700">Perawatan Tanaman</span>
-            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </a>
+          @forelse($popularTags as $topicData)
+            <a href="{{ route('forum.index', ['search' => $topicData['tag']]) }}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-700 block truncate">{{ $topicData['tag'] }}</span>
+                <div class="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                  <span class="flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                      <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    {{ $topicData['total_views'] }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                    </svg>
+                    {{ $topicData['total_likes'] }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
+                    </svg>
+                    {{ $topicData['total_replies'] }}
+                  </span>
+                </div>
+              </div>
+              <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          @empty
+            <div class="text-center py-4 text-gray-500 text-sm">
+              <p>Belum ada topik populer</p>
+            </div>
+          @endforelse
         </div>
       </div>
 
@@ -485,25 +527,35 @@
       <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-sm border-2 border-emerald-200 p-6">
         <div class="flex items-center gap-2 mb-4">
           <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
-            <span class="text-2xl">💡</span>
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path>
+            </svg>
           </div>
           <h3 class="font-bold text-gray-900 text-lg">Tips Bertanya</h3>
         </div>
         <ul class="space-y-3 text-sm text-gray-700">
           <li class="flex items-start gap-2">
-            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
             <span>Tulis judul yang jelas dan spesifik</span>
           </li>
           <li class="flex items-start gap-2">
-            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
             <span>Sertakan foto untuk memperjelas masalah</span>
           </li>
           <li class="flex items-start gap-2">
-            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
             <span>Jelaskan detail situasi Anda</span>
           </li>
           <li class="flex items-start gap-2">
-            <span class="text-emerald-600 font-bold shrink-0">✓</span>
+            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
             <span>Pilih kategori yang sesuai</span>
           </li>
         </ul>
@@ -658,6 +710,117 @@ async function dislikeThread(threadId, button) {
     console.error('Error:', error);
   }
 }
+
+// Image modal functionality
+let currentImageIndex = 0;
+let currentImageArray = [];
+
+function openImageModal(imageUrl) {
+  // Find which thread this image belongs to
+  const allThreads = document.querySelectorAll('[data-thread-images]');
+  
+  for (let thread of allThreads) {
+    const images = JSON.parse(thread.dataset.threadImages || '[]');
+    const imageIndex = images.findIndex(img => imageUrl.includes(img));
+    
+    if (imageIndex !== -1) {
+      currentImageArray = images;
+      currentImageIndex = imageIndex;
+      break;
+    }
+  }
+  
+  const modal = document.getElementById('imageModal');
+  const modalImage = document.getElementById('modalImage');
+  modalImage.src = imageUrl;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+  
+  updateNavigationButtons();
+}
+
+function closeImageModal() {
+  const modal = document.getElementById('imageModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.style.overflow = 'auto';
+}
+
+function navigateImage(direction) {
+  currentImageIndex += direction;
+  
+  if (currentImageIndex < 0) {
+    currentImageIndex = currentImageArray.length - 1;
+  } else if (currentImageIndex >= currentImageArray.length) {
+    currentImageIndex = 0;
+  }
+  
+  const modalImage = document.getElementById('modalImage');
+  modalImage.src = '{{ asset('storage') }}/' + currentImageArray[currentImageIndex];
+  
+  updateNavigationButtons();
+}
+
+function updateNavigationButtons() {
+  const prevBtn = document.getElementById('prevImageBtn');
+  const nextBtn = document.getElementById('nextImageBtn');
+  
+  if (currentImageArray.length <= 1) {
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+  } else {
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+  }
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  const modal = document.getElementById('imageModal');
+  if (!modal.classList.contains('hidden')) {
+    if (e.key === 'ArrowLeft') {
+      navigateImage(-1);
+    } else if (e.key === 'ArrowRight') {
+      navigateImage(1);
+    } else if (e.key === 'Escape') {
+      closeImageModal();
+    }
+  }
+});
 </script>
+
+<!-- Image Preview Modal -->
+<div id="imageModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-90 p-4" onclick="closeImageModal()">
+  <div class="relative w-full h-full flex items-center justify-center">
+    <!-- Close Button -->
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 transition z-10">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    
+    <!-- Previous Button -->
+    <button id="prevImageBtn" onclick="navigateImage(-1); event.stopPropagation();" 
+            class="absolute left-6 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-4 rounded-full transition-all duration-200 z-10 shadow-xl hover:shadow-2xl hover:scale-110">
+      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
+    
+    <!-- Image Container -->
+    <div class="relative max-w-7xl max-h-[90vh] flex items-center justify-center">
+      <img id="modalImage" src="" alt="Preview" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" onclick="event.stopPropagation()">
+    </div>
+    
+    <!-- Next Button -->
+    <button id="nextImageBtn" onclick="navigateImage(1); event.stopPropagation();" 
+            class="absolute right-6 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-4 rounded-full transition-all duration-200 z-10 shadow-xl hover:shadow-2xl hover:scale-110">
+      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+      </svg>
+    </button>
+  </div>
+</div>
 
 </x-layout>

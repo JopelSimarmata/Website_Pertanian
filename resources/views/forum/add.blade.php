@@ -129,7 +129,7 @@
         {{-- Image Upload --}}
         <div>
           <label class="block text-sm font-bold text-gray-900 mb-2">
-            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, max 5 foto)</span>
+            Lampiran Gambar <span class="text-gray-500 text-xs font-normal">(opsional, maksimal 5 foto)</span>
           </label>
           <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-500 transition">
             <input 
@@ -149,7 +149,7 @@
                 <p class="text-sm text-gray-600 mb-1">
                   <span class="font-semibold text-emerald-600">Klik untuk upload</span> atau drag and drop
                 </p>
-                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 5MB per file (max 5 foto)</p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF (maksimal 5 foto)</p>
               </div>
             </label>
           </div>
@@ -235,7 +235,7 @@
 <script>
   let selectedFiles = [];
 
-  function previewImages(event) {
+  async function previewImages(event) {
     const newFiles = Array.from(event.target.files);
     const container = document.getElementById('image-preview');
     const grid = document.getElementById('preview-grid');
@@ -254,27 +254,108 @@
       return;
     }
     
-    // Check file size for new files (5MB max per file)
+    // Process and compress files if needed
+    showToast('Memproses gambar...', 'info');
+    const processedFiles = [];
+    
     for (let file of newFiles) {
+      // Check if file needs compression (> 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        showModal(
-          'File Terlalu Besar',
-          `File "<strong>${file.name}</strong>" berukuran <strong>${(file.size / 1024 / 1024).toFixed(2)} MB</strong>.<br>Maksimal ukuran file adalah <strong>5 MB</strong>.`,
-          'error'
-        );
-        event.target.value = '';
-        return;
+        showToast(`Mengompres ${file.name}...`, 'info');
+        try {
+          const compressedFile = await compressImage(file);
+          processedFiles.push(compressedFile);
+          showToast(`${file.name} berhasil dikompres!`, 'success');
+        } catch (error) {
+          showModal(
+            'Gagal Mengompres',
+            `File "<strong>${file.name}</strong>" gagal dikompres. Silakan coba file lain.`,
+            'error'
+          );
+          event.target.value = '';
+          return;
+        }
+      } else {
+        processedFiles.push(file);
       }
     }
     
-    // Add new files to selected files array
-    selectedFiles = totalFiles;
+    // Add processed files to selected files array
+    selectedFiles = [...selectedFiles, ...processedFiles];
     
     // Update the file input with all selected files
     updateFileInput();
     
     // Render all previews
     renderPreviews();
+  }
+
+  // Compress image function
+  async function compressImage(file, maxSizeMB = 5, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const img = new Image();
+        
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Calculate new dimensions (max 1920px width)
+          const maxWidth = 1920;
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Try different quality levels until file size is acceptable
+          let currentQuality = quality;
+          
+          const tryCompress = () => {
+            canvas.toBlob(
+              (blob) => {
+                if (!blob) {
+                  reject(new Error('Gagal mengompres gambar'));
+                  return;
+                }
+                
+                // Check if size is acceptable or quality is too low
+                if (blob.size <= maxSizeMB * 1024 * 1024 || currentQuality <= 0.3) {
+                  // Create new file with compressed blob
+                  const compressedFile = new File([blob], file.name, {
+                    type: file.type,
+                    lastModified: Date.now()
+                  });
+                  resolve(compressedFile);
+                } else {
+                  // Reduce quality and try again
+                  currentQuality -= 0.1;
+                  tryCompress();
+                }
+              },
+              file.type,
+              currentQuality
+            );
+          };
+          
+          tryCompress();
+        };
+        
+        img.onerror = () => reject(new Error('Gagal memuat gambar'));
+        img.src = e.target.result;
+      };
+      
+      reader.onerror = () => reject(new Error('Gagal membaca file'));
+      reader.readAsDataURL(file);
+    });
   }
 
   function updateFileInput() {
