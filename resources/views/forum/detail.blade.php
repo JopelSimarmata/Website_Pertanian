@@ -278,22 +278,26 @@
           {{-- Action Buttons (Like, Dislike & Comment) - Below Images --}}
           <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
             <div class="flex items-center gap-2">
-              {{-- Like Button (Thumbs Up) --}}
+              {{-- Like Button (Thumbs Up) - Green --}}
               <button onclick="likeThread({{ $thread->thread_id }}, this)" 
-                class="like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isLikedBy(auth()->user()) ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100' }}" 
+                class="like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isLikedBy(auth()->user()) ? 'text-emerald-600' : 'text-gray-500' }}" 
                 data-thread-id="{{ $thread->thread_id }}" 
                 data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
-                <svg class="w-5 h-5" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 {{ $thread->isLikedBy(auth()->user()) ? '' : 'group-hover:text-emerald-600' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path>
                 </svg>
                 <span class="text-sm font-semibold likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
               </button>
 
-              {{-- Dislike Button (Thumbs Down) --}}
-              <button onclick="event.stopPropagation();" class="group flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-500 hover:bg-gray-100 transition-all duration-200">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              {{-- Dislike Button (Thumbs Down) - Gray when active --}}
+              <button onclick="dislikeThread({{ $thread->thread_id }}, this)" 
+                class="dislike-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isDislikedBy(auth()->user()) ? 'text-gray-600' : 'text-gray-500' }}"
+                data-thread-id="{{ $thread->thread_id }}"
+                data-disliked="{{ $thread->isDislikedBy(auth()->user()) ? 'true' : 'false' }}">
+                <svg class="w-5 h-5 {{ $thread->isDislikedBy(auth()->user()) ? '' : 'group-hover:text-gray-600' }}" fill="{{ $thread->isDislikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"></path>
                 </svg>
+                <span class="text-sm font-semibold dislikes-count">{{ number_format($thread->dislikes_count ?? 0) }}</span>
               </button>
             </div>
 
@@ -312,22 +316,26 @@
         {{-- No images: Show action buttons after tags --}}
         <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
           <div class="flex items-center gap-2">
-            {{-- Like Button (Thumbs Up) --}}
+            {{-- Like Button (Thumbs Up) - Green --}}
             <button onclick="likeThread({{ $thread->thread_id }}, this)" 
-              class="like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isLikedBy(auth()->user()) ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100' }}" 
+              class="like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isLikedBy(auth()->user()) ? 'text-emerald-600' : 'text-gray-500' }}" 
               data-thread-id="{{ $thread->thread_id }}" 
               data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
-              <svg class="w-5 h-5" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 {{ $thread->isLikedBy(auth()->user()) ? '' : 'group-hover:text-emerald-600' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path>
               </svg>
               <span class="text-sm font-semibold likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
             </button>
 
-            {{-- Dislike Button (Thumbs Down) --}}
-            <button onclick="event.stopPropagation();" class="group flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-500 hover:bg-gray-100 transition-all duration-200">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            {{-- Dislike Button (Thumbs Down) - Gray when active --}}
+            <button onclick="dislikeThread({{ $thread->thread_id }}, this)" 
+              class="dislike-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isDislikedBy(auth()->user()) ? 'text-gray-600' : 'text-gray-500' }}"
+              data-thread-id="{{ $thread->thread_id }}"
+              data-disliked="{{ $thread->isDislikedBy(auth()->user()) ? 'true' : 'false' }}">
+              <svg class="w-5 h-5 {{ $thread->isDislikedBy(auth()->user()) ? '' : 'group-hover:text-gray-600' }}" fill="{{ $thread->isDislikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"></path>
               </svg>
+              <span class="text-sm font-semibold dislikes-count">{{ number_format($thread->dislikes_count ?? 0) }}</span>
             </button>
           </div>
 
@@ -345,7 +353,7 @@
   </div>
 
   {{-- Replies Section --}}
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div id="reply-section" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
       <h2 class="text-lg font-bold text-gray-900">
         {{ number_format($thread->replies_count ?? 0) }} Balasan
@@ -384,14 +392,38 @@
                   $replyAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($replyAuthor) . '&color=ffffff&background=059669&size=40';
                 }
               @endphp
-              <div class="flex gap-3 pb-4 border-b border-gray-100 last:border-0">
+              <div class="flex gap-3 pb-4 border-b border-gray-100 last:border-0 {{ $reply->is_solution ? 'bg-emerald-50/50 -mx-4 px-4 py-4 rounded-lg' : '' }}">
                 <div class="shrink-0">
                   <img src="{{ $replyAvatar }}" alt="{{ $replyAuthor }}" class="w-10 h-10 rounded-full border-2 border-gray-100 object-cover">
                 </div>
                 <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-bold text-gray-900">{{ $replyAuthor }}</span>
-                    <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                  <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-gray-900">{{ $replyAuthor }}</span>
+                      <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                      @if($reply->is_solution)
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-600 text-white text-xs font-bold rounded-md">
+                          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                          </svg>
+                          Menjawab
+                        </span>
+                      @endif
+                    </div>
+                    
+                    {{-- Toggle Solution Button (Only for Thread Owner) --}}
+                    @auth
+                      @if($thread->author_id == auth()->id())
+                        <button onclick="toggleSolution({{ $reply->reply_id }}, {{ $reply->is_solution ? 'true' : 'false' }})" 
+                          id="solution-btn-{{ $reply->reply_id }}"
+                          class="text-xs font-semibold px-3 py-1.5 rounded-md transition flex items-center gap-1 {{ $reply->is_solution ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <span class="solution-text">{{ $reply->is_solution ? 'Menjawab' : 'Tandai Menjawab' }}</span>
+                        </button>
+                      @endif
+                    @endauth
                   </div>
                   <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $reply->content }}</p>
                 </div>
@@ -525,24 +557,112 @@ async function likeThread(threadId, button) {
     const data = await response.json();
 
     if (data.success) {
-      const likesCountEl = button.querySelector('.likes-count');
-      const heartIcon = button.querySelector('svg');
-      
-      likesCountEl.textContent = data.likes_count.toLocaleString();
+      // Update the button that was clicked
+      const svg = button.querySelector('svg');
+      const countSpan = button.querySelector('.likes-count');
       
       if (data.liked) {
-        button.classList.add('text-rose-600', 'bg-rose-50');
-        button.classList.remove('text-gray-600');
-        heartIcon.setAttribute('fill', 'currentColor');
-        button.setAttribute('data-liked', 'true');
+        // LIKED - Green filled icon
+        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#10b981';
+        button.style.color = '#10b981';
+        countSpan.style.color = '#10b981';
       } else {
-        button.classList.remove('text-rose-600', 'bg-rose-50');
-        button.classList.add('text-gray-600');
-        heartIcon.setAttribute('fill', 'none');
-        button.setAttribute('data-liked', 'false');
+        // UNLIKED - Gray outline only
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
+      }
+      
+      // Update count
+      countSpan.textContent = data.likes_count.toLocaleString();
+      button.setAttribute('data-liked', data.liked ? 'true' : 'false');
+
+      // Update dislike button if it exists
+      const dislikeBtn = document.querySelector(`.dislike-btn[data-thread-id="${threadId}"]`);
+      if (dislikeBtn) {
+        const dislikeSvg = dislikeBtn.querySelector('svg');
+        const dislikeCount = dislikeBtn.querySelector('.dislikes-count');
+        
+        // Reset to gray outline
+        dislikeSvg.setAttribute('fill', 'none');
+        dislikeSvg.setAttribute('stroke', 'currentColor');
+        dislikeSvg.style.color = '#6b7280';
+        dislikeBtn.style.color = '#6b7280';
+        dislikeCount.style.color = '#6b7280';
+        dislikeCount.textContent = data.dislikes_count.toLocaleString();
+        dislikeBtn.setAttribute('data-disliked', 'false');
       }
     } else {
       alert(data.message || 'Gagal menyukai thread');
+      if (response.status === 401) {
+        window.location.href = '/login';
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Terjadi kesalahan');
+  }
+}
+
+// Dislike thread function
+async function dislikeThread(threadId, button) {
+  try {
+    const response = await fetch(`/forum/${threadId}/dislike`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update the button that was clicked
+      const svg = button.querySelector('svg');
+      const countSpan = button.querySelector('.dislikes-count');
+      
+      if (data.disliked) {
+        // DISLIKED - Gray filled icon
+        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
+      } else {
+        // UN-DISLIKED - Gray outline only
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
+      }
+      
+      // Update count
+      countSpan.textContent = data.dislikes_count.toLocaleString();
+      button.setAttribute('data-disliked', data.disliked ? 'true' : 'false');
+
+      // Update like button if it exists
+      const likeBtn = document.querySelector(`.like-btn[data-thread-id="${threadId}"]`);
+      if (likeBtn) {
+        const likeSvg = likeBtn.querySelector('svg');
+        const likeCount = likeBtn.querySelector('.likes-count');
+        
+        // Reset to gray outline
+        likeSvg.setAttribute('fill', 'none');
+        likeSvg.setAttribute('stroke', 'currentColor');
+        likeSvg.style.color = '#6b7280';
+        likeBtn.style.color = '#6b7280';
+        likeCount.style.color = '#6b7280';
+        likeCount.textContent = data.likes_count.toLocaleString();
+        likeBtn.setAttribute('data-liked', 'false');
+      }
+    } else {
+      alert(data.message || 'Gagal memberikan dislike');
       if (response.status === 401) {
         window.location.href = '/login';
       }
@@ -577,6 +697,34 @@ async function toggleSolved(threadId) {
       setTimeout(() => {
         window.location.reload();
       }, 1000);
+    } else {
+      showToast(data.message || 'Gagal mengubah status', 'error');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Terjadi kesalahan', 'error');
+  }
+}
+
+// Toggle reply as solution
+async function toggleSolution(replyId, currentStatus) {
+  try {
+    const response = await fetch(`/forum/reply/${replyId}/toggle-solution`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showToast(data.message, 'success');
+      // Reload page to show updated state
+      setTimeout(() => {
+        location.reload();
+      }, 800);
     } else {
       showToast(data.message || 'Gagal mengubah status', 'error');
     }

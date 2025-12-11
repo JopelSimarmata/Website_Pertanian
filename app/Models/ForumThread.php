@@ -21,6 +21,7 @@ class ForumThread extends Model
         'image',
         'views_count',
         'likes_count',
+        'dislikes_count',
         'replies_count',
         'is_pinned',
         'is_solved',
@@ -53,14 +54,32 @@ class ForumThread extends Model
                     ->withTimestamps();
     }
 
+    public function dislikes()
+    {
+        return $this->belongsToMany(User::class, 'forum_thread_dislikes', 'thread_id', 'user_id')
+                    ->withTimestamps();
+    }
+
     public function isLikedBy($user)
     {
         if (!$user) return false;
         return $this->likes()->where('user_id', $user->id)->exists();
     }
 
+    public function isDislikedBy($user)
+    {
+        if (!$user) return false;
+        return $this->dislikes()->where('user_id', $user->id)->exists();
+    }
+
     public function toggleLike($user)
     {
+        // If user already disliked, remove dislike first
+        if ($this->isDislikedBy($user)) {
+            $this->dislikes()->detach($user->id);
+            $this->decrement('dislikes_count');
+        }
+
         if ($this->isLikedBy($user)) {
             $this->likes()->detach($user->id);
             $this->decrement('likes_count');
@@ -69,6 +88,25 @@ class ForumThread extends Model
             $this->likes()->attach($user->id);
             $this->increment('likes_count');
             return true; // liked
+        }
+    }
+
+    public function toggleDislike($user)
+    {
+        // If user already liked, remove like first
+        if ($this->isLikedBy($user)) {
+            $this->likes()->detach($user->id);
+            $this->decrement('likes_count');
+        }
+
+        if ($this->isDislikedBy($user)) {
+            $this->dislikes()->detach($user->id);
+            $this->decrement('dislikes_count');
+            return false; // undisliked
+        } else {
+            $this->dislikes()->attach($user->id);
+            $this->increment('dislikes_count');
+            return true; // disliked
         }
     }
 }

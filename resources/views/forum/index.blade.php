@@ -191,19 +191,34 @@
                 @endif
 
                 {{-- Image Preview Grid (Facebook Style) --}}
-                @if($thread->image)
+                @if($thread->image && $thread->image != 'null' && $thread->image != '[]')
                   @php
-                    // Parse JSON array or single string
-                    $images = is_array($thread->image) ? $thread->image : json_decode($thread->image, true);
-                    if (!is_array($images)) {
-                      $images = [$thread->image];
+                    try {
+                      // Parse JSON array or single string
+                      $images = is_array($thread->image) ? $thread->image : json_decode($thread->image, true);
+                      
+                      // If still not array, try to make it one
+                      if (!is_array($images)) {
+                        $images = [$thread->image];
+                      }
+                      
+                      // Normalize paths and remove empty values
+                      $images = array_map(function($path) {
+                        if (is_string($path)) {
+                          return str_replace('\\', '/', trim($path));
+                        }
+                        return null;
+                      }, $images);
+                      
+                      $images = array_filter($images, function($img) {
+                        return !empty($img) && is_string($img);
+                      });
+                      
+                      $imageCount = count($images);
+                    } catch (\Exception $e) {
+                      $images = [];
+                      $imageCount = 0;
                     }
-                    // Normalize paths
-                    $images = array_map(function($path) {
-                      return str_replace('\\', '/', $path);
-                    }, $images);
-                    $images = array_filter($images);
-                    $imageCount = count($images);
                   @endphp
                   
                   @if($imageCount > 0)
@@ -305,33 +320,37 @@
                 {{-- Action Buttons (Like, Dislike & Comment) - Bottom Section --}}
                 <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
                   <div class="flex items-center gap-2">
-                    {{-- Like Button (Thumbs Up) --}}
+                    {{-- Like Button (Thumbs Up) - Green --}}
                     <button onclick="event.stopPropagation(); likeThread({{ $thread->thread_id }}, this)" 
-                      class="like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isLikedBy(auth()->user()) ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100' }}" 
+                      class="like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isLikedBy(auth()->user()) ? 'text-emerald-600' : 'text-gray-500' }}" 
                       data-thread-id="{{ $thread->thread_id }}" 
                       data-liked="{{ $thread->isLikedBy(auth()->user()) ? 'true' : 'false' }}">
-                      <svg class="w-5 h-5" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <svg class="w-5 h-5 {{ $thread->isLikedBy(auth()->user()) ? '' : 'group-hover:text-emerald-600' }}" fill="{{ $thread->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"></path>
                       </svg>
                       <span class="text-sm font-semibold likes-count">{{ number_format($thread->likes_count ?? 0) }}</span>
                     </button>
 
-                    {{-- Dislike Button (Thumbs Down) --}}
-                    <button onclick="event.stopPropagation();" class="group flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-500 hover:bg-gray-100 transition-all duration-200">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    {{-- Dislike Button (Thumbs Down) - Gray when active --}}
+                    <button onclick="event.stopPropagation(); dislikeThread({{ $thread->thread_id }}, this)" 
+                      class="dislike-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-200 {{ $thread->isDislikedBy(auth()->user()) ? 'text-gray-600' : 'text-gray-500' }}"
+                      data-thread-id="{{ $thread->thread_id }}"
+                      data-disliked="{{ $thread->isDislikedBy(auth()->user()) ? 'true' : 'false' }}">
+                      <svg class="w-5 h-5 {{ $thread->isDislikedBy(auth()->user()) ? '' : 'group-hover:text-gray-600' }}" fill="{{ $thread->isDislikedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"></path>
                       </svg>
+                      <span class="text-sm font-semibold dislikes-count">{{ number_format($thread->dislikes_count ?? 0) }}</span>
                     </button>
                   </div>
 
                   {{-- Comment Button --}}
-                  <button onclick="event.stopPropagation();" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-gray-600 hover:bg-gray-100 transition-all duration-200">
+                  <a href="{{ route('forum.detail', $thread->thread_id) }}#reply-section" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-gray-600 hover:bg-gray-100 transition-all duration-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                     </svg>
                     <span class="text-sm font-semibold text-gray-700">{{ number_format($thread->replies_count ?? 0) }}</span>
                     <span class="text-sm text-gray-500">Balasan</span>
-                  </button>
+                  </a>
                 </div>
               </div>
 
@@ -518,47 +537,116 @@ async function likeThread(threadId, button) {
     const data = await response.json();
 
     if (data.success) {
-      const likesCountEl = button.querySelector('.likes-count');
-      const heartIcon = button.querySelector('svg');
+      // Update the button that was clicked
+      const svg = button.querySelector('svg');
+      const countSpan = button.querySelector('.likes-count');
       
-      // Update counter
-      likesCountEl.textContent = data.likes_count.toLocaleString();
-      
-      // Update button state
       if (data.liked) {
-        button.classList.add('text-rose-600');
-        button.classList.remove('text-gray-500');
-        heartIcon.setAttribute('fill', 'currentColor');
-        heartIcon.classList.add('fill-current');
-        button.setAttribute('data-liked', 'true');
+        // LIKED - Green filled icon
+        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#10b981';
+        button.style.color = '#10b981';
+        countSpan.style.color = '#10b981';
       } else {
-        button.classList.remove('text-rose-600');
-        button.classList.add('text-gray-500');
-        heartIcon.setAttribute('fill', 'none');
-        heartIcon.classList.remove('fill-current');
-        button.setAttribute('data-liked', 'false');
+        // UNLIKED - Gray outline only
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
       }
       
-      // Update all like buttons for this thread on the page
-      document.querySelectorAll(`[data-thread-id="${threadId}"]`).forEach(btn => {
-        const count = btn.querySelector('.likes-count');
-        const icon = btn.querySelector('svg');
-        if (count) count.textContent = data.likes_count.toLocaleString();
-        if (icon) {
-          if (data.liked) {
-            btn.classList.add('text-rose-600');
-            btn.classList.remove('text-gray-500');
-            icon.setAttribute('fill', 'currentColor');
-            icon.classList.add('fill-current');
-          } else {
-            btn.classList.remove('text-rose-600');
-            btn.classList.add('text-gray-500');
-            icon.setAttribute('fill', 'none');
-            icon.classList.remove('fill-current');
-          }
+      // Update count
+      countSpan.textContent = data.likes_count.toLocaleString();
+      button.setAttribute('data-liked', data.liked ? 'true' : 'false');
+
+      // Update dislike button if it exists on same card
+      const card = button.closest('.bg-white');
+      if (card) {
+        const dislikeBtn = card.querySelector(`.dislike-btn[data-thread-id="${threadId}"]`);
+        if (dislikeBtn) {
+          const dislikeSvg = dislikeBtn.querySelector('svg');
+          const dislikeCount = dislikeBtn.querySelector('.dislikes-count');
+          
+          // Reset to gray outline
+          dislikeSvg.setAttribute('fill', 'none');
+          dislikeSvg.setAttribute('stroke', 'currentColor');
+          dislikeSvg.style.color = '#6b7280';
+          dislikeBtn.style.color = '#6b7280';
+          dislikeCount.style.color = '#6b7280';
+          dislikeCount.textContent = data.dislikes_count.toLocaleString();
+          dislikeBtn.setAttribute('data-disliked', 'false');
         }
-        btn.setAttribute('data-liked', data.liked ? 'true' : 'false');
-      });
+      }
+    } else {
+      if (response.status === 401) {
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1000);
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// Dislike thread function
+async function dislikeThread(threadId, button) {
+  try {
+    const response = await fetch(`/forum/${threadId}/dislike`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update the button that was clicked
+      const svg = button.querySelector('svg');
+      const countSpan = button.querySelector('.dislikes-count');
+      
+      if (data.disliked) {
+        // DISLIKED - Gray filled icon
+        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
+      } else {
+        // UN-DISLIKED - Gray outline only
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.style.color = '#6b7280';
+        button.style.color = '#6b7280';
+        countSpan.style.color = '#6b7280';
+      }
+      
+      // Update count
+      countSpan.textContent = data.dislikes_count.toLocaleString();
+      button.setAttribute('data-disliked', data.disliked ? 'true' : 'false');
+
+      // Update like button if it exists on same card
+      const card = button.closest('.bg-white');
+      if (card) {
+        const likeBtn = card.querySelector(`.like-btn[data-thread-id="${threadId}"]`);
+        if (likeBtn) {
+          const likeSvg = likeBtn.querySelector('svg');
+          const likeCount = likeBtn.querySelector('.likes-count');
+          
+          // Reset to gray outline
+          likeSvg.setAttribute('fill', 'none');
+          likeSvg.setAttribute('stroke', 'currentColor');
+          likeSvg.style.color = '#6b7280';
+          likeBtn.style.color = '#6b7280';
+          likeCount.style.color = '#6b7280';
+          likeCount.textContent = data.likes_count.toLocaleString();
+          likeBtn.setAttribute('data-liked', 'false');
+        }
+      }
     } else {
       if (response.status === 401) {
         setTimeout(() => {

@@ -59,19 +59,35 @@ class ForumThreadController extends Controller
 
     public function store(Request $request)
     {
+        // Validate basic fields first
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'required|exists:forum_categories,category_id',
             'tags' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        // Validate images separately with better error handling
+        if ($request->has('images') && $request->images) {
+            $request->validate([
+                'images' => 'array|max:5',
+                'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp|max:5120',
+            ], [
+                'images.*.file' => 'File harus berupa gambar',
+                'images.*.mimes' => 'Format gambar harus: JPEG, JPG, PNG, GIF, atau WEBP',
+                'images.*.mimetypes' => 'File harus berupa gambar yang valid',
+                'images.*.max' => 'Ukuran gambar maksimal 5MB',
+                'images.max' => 'Maksimal 5 foto',
+            ]);
+        }
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('forum-images', 'public');
-                $imagePaths[] = $path;
+                if ($image->isValid()) {
+                    $path = $image->store('forum-images', 'public');
+                    $imagePaths[] = $path;
+                }
             }
         }
 
@@ -83,13 +99,22 @@ class ForumThreadController extends Controller
             $tags = !empty($tagsArray) ? json_encode($tagsArray) : null;
         }
 
+        $imageData = !empty($imagePaths) ? json_encode($imagePaths) : null;
+        
+        // Debug log
+        \Log::info('Creating thread with images', [
+            'image_paths' => $imagePaths,
+            'image_data' => $imageData,
+            'has_images' => !empty($imagePaths)
+        ]);
+
         ForumThread::create([ 
             'title' => $request->title,
             'content' => $request->content,
             'author_id' => auth()->id() ?? 1,
             'category_id' => $request->category_id,
             'tags' => $tags,
-            'image' => !empty($imagePaths) ? json_encode($imagePaths) : null,
+            'image' => $imageData,
         ]);
 
         return redirect()->route('forum.index')->with('success', 'Thread berhasil dibuat!');
@@ -141,39 +166,34 @@ class ForumThreadController extends Controller
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $thread->likes_count
+            'likes_count' => $thread->likes_count,
+            'dislikes_count' => $thread->dislikes_count
         ]);
     }
 
-    public function toggleSolved($id)
+    public function toggleDislike($id)
     {
         $thread = ForumThread::findOrFail($id);
         $user = auth()->user();
 
         if (!$user) {
             return response()->json([
-                'success' => false,
-                'message' => 'Anda harus login'
+                'success' => false, 
+                'message' => 'Anda harus login untuk tidak menyukai thread'
             ], 401);
         }
 
-        // Only author can mark as solved
-        if ($thread->author_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hanya pembuat thread yang bisa menandai sebagai terjawab'
-            ], 403);
-        }
-
-        $thread->is_solved = !$thread->is_solved;
-        $thread->save();
+        $disliked = $thread->toggleDislike($user);
 
         return response()->json([
             'success' => true,
-            'is_solved' => $thread->is_solved,
-            'message' => $thread->is_solved ? 'Thread ditandai sebagai terjawab!' : 'Tandai terjawab dibatalkan'
+            'disliked' => $disliked,
+            'likes_count' => $thread->likes_count,
+            'dislikes_count' => $thread->dislikes_count
         ]);
     }
+
+
 
     public function edit($id)
     {
@@ -201,7 +221,8 @@ class ForumThreadController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'nullable|exists:forum_categories,category_id',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp|max:5120',
         ]);
 
         $thread->title = $request->title;
@@ -255,6 +276,73 @@ class ForumThreadController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Thread berhasil dihapus'
+        ]);
+    }
+
+    public function markAsSolution($replyId)
+    {
+        $reply = \App\Models\ForumReplies::findOrFail($replyId);
+        $thread = $reply->thread;
+        
+        // Check if user is the thread owner
+        if ($thread->author_id != auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pembuat thread yang dapat menandai jawaban'
+            ], 403);
+        }
+
+        // Toggle solution status
+        $reply->is_solution = !$reply->is_solution;
+        $reply->save();
+
+        $message = $reply->is_solution 
+            ? 'Balasan berhasil ditandai menjawab!' 
+            : 'Balasan tidak lagi ditandai menjawab';
+
+        return response()->json([
+            'success' => true,
+            'is_solution' => $reply->is_solution,
+            'message' => $message
+        ]);
+    }
+
+    public function toggleSolved($id)
+    {
+        $thread = ForumThread::findOrFail($id);
+        
+        // Check if user is the thread owner
+        if ($thread->author_id != auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pembuat thread yang dapat mengubah status'
+            ], 403);
+        }
+
+        // If trying to mark as solved, check if there's at least one solution
+        if (!$thread->is_solved) {
+            $hasSolution = \App\Models\ForumReplies::where('thread_id', $thread->thread_id)
+                ->where('is_solution', true)
+                ->exists();
+            
+            if (!$hasSolution) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tandai minimal 1 balasan sebagai "Menjawab" terlebih dahulu'
+                ], 400);
+            }
+        }
+
+        // Toggle solved status
+        $thread->is_solved = !$thread->is_solved;
+        $thread->save();
+
+        return response()->json([
+            'success' => true,
+            'is_solved' => $thread->is_solved,
+            'message' => $thread->is_solved 
+                ? 'Thread ditandai sebagai terjawab' 
+                : 'Thread tidak lagi ditandai terjawab'
         ]);
     }
 }

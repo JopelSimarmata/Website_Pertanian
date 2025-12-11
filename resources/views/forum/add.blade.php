@@ -1,6 +1,24 @@
 <x-layout>
 <x-navbar></x-navbar>
 
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes scaleIn {
+    from { 
+      opacity: 0;
+      transform: scale(0.9) translateY(-20px);
+    }
+    to { 
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+</style>
+
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   
   {{-- Header --}}
@@ -117,7 +135,7 @@
             <input 
               type="file" 
               name="images[]" 
-              accept="image/*" 
+              accept="image/jpeg,image/png,image/jpg,image/gif" 
               multiple
               class="hidden" 
               id="image-input"
@@ -138,9 +156,30 @@
 
           {{-- Image Preview Grid --}}
           <div id="image-preview" class="mt-4 hidden">
-            <div id="preview-grid" class="grid grid-cols-2 gap-2"></div>
-          </div>
+            {{-- Preview Header --}}
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-sm font-semibold text-gray-700">
+                  <span id="selected-count">0</span> foto terpilih
+                </span>
+              </div>
+              <button 
+                type="button" 
+                onclick="clearAllImages()" 
+                class="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline transition flex items-center gap-1"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Hapus Semua
+              </button>
             </div>
+            
+            {{-- Preview Grid --}}
+            <div id="preview-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
           </div>
         </div>
 
@@ -201,118 +240,249 @@
     const container = document.getElementById('image-preview');
     const grid = document.getElementById('preview-grid');
     
-    // Combine existing files with new files
-    const allFiles = [...selectedFiles, ...newFiles];
+    // Add new files to existing array
+    const totalFiles = [...selectedFiles, ...newFiles];
     
-    // Limit to 5 images total
-    if (allFiles.length > 5) {
-      alert('Maksimal 5 foto. Anda sudah memilih ' + selectedFiles.length + ' foto, tidak bisa menambahkan ' + newFiles.length + ' foto lagi.');
+    // Check total limit (5 images max)
+    if (totalFiles.length > 5) {
+      showModal(
+        'Batas Maksimal Tercapai',
+        `Anda sudah memilih <strong>${selectedFiles.length} foto</strong>.<br>Hanya bisa menambahkan <strong>${5 - selectedFiles.length} foto lagi</strong> (maksimal 5 foto total).`,
+        'warning'
+      );
       event.target.value = '';
       return;
     }
     
-    // Check file size (5MB max per file)
-    const oversized = newFiles.filter(file => file.size > 5 * 1024 * 1024);
-    if (oversized.length > 0) {
-      alert('Ukuran file terlalu besar. Maksimal 5MB per file');
-      event.target.value = '';
-      return;
+    // Check file size for new files (5MB max per file)
+    for (let file of newFiles) {
+      if (file.size > 5 * 1024 * 1024) {
+        showModal(
+          'File Terlalu Besar',
+          `File "<strong>${file.name}</strong>" berukuran <strong>${(file.size / 1024 / 1024).toFixed(2)} MB</strong>.<br>Maksimal ukuran file adalah <strong>5 MB</strong>.`,
+          'error'
+        );
+        event.target.value = '';
+        return;
+      }
     }
     
-    // Add new files to existing ones
-    selectedFiles = allFiles;
+    // Add new files to selected files array
+    selectedFiles = totalFiles;
     
-    // Update input files with DataTransfer
-    const dt = new DataTransfer();
-    selectedFiles.forEach(file => dt.items.add(file));
-    event.target.files = dt.files;
+    // Update the file input with all selected files
+    updateFileInput();
     
-    // Clear and rebuild preview
-    grid.innerHTML = '';
+    // Render all previews
+    renderPreviews();
+  }
+
+  function updateFileInput() {
+    const input = document.getElementById('image-input');
     
-    if (selectedFiles.length > 0) {
-      container.classList.remove('hidden');
+    try {
+      const dt = new DataTransfer();
       
-      selectedFiles.forEach((file, index) => {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          const div = document.createElement('div');
-          div.className = 'relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200';
-          div.innerHTML = `
-            <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-full object-cover">
-            <button 
-              type="button" 
-              onclick="removeImageAt(${index})" 
-              class="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-              ${index + 1}/${selectedFiles.length}
-            </div>
-          `;
-          grid.appendChild(div);
-        };
-        
-        reader.readAsDataURL(file);
+      selectedFiles.forEach(file => {
+        dt.items.add(file);
       });
-    } else {
-      container.classList.add('hidden');
+      
+      input.files = dt.files;
+      
+      // Debug log
+      console.log('Files in input after update:', input.files.length);
+    } catch (e) {
+      console.error('Error updating file input:', e);
     }
   }
 
-  function removeImageAt(index) {
-    const input = document.getElementById('image-input');
+  function renderPreviews() {
     const container = document.getElementById('image-preview');
     const grid = document.getElementById('preview-grid');
+    const countElement = document.getElementById('selected-count');
     
-    // Remove the file at the specified index
-    selectedFiles.splice(index, 1);
-    
-    // Update input files with DataTransfer
-    const dt = new DataTransfer();
-    selectedFiles.forEach(file => dt.items.add(file));
-    input.files = dt.files;
-    
-    // Clear the grid
+    // Clear grid
     grid.innerHTML = '';
     
     if (selectedFiles.length === 0) {
       container.classList.add('hidden');
-      input.value = '';
-    } else {
-      // Rebuild preview with updated file list
-      selectedFiles.forEach((file, idx) => {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          const div = document.createElement('div');
-          div.className = 'relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200';
-          div.innerHTML = `
-            <img src="${e.target.result}" alt="Preview ${idx + 1}" class="w-full h-full object-cover">
-            <button 
-              type="button" 
-              onclick="removeImageAt(${idx})" 
-              class="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full hover:bg-red-600 transition flex items-center justify-center shadow-lg"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-              ${idx + 1}/${selectedFiles.length}
-            </div>
-          `;
-          grid.appendChild(div);
-        };
-        
-        reader.readAsDataURL(file);
-      });
+      return;
     }
+    
+    container.classList.remove('hidden');
+    
+    // Update counter
+    if (countElement) {
+      countElement.textContent = selectedFiles.length;
+    }
+    
+    selectedFiles.forEach((file, index) => {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const div = document.createElement('div');
+        div.className = 'relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200 hover:border-emerald-400 transition';
+        div.innerHTML = `
+          <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-full object-cover">
+          
+          <!-- Remove Button -->
+          <button 
+            type="button" 
+            onclick="removeImage(${index})" 
+            class="absolute top-2 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 group"
+            title="Hapus gambar"
+          >
+            <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+          
+          <!-- Image Counter -->
+          <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+            ${index + 1}/${selectedFiles.length}
+          </div>
+          
+          <!-- File Size Badge -->
+          <div class="absolute top-2 left-2 bg-emerald-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow">
+            ${(file.size / 1024 / 1024).toFixed(1)} MB
+          </div>
+          
+          <!-- File Name -->
+          <div class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2.5 py-1 rounded-full max-w-[60%] truncate" title="${file.name}">
+            ${file.name}
+          </div>
+        `;
+        grid.appendChild(div);
+      };
+      
+      reader.readAsDataURL(file);
+    });
   }
+
+  function removeImage(index) {
+    // Remove file from array
+    selectedFiles.splice(index, 1);
+    
+    // Update file input
+    updateFileInput();
+    
+    // Re-render previews
+    renderPreviews();
+    
+    // Show notification
+    showToast('Gambar berhasil dihapus', 'success');
+  }
+
+  function clearAllImages() {
+    selectedFiles = [];
+    const input = document.getElementById('image-input');
+    input.value = '';
+    renderPreviews();
+    showToast('Semua gambar berhasil dihapus', 'info');
+  }
+
+  function showToast(message, type = 'success') {
+    const colors = {
+      success: 'bg-emerald-500',
+      error: 'bg-red-500',
+      info: 'bg-blue-500'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
+  }
+
+  function showModal(title, message, type = 'warning') {
+    const icons = {
+      warning: `
+        <svg class="w-16 h-16 text-amber-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+      `,
+      error: `
+        <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      `,
+      info: `
+        <svg class="w-16 h-16 text-blue-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      `
+    };
+
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fadeIn';
+    overlay.style.animation = 'fadeIn 0.2s ease-out';
+    
+    // Create modal content
+    overlay.innerHTML = `
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-scaleIn" style="animation: scaleIn 0.3s ease-out">
+        <div class="p-6 text-center">
+          ${icons[type] || icons.warning}
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">${title}</h3>
+          <p class="text-gray-600 mb-6 leading-relaxed">${message}</p>
+          <button 
+            onclick="this.closest('.fixed').remove()" 
+            class="px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+          >
+            OK, Mengerti
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.remove();
+      }
+    });
+    
+    // Close on Escape key
+    const escHandler = function(e) {
+      if (e.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
+  }
+
+  // Debug form submission
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const fileInput = document.getElementById('image-input');
+    
+    form.addEventListener('submit', function(e) {
+      console.log('Form submitting...');
+      console.log('File input files count:', fileInput.files.length);
+      console.log('Selected files array count:', selectedFiles.length);
+      
+      // Log each file
+      for (let i = 0; i < fileInput.files.length; i++) {
+        console.log(`File ${i}:`, fileInput.files[i].name, fileInput.files[i].size);
+      }
+      
+      // If no files in input but we have selectedFiles, try to update one more time
+      if (fileInput.files.length === 0 && selectedFiles.length > 0) {
+        console.log('Attempting to restore files to input...');
+        updateFileInput();
+        console.log('After restore, file count:', fileInput.files.length);
+      }
+    });
+  });
 </script>
 
 </x-layout>
