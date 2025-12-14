@@ -175,12 +175,30 @@ Route::post('/payment/callback', [PaymentController::class, 'handleCallback'])->
 |--------------------------------------------------------------------------
 */
 Route::prefix('api')->group(function () {
-    // Get all products with pagination and filters
+    // AUTH - API mirror (JSON responses)
+    Route::post('/auth/register', [AuthController::class, 'apiRegister'])->name('api.auth.register');
+    Route::post('/auth/login', [AuthController::class, 'apiLogin'])->name('api.auth.login');
+    Route::post('/auth/logout', [AuthController::class, 'apiLogout'])->name('api.auth.logout');
+
+    // READ - Get all products with pagination and filters
     Route::get('/products', [ProductController::class, 'apiGetProducts'])->name('api.products');
     
-    // Get single product by ID
+    // READ - Get single product by ID
     Route::get('/products/{id}', [ProductController::class, 'apiGetProduct'])->name('api.product');
     
-    // Get product prices only (lightweight endpoint)
+    // READ - Get product prices only (lightweight endpoint)
     Route::get('/prices', [ProductController::class, 'apiGetPrices'])->name('api.prices');
+    
+    // READ - Get product categories
+    Route::get('/categories', [ProductController::class, 'apiGetCategories'])->name('api.categories');
+    
+    // CREATE - Add new product (for testing)
+    Route::post('/products', [ProductController::class, 'apiCreateProduct'])->name('api.products.create');
+    
+    // UPDATE - Update product (for testing)
+    Route::put('/products/{id}', [ProductController::class, 'apiUpdateProduct'])->name('api.products.update');
+    Route::patch('/products/{id}', [ProductController::class, 'apiUpdateProduct'])->name('api.products.patch');
+    
+    // DELETE - Delete product (for testing)
+    Route::delete('/products/{id}', [ProductController::class, 'apiDeleteProduct'])->name('api.products.delete');
 });

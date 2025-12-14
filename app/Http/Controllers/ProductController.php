@@ -415,4 +415,167 @@ class ProductController extends Controller
             })
         ]);
     }
+
+    /**
+     * API: Create new product
+     */
+    public function apiCreateProduct(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+                'stock' => 'required|integer|min:0',
+                'unit' => 'required|string|max:50',
+                'category_id' => 'required|exists:product_categories,category_id',
+            ]);
+
+            // Get authenticated user or use default seller_id for testing
+            $sellerId = auth()->id() ?? 1;
+
+            $product = Product::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? '',
+                'price' => $validated['price'],
+                'stock' => $validated['stock'],
+                'unit' => $validated['unit'],
+                'category_id' => $validated['category_id'],
+                'seller_id' => $sellerId,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product created successfully',
+                'data' => [
+                    'id' => $product->product_id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'stock' => $product->stock,
+                    'unit' => $product->unit,
+                ]
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create product: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Update product
+     */
+    public function apiUpdateProduct(Request $request, $id)
+    {
+        try {
+            $product = Product::where('product_id', $id)->first();
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found'
+                ], 404);
+            }
+
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'description' => 'sometimes|string',
+                'price' => 'sometimes|numeric|min:0',
+                'stock' => 'sometimes|integer|min:0',
+                'unit' => 'sometimes|string|max:50',
+                'category_id' => 'sometimes|exists:product_categories,category_id',
+            ]);
+
+            $product->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product updated successfully',
+                'data' => [
+                    'id' => $product->product_id,
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'price' => $product->price,
+                    'stock' => $product->stock,
+                    'unit' => $product->unit,
+                    'updated_at' => $product->updated_at,
+                ]
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update product: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Delete product
+     */
+    public function apiDeleteProduct($id)
+    {
+        try {
+            $product = Product::where('product_id', $id)->first();
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found'
+                ], 404);
+            }
+
+            $productName = $product->name;
+            $product->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Product '{$productName}' deleted successfully"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete product: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Get product categories
+     */
+    public function apiGetCategories()
+    {
+        try {
+            $categories = ProductCategories::all();
+
+            return response()->json([
+                'success' => true,
+                'data' => $categories->map(function($category) {
+                    return [
+                        'id' => $category->category_id,
+                        'name' => $category->name,
+                        'slug' => $category->slug,
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get categories: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
+

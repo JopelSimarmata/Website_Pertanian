@@ -8,6 +8,7 @@ use App\Models\User;
 
 class ForumReplies extends Model
 {
+    
     protected $table = 'forum_replies';
     protected $primaryKey = 'reply_id';
 
