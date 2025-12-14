@@ -47,7 +47,54 @@ class ForumThreadController extends Controller
         $totalReplies = \App\Models\ForumReplies::count();
         $totalMembers = User::count();
         
-        return view('forum.index', compact('threads', 'categories', 'totalThreads', 'totalReplies', 'totalMembers'));
+        // Get popular topics based on thread activity (views + likes + replies)
+        $popularTopics = ForumThread::with('replies')
+            ->withCount('likes', 'replies')
+            ->whereNotNull('tags')
+            ->where('tags', '!=', '[]')
+            ->where('tags', '!=', 'null')
+            ->select('thread_id', 'title', 'tags', 'views_count', 'created_at')
+            ->get()
+            ->map(function($thread) {
+                // Calculate popularity score: views + (likes * 2) + (replies * 3)
+                $thread->popularity_score = $thread->views_count + ($thread->likes_count * 2) + ($thread->replies_count * 3);
+                return $thread;
+            })
+            ->sortByDesc('popularity_score')
+            ->take(10); // Get top 10 popular threads
+        
+        // Extract unique tags from popular threads
+        $popularTagsData = [];
+        foreach ($popularTopics as $thread) {
+            $tags = is_string($thread->tags) ? json_decode($thread->tags, true) : $thread->tags;
+            if (is_array($tags)) {
+                foreach ($tags as $tag) {
+                    if (!isset($popularTagsData[$tag])) {
+                        $popularTagsData[$tag] = [
+                            'tag' => $tag,
+                            'count' => 0,
+                            'total_views' => 0,
+                            'total_likes' => 0,
+                            'total_replies' => 0,
+                            'popularity_score' => 0
+                        ];
+                    }
+                    $popularTagsData[$tag]['count']++;
+                    $popularTagsData[$tag]['total_views'] += $thread->views_count;
+                    $popularTagsData[$tag]['total_likes'] += $thread->likes_count;
+                    $popularTagsData[$tag]['total_replies'] += $thread->replies_count;
+                    $popularTagsData[$tag]['popularity_score'] += $thread->popularity_score;
+                }
+            }
+        }
+        
+        // Sort by popularity score and take top 3
+        $popularTags = collect($popularTagsData)
+            ->sortByDesc('popularity_score')
+            ->take(3)
+            ->values();
+        
+        return view('forum.index', compact('threads', 'categories', 'totalThreads', 'totalReplies', 'totalMembers', 'popularTags'));
     }
 
 
@@ -59,19 +106,35 @@ class ForumThreadController extends Controller
 
     public function store(Request $request)
     {
+        // Validate basic fields first
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'required|exists:forum_categories,category_id',
             'tags' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
+
+        // Validate images separately with better error handling
+        if ($request->has('images') && $request->images) {
+            $request->validate([
+                'images' => 'array|max:5',
+                'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp|max:5120',
+            ], [
+                'images.*.file' => 'File harus berupa gambar',
+                'images.*.mimes' => 'Format gambar harus: JPEG, JPG, PNG, GIF, atau WEBP',
+                'images.*.mimetypes' => 'File harus berupa gambar yang valid',
+                'images.*.max' => 'Ukuran gambar maksimal 5MB',
+                'images.max' => 'Maksimal 5 foto',
+            ]);
+        }
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('forum-images', 'public');
-                $imagePaths[] = $path;
+                if ($image->isValid()) {
+                    $path = $image->store('forum-images', 'public');
+                    $imagePaths[] = $path;
+                }
             }
         }
 
@@ -83,13 +146,22 @@ class ForumThreadController extends Controller
             $tags = !empty($tagsArray) ? json_encode($tagsArray) : null;
         }
 
+        $imageData = !empty($imagePaths) ? json_encode($imagePaths) : null;
+        
+        // Debug log
+        \Log::info('Creating thread with images', [
+            'image_paths' => $imagePaths,
+            'image_data' => $imageData,
+            'has_images' => !empty($imagePaths)
+        ]);
+
         ForumThread::create([ 
             'title' => $request->title,
             'content' => $request->content,
             'author_id' => auth()->id() ?? 1,
             'category_id' => $request->category_id,
             'tags' => $tags,
-            'image' => !empty($imagePaths) ? json_encode($imagePaths) : null,
+            'image' => $imageData,
         ]);
 
         return redirect()->route('forum.index')->with('success', 'Thread berhasil dibuat!');
@@ -99,8 +171,18 @@ class ForumThreadController extends Controller
     {
         $thread = ForumThread::with(['author.profile', 'category', 'likes', 'replies.author.profile'])->findOrFail($id);
         
-        // Increment views count
-        $thread->increment('views_count');
+        // Increment views count - only once per user per day
+        $viewKey = 'thread_view_' . $id;
+        $lastViewed = session($viewKey);
+        $today = now()->format('Y-m-d');
+        
+        // Only increment if:
+        // 1. User hasn't viewed this thread today, OR
+        // 2. User is not the author (don't count author's own views)
+        if ((!$lastViewed || $lastViewed !== $today) && auth()->id() !== $thread->author_id) {
+            $thread->increment('views_count');
+            session([$viewKey => $today]);
+        }
         
         return view('forum.detail', compact('thread'));
     }
@@ -141,39 +223,34 @@ class ForumThreadController extends Controller
         return response()->json([
             'success' => true,
             'liked' => $liked,
-            'likes_count' => $thread->likes_count
+            'likes_count' => $thread->likes_count,
+            'dislikes_count' => $thread->dislikes_count
         ]);
     }
 
-    public function toggleSolved($id)
+    public function toggleDislike($id)
     {
         $thread = ForumThread::findOrFail($id);
         $user = auth()->user();
 
         if (!$user) {
             return response()->json([
-                'success' => false,
-                'message' => 'Anda harus login'
+                'success' => false, 
+                'message' => 'Anda harus login untuk tidak menyukai thread'
             ], 401);
         }
 
-        // Only author can mark as solved
-        if ($thread->author_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hanya pembuat thread yang bisa menandai sebagai terjawab'
-            ], 403);
-        }
-
-        $thread->is_solved = !$thread->is_solved;
-        $thread->save();
+        $disliked = $thread->toggleDislike($user);
 
         return response()->json([
             'success' => true,
-            'is_solved' => $thread->is_solved,
-            'message' => $thread->is_solved ? 'Thread ditandai sebagai terjawab!' : 'Tandai terjawab dibatalkan'
+            'disliked' => $disliked,
+            'likes_count' => $thread->likes_count,
+            'dislikes_count' => $thread->dislikes_count
         ]);
     }
+
+
 
     public function edit($id)
     {
@@ -201,26 +278,52 @@ class ForumThreadController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'nullable|exists:forum_categories,category_id',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'file|mimes:jpeg,jpg,png,gif,webp|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp|max:5120',
         ]);
 
         $thread->title = $request->title;
         $thread->content = $request->content;
         $thread->category_id = $request->category_id;
 
-        // Handle new images upload
-        if ($request->hasFile('images')) {
-            $imagePaths = [];
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('forum-images', 'public');
-                $imagePaths[] = $path;
-            }
-            
-            if (!empty($imagePaths)) {
-                $thread->image = json_encode($imagePaths);
+        // Handle images - keep existing + add new
+        $finalImages = [];
+        
+        // Get images to keep (existing images that weren't deleted)
+        if ($request->has('keep_images') && !empty($request->keep_images)) {
+            $keepImages = json_decode($request->keep_images, true);
+            if (is_array($keepImages)) {
+                $finalImages = array_merge($finalImages, $keepImages);
             }
         }
-
+        
+        // Handle deleted images - delete from storage
+        if ($request->has('deleted_images') && !empty($request->deleted_images)) {
+            $deletedImages = json_decode($request->deleted_images, true);
+            if (is_array($deletedImages)) {
+                foreach ($deletedImages as $imagePath) {
+                    // Delete from storage
+                    if (\Storage::disk('public')->exists($imagePath)) {
+                        \Storage::disk('public')->delete($imagePath);
+                    }
+                }
+            }
+        }
+        
+        // Upload new images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                // Check total limit
+                if (count($finalImages) >= 5) {
+                    break;
+                }
+                $path = $image->store('forum-images', 'public');
+                $finalImages[] = $path;
+            }
+        }
+        
+        // Save final images array
+        $thread->image = !empty($finalImages) ? json_encode($finalImages) : null;
         $thread->save();
 
         return redirect()->route('forum.detail', $id)->with('success', 'Thread berhasil diperbarui!');
@@ -255,6 +358,79 @@ class ForumThreadController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Thread berhasil dihapus'
+        ]);
+    }
+
+    public function markAsSolution($replyId)
+    {
+        $reply = \App\Models\ForumReplies::findOrFail($replyId);
+        $thread = $reply->thread;
+        
+        // Check if user is the thread owner
+        if ($thread->author_id != auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pembuat thread yang dapat menandai jawaban'
+            ], 403);
+        }
+
+        // Toggle solution status
+        $reply->is_solution = !$reply->is_solution;
+        $reply->save();
+
+        // Auto-update thread solved status based on replies
+        $hasSolution = $thread->replies()->where('is_solution', true)->exists();
+        $thread->is_solved = $hasSolution;
+        $thread->save();
+
+        $message = $reply->is_solution 
+            ? 'Balasan ditandai sebagai jawaban!' 
+            : 'Tanda jawaban dihapus';
+
+        return response()->json([
+            'success' => true,
+            'is_solution' => $reply->is_solution,
+            'is_solved' => $thread->is_solved,
+            'message' => $message
+        ]);
+    }
+
+    public function toggleSolved($id)
+    {
+        $thread = ForumThread::findOrFail($id);
+        
+        // Check if user is the thread owner
+        if ($thread->author_id != auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya pembuat thread yang dapat mengubah status'
+            ], 403);
+        }
+
+        // If trying to mark as solved, check if there's at least one solution
+        if (!$thread->is_solved) {
+            $hasSolution = \App\Models\ForumReplies::where('thread_id', $thread->thread_id)
+                ->where('is_solution', true)
+                ->exists();
+            
+            if (!$hasSolution) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tandai minimal 1 balasan sebagai "Menjawab" terlebih dahulu'
+                ], 400);
+            }
+        }
+
+        // Toggle solved status
+        $thread->is_solved = !$thread->is_solved;
+        $thread->save();
+
+        return response()->json([
+            'success' => true,
+            'is_solved' => $thread->is_solved,
+            'message' => $thread->is_solved 
+                ? 'Thread ditandai sebagai terjawab' 
+                : 'Thread tidak lagi ditandai terjawab'
         ]);
     }
 }
